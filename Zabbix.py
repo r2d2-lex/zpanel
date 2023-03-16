@@ -1,10 +1,12 @@
 import config
 import logging
-import datetime
+from datetime import datetime
 from pyzabbix import ZabbixAPI
 from schema import Host, Problem
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
+
+UNRESOLVED_PROBLEMS_ONLY = False
 
 
 class ZabbixMonitoring:
@@ -62,14 +64,15 @@ class ZabbixMonitoring:
     def get_host_problem(self, hostname, host_id) -> list:
         result = []
         logging.info(f'Problems for "{hostname}":')
-        problems = self._zabbix_api.problem.get(hostids=host_id, recent='false')
+        problems = self._zabbix_api.problem.get(hostids=host_id, recent=UNRESOLVED_PROBLEMS_ONLY)
         for problem_item in problems:
             try:
+                clock = datetime.utcfromtimestamp(int(problem_item['clock'])).strftime('%Y-%m-%d %H:%M:%S')
                 problem = Problem(
                     hostid=host_id,
                     name=problem_item['name'],
                     eventid=problem_item['eventid'],
-                    clock=str(int(problem_item['clock'])),
+                    clock=str(clock),
                     severity=problem_item['severity'],
                 )
             except (IndexError, KeyError)as err:
