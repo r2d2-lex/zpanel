@@ -32,10 +32,10 @@ class ZabbixMonitoring:
         return 'ZabbixMonitoring'
 
     def get_all_hosts(self) -> list:
-        self._all_hosts = self._zabbix_api.host.get(status=1)
+        all_hosts = self._zabbix_api.host.get(status=1)
         result = []
 
-        for list_item in self._all_hosts:
+        for list_item in all_hosts:
             try:
                 host = Host(
                     hostid=list_item['hostid'],
@@ -44,18 +44,18 @@ class ZabbixMonitoring:
                     error=list_item['error'],
                     snmp_error=list_item['snmp_error'],
                 )
-                result.append(host)
-                logging.info('Host: "{}" Name: "{}"\r\nErrors: "{}" snmp_error: "{}"'.format(
-                        host.host,
-                        host.name,
-                        host.error,
-                        host.snmp_error,
-                    )
+            except (IndexError, KeyError) as err:
+                logging.error(f'type {type(err)}')
+                continue
+
+            result.append(host)
+            logging.info('Host: "{}" Name: "{}"\r\nErrors: "{}" snmp_error: "{}"\r\n'.format(
+                    host.host,
+                    host.name,
+                    host.error,
+                    host.snmp_error,
                 )
-                if host.error or host.snmp_error:
-                    self.get_host_problem(host.host, host.hostid)
-            except (IndexError, KeyError):
-                pass
+            )
 
         return result
 
@@ -64,13 +64,18 @@ class ZabbixMonitoring:
         logging.info(f'Problems for "{hostname}":')
         problems = self._zabbix_api.problem.get(hostids=host_id, recent='false')
         for problem_item in problems:
-            problem = Problem(
-                hostid=host_id,
-                name=problem_item['name'],
-                eventid=problem_item['eventid'],
-                clock=str(int(problem_item['clock'])),
-                severity=problem_item['severity'],
-            )
+            try:
+                problem = Problem(
+                    hostid=host_id,
+                    name=problem_item['name'],
+                    eventid=problem_item['eventid'],
+                    clock=str(int(problem_item['clock'])),
+                    severity=problem_item['severity'],
+                )
+            except (IndexError, KeyError)as err:
+                logging.error(f'type {type(err)}')
+                continue
+
             result.append(problem)
 
             logging.info(
@@ -87,8 +92,11 @@ class ZabbixMonitoring:
 
 
 def main():
-    with ZabbixMonitoring() as zbx:
-        host = zbx.get_all_hosts()
+    with ZabbixMonitoring() as zabbix_monitoring:
+        hosts = zabbix_monitoring.get_all_hosts()
+        for host in hosts:
+            if host.error or host.snmp_error:
+                zabbix_monitoring.get_host_problem(host.host, host.hostid)
 
 
 if __name__ == '__main__':
