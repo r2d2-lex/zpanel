@@ -1,6 +1,9 @@
+import logging
 from fastapi import FastAPI
 from db import *
 from schema import *
+
+logging.basicConfig(level=config.LOGGING_LEVEL)
 
 db = Database()
 db.fetch_by_query('users')

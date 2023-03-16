@@ -4,3 +4,4 @@ FastAPI-SQLAlchemy==0.2.1
 alembic==1.10.2
 pydantic==1.10.6
 psycopg2==2.9.5
+py-zabbix==1.1.7
