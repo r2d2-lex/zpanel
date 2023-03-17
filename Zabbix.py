@@ -51,7 +51,7 @@ class ZabbixMonitoring:
                 continue
 
             result.append(host)
-            logging.info('Host: "{}" Name: "{}"\r\nErrors: "{}" snmp_error: "{}"\r\n'.format(
+            logging.debug('Host: "{}" Name: "{}"\r\nErrors: "{}" snmp_error: "{}"\r\n'.format(
                     host.host,
                     host.name,
                     host.error,

@@ -9,8 +9,8 @@ from Zabbix import *
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
-db = Database()
-db.fetch_by_query('users')
+# with Database() as db:
+#     db.fetch_by_query('users')
 
 app = FastAPI()
 
