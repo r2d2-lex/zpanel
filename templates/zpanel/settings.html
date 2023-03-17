@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <table class="table table-striped table-bordered">
+        <tr class="table-info">
+            <th scope="col">Host ID</th>
+            <th scope="col">Хост</th>
+            <th scope="col">Имя</th>
+            <th scope="col">Ошибка</th>
+            <th scope="col">Ошибка Snmp</th>
+        </tr>
+    {% for host in hosts %}
+        <tr>
+            <td>{{ host['hostid'] }}</td>
+            <td>{{ host['host'] }}</td>
+            <td>{{ host['name'] }}</td>
+            <td>{{ host['error'] }}</td>
+            <td>{{ host['snmp_error'] }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+{% endblock %}

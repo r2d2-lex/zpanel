@@ -20,26 +20,22 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/settings/")
-def read_root():
+@app.get('/', response_class=HTMLResponse)
+def read_root(request: Request):
     with ZabbixMonitoring() as zabbix_monitoring:
         hosts = zabbix_monitoring.get_all_hosts()
-        return hosts
+    return templates.TemplateResponse('zpanel/settings.html',
+                                      {
+                                          'request': request,
+                                          'page_title': 'Настройка',
+                                          'hosts': hosts,
+                                      }
+                                      )
 
 
 @app.get("/items/{id}", response_class=HTMLResponse)
 async def read_item(request: Request, id: str):
     return templates.TemplateResponse("item.html", {"request": request, "id": id})
-
-
-# @app.put("/items/{item_id}")
-# def update_item(item_id: int, item: Item):
-#     return {"item_name": item.name, "item_id": item_id}
 
 # Получаем все хосты из Zabbix. Добавляем только те, которые мониторим в БД. + указываем в какой колонке
 # они будут находиться
