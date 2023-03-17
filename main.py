@@ -1,10 +1,10 @@
-import logging
+# import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from db import *
-from schema import *
+# from db import *
+# from schema import *
 from Zabbix import *
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
@@ -31,6 +31,19 @@ def read_root(request: Request):
                                           'hosts': hosts,
                                       }
                                       )
+
+
+@app.get('/hosts')
+def get_all_hosts():
+    with ZabbixMonitoring() as zabbix_monitoring:
+        return zabbix_monitoring.get_all_hosts()
+
+
+@app.get('/errors/')
+def get_host_errors(host_id: int):
+    with ZabbixMonitoring() as zabbix_monitoring:
+        result = zabbix_monitoring.get_host_problem(host_id)
+        return result
 
 
 @app.get("/items/{id}", response_class=HTMLResponse)
