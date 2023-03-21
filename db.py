@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy import text
-
-from models import Host as ModelHost
+from sqlalchemy.orm import sessionmaker
 from models import Base
-
 import config
 import logging
+
+engine = create_engine(config.ZABBIX_DATABASE_URI,)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class Database:
@@ -32,16 +33,6 @@ class Database:
         for data in fetch_query.fetchall():
             print(data)
         return query
-
-    def get_hosts(self):
-        hosts = self.connection.session.query(ModelHost).all()
-        return hosts
-
-    def add_host(self, host):
-        host = ModelHost(hostid=host.hostid, column=host.column)
-        self.connection.session.add(host)
-        self.connection.session.commit()
-        return host
 
 
 def create_tables():

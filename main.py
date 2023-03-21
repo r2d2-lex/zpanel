@@ -1,24 +1,29 @@
 # import logging
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
-from db import *
+from sqlalchemy.orm import Session
+from db import SessionLocal, engine
 from schema import *
 from Zabbix import *
+import crud
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
-
-with Database() as db:
-    db.fetch_by_query('host')
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
 templates = Jinja2Templates(directory="templates")
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get('/', response_class=HTMLResponse)
@@ -35,21 +40,16 @@ def index(request: Request):
 
 
 # Хосты, которые будут мониторится
-@app.get('/monitor/hosts/')
-async def read_item():
-    with Database() as database:
-        result = database.get_host()
-    return result
+@app.get('/monitor/hosts/', response_model=list[Host])
+async def read_host_from_db(db: Session = Depends(get_db)):
+    hosts = crud.get_hosts(db)
+    return hosts
 
 
 # Хост, который добавим в таблицу
-@app.put('/monitor/hosts/{host_id}', response_model=Host)
-async def update_host(host: Host):
-    update_item_encoded = jsonable_encoder(host)
-    with Database() as database:
-        result = database.add_host()
-    print(f'result: {result}')
-    return result
+@app.post('/monitor/hosts/', response_model=Host)
+def create_host(host: Host, db: Session = Depends(get_db)):
+    return crud.add_host(host=host, db=db)
 
 
 @app.get('/hosts')

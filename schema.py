@@ -9,6 +9,7 @@ class Host(BaseModel):
     class Config:
         orm_mode = True
 
+
 class Problem(BaseModel):
     hostid: int
     name: str
