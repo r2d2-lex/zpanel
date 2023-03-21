@@ -48,7 +48,7 @@ async def read_host_from_db(db: Session = Depends(get_db)):
 
 # Хост, который добавим в таблицу
 @app.post('/monitor/hosts/', response_model=Host)
-def create_host(host: Host, db: Session = Depends(get_db)):
+def add_host_to_db(host: Host, db: Session = Depends(get_db)):
     return crud.add_host(host=host, db=db)
 
 
