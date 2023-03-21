@@ -4,12 +4,10 @@ from typing import Union
 
 class Host(BaseModel):
     hostid: int
-    host: str
-    name: str
-    error: str  # Error message
-    snmp_error: str # SNMP error message
-    # is_offer: Union[bool, None] = None
+    column: int
 
+    class Config:
+        orm_mode = True
 
 class Problem(BaseModel):
     hostid: int
