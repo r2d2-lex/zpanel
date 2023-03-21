@@ -1,10 +1,11 @@
 from pydantic import BaseModel
+from fastapi import Path
 from typing import Union
 
 
 class Host(BaseModel):
     hostid: int
-    column: int
+    column: int = Path(..., gt=0, lt=4, title='Monitoring column')
 
     class Config:
         orm_mode = True
