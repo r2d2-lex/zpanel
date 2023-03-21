@@ -9,10 +9,9 @@ import logging
 
 
 class Database:
-    engine = create_engine(config.ZABBIX_DATABASE_URI)
-
     def __init__(self):
         self.connection = None
+        self.engine = create_engine(config.ZABBIX_DATABASE_URI)
 
     def __enter__(self):
         self.connection = self.engine.connect()
@@ -24,7 +23,7 @@ class Database:
             logging.info('Database connection closed!')
 
     def create_db(self):
-        Base.metadata.create_all(self.connection)
+        Base.metadata.create_all(bind=self.engine)
         return
 
     def fetch_by_query(self, query):
@@ -43,3 +42,16 @@ class Database:
         self.connection.session.add(host)
         self.connection.session.commit()
         return host
+
+
+def create_tables():
+    with Database() as db:
+        db.create_db()
+
+
+def main():
+    create_tables()
+
+
+if __name__ == '__main__':
+    main()

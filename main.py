@@ -11,7 +11,7 @@ from Zabbix import *
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
 with Database() as db:
-    db.fetch_by_query('hosts')
+    db.fetch_by_query('host')
 
 app = FastAPI()
 
