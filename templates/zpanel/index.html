@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block head %}
+<script src="{{ url_for('static', path='js/index.js') }}" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content %}
 <div class="container">
+    <div id="status"></div>
 
     <form action="/" method="post">
         <table class="table table-sm table-striped table-bordered">
@@ -22,7 +24,7 @@
                 <td>{{ host.host }}</td>
                 <td>{{ host.name }}</td>
                 <td>
-                    <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                    <select id="select_{{ host.hostid }}" class="form-select form-select-sm" aria-label=".form-select-sm example">
                         <option selected>Выберите колонку</option>
                         <option value="0">Не отображать</option>
                         <option value="1">Колонка 1</option>
@@ -30,7 +32,8 @@
                         <option value="3">Колонка 3</option>
                     </select>
                 </td>
-                <td><a class="btn btn-success btn-sm" href="">Сохранить</a></td>
+<!--                <td><a class="btn btn-success btn-sm inputClass" id="" onclick=(this.id) href="">Сохранить</a></td>-->
+                <td><input class="btn btn-success btn-sm inputClass" type="button" value="Сохранить" id="{{ host.hostid }}"/></td>
                 <td><a class="btn btn-success btn-sm" href="">Панель</a></td>
             </tr>
         {% endfor %}
