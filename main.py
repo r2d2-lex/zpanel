@@ -47,6 +47,22 @@ def add_host_to_db(host: Host, db: Session = Depends(get_db)):
     return crud.add_host(host=host, db=db)
 
 
+@app.delete('/monitor/hosts/', response_model=Host)
+def delete_host_from_db(host: Host, db: Session = Depends(get_db)):
+    db_host = crud.get_host(db=db, hostid=host.hostid)
+    if not db_host:
+        raise HTTPException(status_code=400, detail="Host not found")
+    return crud.delete_host(db=db, hostid=host.hostid)
+
+
+@app.patch('/monitor/hosts/', response_model=Host)
+def update_host_from_db(host: Host, db: Session = Depends(get_db)):
+    db_host = crud.get_host(db=db, hostid=host.hostid)
+    if not db_host:
+        raise HTTPException(status_code=400, detail="Host not found")
+    return crud.update_host(db=db, host=host)
+
+
 @app.get('/hosts')
 def get_all_hosts():
     with ZabbixMonitoring() as zabbix_monitoring:
