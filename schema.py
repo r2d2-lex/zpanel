@@ -5,7 +5,7 @@ from typing import Union
 
 class Host(BaseModel):
     hostid: int
-    column: int = Path(..., gt=0, lt=4, title='Monitoring column')
+    column: int = Path(..., ge=0, le=3, title='Monitoring column')
 
     class Config:
         orm_mode = True

@@ -4,8 +4,12 @@ from models import Host as ModelHost
 from schema import Host as SchemaHost
 
 
-def get_hosts(db: Session):
+def get_monitored_hosts(db: Session):
     return db.query(ModelHost).all()
+
+
+def get_host(db: Session, hostid: int):
+    return db.query(ModelHost).filter(ModelHost.hostid == hostid).first()
 
 
 def add_host(db: Session, host: SchemaHost):

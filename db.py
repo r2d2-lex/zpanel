@@ -1,12 +1,21 @@
 from sqlalchemy import create_engine
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import OperationalError
 from models import Base
 import config
 import logging
 
-engine = create_engine(config.ZABBIX_DATABASE_URI,)
+engine = create_engine(config.ZABBIX_DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 class Database:
@@ -15,7 +24,10 @@ class Database:
         self.engine = create_engine(config.ZABBIX_DATABASE_URI)
 
     def __enter__(self):
-        self.connection = self.engine.connect()
+        try:
+            self.connection = self.engine.connect()
+        except OperationalError:
+            logging.error('database "zpanel" does not exist')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
