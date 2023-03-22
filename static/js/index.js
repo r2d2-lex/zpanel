@@ -12,13 +12,14 @@ $(document).ready(function() {
           console.log('select_val:', select_val)
 
           $.ajax({
-            method : "POST",
+            type : 'post',
             url: '/monitor/hosts/',
-            data: {
+            data: JSON.stringify({
                 'hostid': hostid,
-                'colmn': select_val,
-            },
+                'column': select_val,
+            }),
             dataType: 'json',
+            contentType: "application/json",
             /* ---------------------------- success begin -------------------------------- */
             success: function (data) {
             console.log('SUCESS!!!');

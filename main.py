@@ -37,14 +37,26 @@ async def read_host_from_db(db: Session = Depends(get_db)):
     hosts = crud.get_monitored_hosts(db)
     return hosts
 
-
 # Хост, который добавим в таблицу
-@app.post('/monitor/hosts/', response_model=Host)
-def add_host_to_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, hostid=host.hostid)
-    if db_host:
-        raise HTTPException(status_code=400, detail="Host already monitored")
-    return crud.add_host(host=host, db=db)
+import logging
+from json import JSONDecodeError
+@app.post('/monitor/hosts/')
+async def test(req: Request):
+    content_type = req.headers.get('content-type')
+    print(content_type)
+    methods = ['POST', 'PUT', 'PATCH']
+
+    if req.method in methods and 'application/json' in content_type:
+        try:
+            params = await req.json()
+            if params:
+                logging.info(params)
+        except JSONDecodeError:
+            logging.error('encounter JSONDecodeError')
+        except UnicodeDecodeError:
+            logging.error('encounter UnicodeDecodeError')
+    logging.info('end request'.center(60, '*'))
+    return
 
 
 @app.delete('/monitor/hosts/', response_model=Host)
