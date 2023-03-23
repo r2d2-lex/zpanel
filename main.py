@@ -53,14 +53,21 @@ def monitoring(request: Request):
 
 @app.get('/panel/', response_class=HTMLResponse)
 def monitoring_panel(request: Request, db: Session = Depends(get_db)):
+    monitoring_hosts = []
     zabbix_hosts = get_zabbix_monitoring_hosts()
-    monitoring_hosts = crud.get_monitored_hosts(db)
-
-    for monitoring_host in monitoring_hosts:
-        logging.info('Host {} column {}'.format(monitoring_host.hostid, monitoring_host.column))
+    db_hosts = crud.get_monitored_hosts(db)
 
     for zabbix_host in zabbix_hosts:
-        logging.info('Host {} - {}'.format(zabbix_host['name'], zabbix_host['hostid']))
+        for db_host in db_hosts:
+            try:
+                if int(zabbix_host['hostid']) == int(db_host.hostid):
+                    logging.debug('{host} is monitored'.format(host=zabbix_host['hostid']))
+                    view_host = dict()
+                    view_host.update(zabbix_host)
+                    view_host.update({'column': db_host.column})
+                    monitoring_hosts.append(view_host)
+            except KeyError as err:
+                logging.error(f'KeyError: {err}')
 
     return templates.TemplateResponse('zpanel/panel.html',
                                       {
@@ -125,11 +132,3 @@ def get_all_hosts():
 @app.get('/errors/')
 def get_host_errors(host_id: int):
     return get_zabbix_host_problems(host_id)
-
-
-@app.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str):
-    return templates.TemplateResponse("item.html", {"request": request, "id": id})
-
-# Получаем все хосты из Zabbix. Добавляем только те, которые мониторим в БД. + указываем в какой колонке
-# они будут находиться

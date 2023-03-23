@@ -1,3 +1,26 @@
-{% for host in hosts %}
-{{ host.hostid }} {{ host.column }}<br>
-{% endfor %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            {% for host in hosts %}
+                {% if host.column == 1 %}
+                {{ host.hostid }} {{ host.column }}<br>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col">
+            {% for host in hosts %}
+                {% if host.column == 2 %}
+                {{ host.hostid }} {{ host.column }}<br>
+                {% endif %}
+            {% endfor %}
+
+        </div>
+        <div class="col">
+            {% for host in hosts %}
+                {% if host.column == 3 %}
+                {{ host.hostid }} {{ host.column }}<br>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
