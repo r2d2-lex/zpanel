@@ -2,14 +2,22 @@ $(document).ready(function() {
    $('.inputClass').each(function() {
       $(this).click(function(){
           let hostid = $(this).attr('id');
-          //Do whatever the edit function should do with the id
+
+          let del_template = 'del_';
+          let mdf_template = 'mdf_';
+
           let selectName = '#select_'+hostid;
-          console.log('selectName:', selectName)
+          console.log('selectName:', selectName);
+
+          let del_result = hostid.search(del_template);
+          console.log('del_:', del_result);
+          let mdf_result = hostid.search(mdf_template);
+          console.log('mdf_:', mdf_result);
 
           let select_val = $(selectName).val();
 
-          console.log('ID:', hostid)
-          console.log('select_val:', select_val)
+          console.log('ID:', hostid);
+          console.log('select_val:', select_val);
 
           $.ajax({
             type : 'post',

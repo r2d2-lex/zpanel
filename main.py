@@ -67,7 +67,8 @@ async def add_host_to_db(request: Request, db: Session = Depends(get_db)):
     if host:
         db_host = crud.get_host(db=db, hostid=host.hostid)
         if db_host:
-            raise HTTPException(status_code=400, detail="Host already monitored")
+            return  crud.update_host(db=db, host=host)
+            # raise HTTPException(status_code=400, detail="Host already monitored")
         return crud.add_host(host=host, db=db)
 
 

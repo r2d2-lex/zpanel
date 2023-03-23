@@ -15,8 +15,7 @@
                 <th scope="col">Хост</th>
                 <th scope="col">Имя</th>
                 <th scope="col">Колонка</th>
-                <th scope="col">_</th>
-                <th scope="col">_</th>
+                <th scope="col">Мониторинг</th>
             </tr>
         {% for host in hosts %}
             <tr >
@@ -32,9 +31,10 @@
                         <option value="3">Колонка 3</option>
                     </select>
                 </td>
-<!--                <td><a class="btn btn-success btn-sm inputClass" id="" onclick=(this.id) href="">Сохранить</a></td>-->
-                <td><input class="btn btn-success btn-sm inputClass" type="button" value="Сохранить" id="{{ host.hostid }}"/></td>
-                <td><a class="btn btn-success btn-sm" href="">Панель</a></td>
+                <td><input class="btn btn-success btn-sm inputClass" type="button" name="Сохранить" value="Сохранить" id="{{ host.hostid }}"/>
+                <input class="btn btn-primary btn-sm inputClass" type="button" name="Изменить" value="Изменить" id="mdf_{{ host.hostid }}"/>
+                <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
+                <a class="btn btn-info btn-sm" href="">Панель</a></td>
             </tr>
         {% endfor %}
         </table>
