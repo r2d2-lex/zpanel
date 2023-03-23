@@ -41,6 +41,35 @@ async def get_schema_from_json_request(request: Request, schema_model):
     return
 
 
+@app.get('/monitoring/', response_class=HTMLResponse)
+def monitoring(request: Request):
+    return templates.TemplateResponse('zpanel/monitoring.html',
+                                      {
+                                          'request': request,
+                                          'page_title': 'Мониторинг',
+                                      }
+                                      )
+
+
+@app.get('/panel/', response_class=HTMLResponse)
+def monitoring_panel(request: Request, db: Session = Depends(get_db)):
+    zabbix_hosts = get_zabbix_monitoring_hosts()
+    monitoring_hosts = crud.get_monitored_hosts(db)
+
+    for monitoring_host in monitoring_hosts:
+        logging.info('Host {} column {}'.format(monitoring_host.hostid, monitoring_host.column))
+
+    for zabbix_host in zabbix_hosts:
+        logging.info('Host {} - {}'.format(zabbix_host['name'], zabbix_host['hostid']))
+
+    return templates.TemplateResponse('zpanel/panel.html',
+                                      {
+                                          'request': request,
+                                          'hosts': monitoring_hosts,
+                                      }
+                                      )
+
+
 @app.get('/', response_class=HTMLResponse)
 def index(request: Request):
     hosts = get_zabbix_monitoring_hosts()
