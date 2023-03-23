@@ -38,12 +38,33 @@ class ZabbixMonitoring:
         return self._zabbix_api.problem.get(hostids=host_id, recent=UNRESOLVED_PROBLEMS_ONLY)
 
 
-def main():
+def get_zabbix_monitoring_hosts() -> list:
     with ZabbixMonitoring() as zabbix_monitoring:
         hosts = zabbix_monitoring.get_all_hosts()
-        for host in hosts:
+    return hosts
+
+
+def get_zabbix_host_problems(host) -> list:
+    result = []
+    with ZabbixMonitoring() as zabbix_monitoring:
+        try:
             if host['error'] or host['snmp_error']:
-                print(zabbix_monitoring.get_host_problem(host['hostid']))
+                result = zabbix_monitoring.get_host_problem(host['hostid'])
+        except KeyError:
+            logging.error('KeyError')
+    return result
+
+
+def main():
+    hosts = get_zabbix_monitoring_hosts()
+    for host in hosts:
+        problems = get_zabbix_host_problems(host)
+        for problem in problems:
+            logging.info('Host: {host}, Hostid: {hostid} Problem: {problem}\r\n'.format(
+                host=host['host'],
+                hostid=host['hostid'],
+                problem=problem['name'],
+            ))
 
 
 if __name__ == '__main__':
