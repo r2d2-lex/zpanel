@@ -28,8 +28,12 @@
                     <option value="3" {% if host.column == 3 %}selected{% endif %}>Колонка 3</option>
                 </select>
             </td>
-            <td><input class="btn btn-success btn-sm inputClass" type="button" name="Сохранить" value="Сохранить" id="{{ host.hostid }}"/>
-            <input class="btn btn-primary btn-sm inputClass" type="button" name="Изменить" value="Изменить" id="mdf_{{ host.hostid }}"/>
+            <td>
+            {% if host.column > 0 %}
+                <input class="btn btn-primary btn-sm inputClass" type="button" name="Изменить" value="Изменить" id="mdf_{{ host.hostid }}"/>
+            {% else %}
+                <input class="btn btn-success btn-sm inputClass" type="button" name="Сохранить" value="Сохранить" id="{{ host.hostid }}"/>
+            {% endif %}
             <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
             <a class="btn btn-info btn-sm" href="/monitoring/">Панель</a></td>
         </tr>

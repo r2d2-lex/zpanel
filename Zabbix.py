@@ -5,6 +5,8 @@ from pyzabbix import ZabbixAPI
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
 UNRESOLVED_PROBLEMS_ONLY = False
+NAME_FIELD = 'name'
+HOST_ID_FIELD = 'hostid'
 
 
 class ZabbixMonitoring:

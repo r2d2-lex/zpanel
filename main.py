@@ -14,6 +14,8 @@ import config
 import crud
 import logging
 
+COLUMN_FIELD = 'column'
+
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
 app = FastAPI()
@@ -55,8 +57,8 @@ def update_monitoring_hosts(db) -> list:
         column = 0
         for db_host in db_hosts:
             try:
-                if int(zabbix_host['hostid']) == int(db_host.hostid):
-                    logging.debug('{host} in database'.format(host=zabbix_host['hostid']))
+                if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.hostid):
+                    logging.debug('{host} in database'.format(host=zabbix_host[HOST_ID_FIELD]))
                     db_exists = True
                     column = db_host.column
             except KeyError as err:
@@ -65,11 +67,12 @@ def update_monitoring_hosts(db) -> list:
         view_host = dict()
         view_host.update(zabbix_host)
         if db_exists:
-            view_host.update({'column': column})
+            view_host.update({COLUMN_FIELD: column})
         else:
-            view_host.update({'column': column})
+            view_host.update({COLUMN_FIELD: column})
 
         monitoring_hosts.append(view_host)
+    monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x['name'])
     return monitoring_hosts
 
 
@@ -89,7 +92,7 @@ def monitoring_panel(request: Request, db: Session = Depends(get_db)):
     monitoring_hosts = update_monitoring_hosts(db)
     for host in monitoring_hosts:
         try:
-            if host['column'] > 0:
+            if host[COLUMN_FIELD] > 0:
                 panel_hosts.append(host)
         except KeyError:
             continue
@@ -145,7 +148,8 @@ async def read_host_from_db(db: Session = Depends(get_db)):
 def add_host_to_db(host: Host, db: Session = Depends(get_db)):
     db_host = crud.get_host(db=db, hostid=host.hostid)
     if db_host:
-        raise HTTPException(status_code=400, detail="Host already monitored")
+        # raise HTTPException(status_code=400, detail="Host already monitored")
+        return crud.update_host(db=db, host=host)
     return crud.add_host(host=host, db=db)
 
 
