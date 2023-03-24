@@ -41,6 +41,35 @@ async def get_schema_from_json_request(request: Request, schema_model):
     return
 
 
+def update_monitoring_hosts(db) -> list:
+    """ Добавляет значение колонки (column) из БД в словарь мониторинга """""
+    monitoring_hosts = []
+    zabbix_hosts = get_zabbix_monitoring_hosts()
+    db_hosts = crud.get_monitored_hosts(db)
+
+    for zabbix_host in zabbix_hosts:
+        db_exists = False
+        column = 0
+        for db_host in db_hosts:
+            try:
+                if int(zabbix_host['hostid']) == int(db_host.hostid):
+                    logging.debug('{host} in database'.format(host=zabbix_host['hostid']))
+                    db_exists = True
+                    column = db_host.column
+            except KeyError as err:
+                logging.error(f'KeyError: {err}')
+
+        view_host = dict()
+        view_host.update(zabbix_host)
+        if db_exists:
+            view_host.update({'column': column})
+        else:
+            view_host.update({'column': column})
+
+        monitoring_hosts.append(view_host)
+    return monitoring_hosts
+
+
 @app.get('/monitoring/', response_class=HTMLResponse)
 def monitoring(request: Request):
     return templates.TemplateResponse('zpanel/monitoring.html',
@@ -53,38 +82,30 @@ def monitoring(request: Request):
 
 @app.get('/panel/', response_class=HTMLResponse)
 def monitoring_panel(request: Request, db: Session = Depends(get_db)):
-    monitoring_hosts = []
-    zabbix_hosts = get_zabbix_monitoring_hosts()
-    db_hosts = crud.get_monitored_hosts(db)
-
-    for zabbix_host in zabbix_hosts:
-        for db_host in db_hosts:
-            try:
-                if int(zabbix_host['hostid']) == int(db_host.hostid):
-                    logging.debug('{host} is monitored'.format(host=zabbix_host['hostid']))
-                    view_host = dict()
-                    view_host.update(zabbix_host)
-                    view_host.update({'column': db_host.column})
-                    monitoring_hosts.append(view_host)
-            except KeyError as err:
-                logging.error(f'KeyError: {err}')
-
+    panel_hosts = []
+    monitoring_hosts = update_monitoring_hosts(db)
+    for host in monitoring_hosts:
+        try:
+            if host['column'] > 0:
+                panel_hosts.append(host)
+        except KeyError:
+            continue
     return templates.TemplateResponse('zpanel/panel.html',
                                       {
                                           'request': request,
-                                          'hosts': monitoring_hosts,
+                                          'hosts': panel_hosts,
                                       }
                                       )
 
 
 @app.get('/', response_class=HTMLResponse)
-def index(request: Request):
-    hosts = get_zabbix_monitoring_hosts()
+def index(request: Request, db: Session = Depends(get_db)):
+    monitoring_hosts = update_monitoring_hosts(db)
     return templates.TemplateResponse('zpanel/index.html',
                                       {
                                           'request': request,
                                           'page_title': 'Настройка',
-                                          'hosts': hosts,
+                                          'hosts': monitoring_hosts,
                                       }
                                       )
 
