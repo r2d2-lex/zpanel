@@ -1,0 +1,43 @@
+{% block head %}
+<script src="{{ url_for('static', path='js/settings.js') }}" crossorigin="anonymous"></script>
+{% endblock %}
+
+
+<div id="status"></div>
+
+<form action="/" method="post">
+    <table class="table table-sm table-bordered">
+        <tr class="table-info">
+            <th scope="col">Host ID</th>
+            <th scope="col">Хост</th>
+            <th scope="col">Имя</th>
+            <th scope="col">Колонка</th>
+            <th scope="col">Мониторинг</th>
+        </tr>
+    {% for host in hosts %}
+        {% if host.column > 0 %}
+            <tr class="table-primary">
+        {% else %}
+             <tr>
+        {% endif %}
+
+            <td>{{ host.hostid }}</td>
+            <td>{{ host.host }}</td>
+            <td>{{ host.name }}</td>
+            <td>
+                <select id="select_{{ host.hostid }}" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                    <option selected>Выберите колонку</option>
+                    <option value="0" {% if host.column == 0 %}selected{% endif %}>Не отображать</option>
+                    <option value="1" {% if host.column == 1 %}selected{% endif %}>Колонка 1</option>
+                    <option value="2" {% if host.column == 2 %}selected{% endif %}>Колонка 2</option>
+                    <option value="3" {% if host.column == 3 %}selected{% endif %}>Колонка 3</option>
+                </select>
+            </td>
+            <td><input class="btn btn-success btn-sm inputClass" type="button" name="Сохранить" value="Сохранить" id="{{ host.hostid }}"/>
+            <input class="btn btn-primary btn-sm inputClass" type="button" name="Изменить" value="Изменить" id="mdf_{{ host.hostid }}"/>
+            <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
+            <a class="btn btn-info btn-sm" href="/monitoring/">Панель</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+</form>

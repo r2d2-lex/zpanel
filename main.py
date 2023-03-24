@@ -103,11 +103,21 @@ def monitoring_panel(request: Request, db: Session = Depends(get_db)):
 
 @app.get('/', response_class=HTMLResponse)
 def index(request: Request, db: Session = Depends(get_db)):
-    monitoring_hosts = update_monitoring_hosts(db)
     return templates.TemplateResponse('zpanel/index.html',
                                       {
                                           'request': request,
                                           'page_title': 'Настройка',
+                                      }
+                                      )
+
+
+@app.get('/settings/', response_class=HTMLResponse)
+def settings(request: Request, db: Session = Depends(get_db)):
+    template = 'zpanel/settings.html'
+    monitoring_hosts = update_monitoring_hosts(db)
+    return templates.TemplateResponse(template,
+                                      {
+                                          'request': request,
                                           'hosts': monitoring_hosts,
                                       }
                                       )
