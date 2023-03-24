@@ -102,7 +102,7 @@ def monitoring_panel(request: Request, db: Session = Depends(get_db)):
 
 
 @app.get('/', response_class=HTMLResponse)
-def index(request: Request, db: Session = Depends(get_db)):
+def index(request: Request):
     return templates.TemplateResponse('zpanel/index.html',
                                       {
                                           'request': request,

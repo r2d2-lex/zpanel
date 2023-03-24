@@ -1,12 +1,14 @@
 $(document).ready(function() {
    $('.inputClass').each(function() {
       $(this).click(function(){
+          console.log('-----------N e x t r e q u e s t------------');
           let hostid = $(this).attr('id');
 
           let del_template = 'del_';
           let mdf_template = 'mdf_';
 
           let method = 'POST';
+          let operation = 'СОХРАНЕН: '+hostid;
           // Вычисляем select id например: #select_1234
           let selectName = '#select_'+hostid;
           console.log('selectName:', selectName);
@@ -15,12 +17,14 @@ $(document).ready(function() {
                 hostid = hostid.replace(del_template,'')
                 selectName = selectName.replace(del_template,'')
                 method = 'DELETE';
+                operation = 'УДАЛЕН: '+hostid;
                 console.log(del_template, ':  ', hostid);
                 console.log('OPERATION DELETE!');
           } else if (hostid.indexOf(mdf_template) >=0){
                 hostid = hostid.replace(mdf_template,'')
                 selectName = selectName.replace(mdf_template,'')
                 method = 'PATCH';
+                operation = 'ИЗМЕНЕН: '+hostid;
                 console.log(mdf_template, ': ', hostid);
                 console.log('OPERATION MODIFY!');
           }
@@ -40,14 +44,14 @@ $(document).ready(function() {
             contentType: "application/json",
             /* ---------------------------- success begin -------------------------------- */
             success: function (data) {
+            showMessage('Успешная операция: '+operation, 'alert-success');
             console.log('SUCESS!!!');
             show();
-
           },
           /* ---------------------------- success end -------------------------------- */
             error: function(data){
+                showMessage('Неудачная операция: '+operation, 'alert-warning');
                 console.log('ERRORR!!!');
-                $('#id_status').empty();
                 console.log(data);
             }
           })
@@ -56,6 +60,17 @@ $(document).ready(function() {
       });
    });
 });
+
+function showMessage(message, classAlert) {
+    console.log('Status: Message: ',message,' Class: ',classAlert);
+    $('#id_status').empty();
+    let div = document.createElement('div');
+    div.classList.add("alert");
+    div.classList.add(classAlert);
+    div.setAttribute("role", "alert");
+    div.innerHTML = message;
+    $('#id_status').append(div);
+}
 
  function show() {
   $.ajax ({
