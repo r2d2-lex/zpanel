@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 
 from sqlalchemy.orm import Session
 from json import JSONDecodeError
+from pydantic.error_wrappers import ValidationError
 
 from db import get_db
 from schema import Host
@@ -37,6 +38,8 @@ async def get_schema_from_json_request(request: Request, schema_model):
             logging.error('encounter JSONDecodeError')
         except UnicodeDecodeError:
             logging.error('encounter UnicodeDecodeError')
+        except ValidationError as err:
+            logging.error(f'ValidationError {err}')
     logging.info('end request'.center(60, '*'))
     return
 
@@ -117,16 +120,23 @@ async def read_host_from_db(db: Session = Depends(get_db)):
     return hosts
 
 
-# Хост, который добавим в таблицу
+# Обработка запроса в ручную
+# @app.post('/monitor/hosts/', response_model=Host)
+# async def add_host_to_db(request: Request, db: Session = Depends(get_db)):
+#     host = await get_schema_from_json_request(request, Host)
+#     if host:
+#         db_host = crud.get_host(db=db, hostid=host.hostid)
+#         if db_host:
+#             return  crud.update_host(db=db, host=host)
+#             # raise HTTPException(status_code=400, detail="Host already monitored")
+#         return crud.add_host(host=host, db=db)
+
 @app.post('/monitor/hosts/', response_model=Host)
-async def add_host_to_db(request: Request, db: Session = Depends(get_db)):
-    host = await get_schema_from_json_request(request, Host)
-    if host:
-        db_host = crud.get_host(db=db, hostid=host.hostid)
-        if db_host:
-            return  crud.update_host(db=db, host=host)
-            # raise HTTPException(status_code=400, detail="Host already monitored")
-        return crud.add_host(host=host, db=db)
+def add_host_to_db(host: Host, db: Session = Depends(get_db)):
+    db_host = crud.get_host(db=db, hostid=host.hostid)
+    if db_host:
+        raise HTTPException(status_code=400, detail="Host already monitored")
+    return crud.add_host(host=host, db=db)
 
 
 @app.delete('/monitor/hosts/', response_model=Host)

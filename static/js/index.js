@@ -6,21 +6,31 @@ $(document).ready(function() {
           let del_template = 'del_';
           let mdf_template = 'mdf_';
 
+          let method = 'POST';
+          // Вычисляем select id например: #select_1234
           let selectName = '#select_'+hostid;
           console.log('selectName:', selectName);
 
-          let del_result = hostid.search(del_template);
-          console.log('del_:', del_result);
-          let mdf_result = hostid.search(mdf_template);
-          console.log('mdf_:', mdf_result);
-
+          if (hostid.indexOf(del_template) >=0){
+                hostid = hostid.replace(del_template,'')
+                selectName = selectName.replace(del_template,'')
+                method = 'DELETE';
+                console.log(del_template, ':  ', hostid);
+                console.log('OPERATION DELETE!');
+          } else if (hostid.indexOf(mdf_template) >=0){
+                hostid = hostid.replace(mdf_template,'')
+                selectName = selectName.replace(mdf_template,'')
+                method = 'PATCH';
+                console.log(mdf_template, ': ', hostid);
+                console.log('OPERATION MODIFY!');
+          }
           let select_val = $(selectName).val();
 
           console.log('ID:', hostid);
           console.log('select_val:', select_val);
 
           $.ajax({
-            type : 'post',
+            type : method,
             url: '/monitor/hosts/',
             data: JSON.stringify({
                 'hostid': hostid,
