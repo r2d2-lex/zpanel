@@ -1,0 +1,12 @@
+{% macro render_hosts(hosts, col) %}
+    {% for host in hosts %}
+        {% if host.column == col %}
+        <div class="card">
+            <div class="card-body">
+            <h5 class="card-title">{{ host.name }}</h5>
+            <p class="card-text"></p>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
