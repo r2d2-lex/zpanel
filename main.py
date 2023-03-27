@@ -53,23 +53,18 @@ def update_monitoring_hosts(db) -> list:
     db_hosts = crud.get_monitored_hosts(db)
 
     for zabbix_host in zabbix_hosts:
-        db_exists = False
         column = 0
         for db_host in db_hosts:
             try:
                 if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.hostid):
                     logging.debug('{host} in database'.format(host=zabbix_host[HOST_ID_FIELD]))
-                    db_exists = True
                     column = db_host.column
-            except KeyError as err:
-                logging.error(f'KeyError: {err}')
+            except KeyError as error:
+                logging.error(f'KeyError: {error}')
 
         view_host = dict()
         view_host.update(zabbix_host)
-        if db_exists:
-            view_host.update({COLUMN_FIELD: column})
-        else:
-            view_host.update({COLUMN_FIELD: column})
+        view_host.update({COLUMN_FIELD: column})
 
         monitoring_hosts.append(view_host)
     # Финальная сортировка списка по Имени(NAME_FIELD) машины
