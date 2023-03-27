@@ -7,6 +7,8 @@ logging.basicConfig(level=config.LOGGING_LEVEL)
 UNRESOLVED_PROBLEMS_ONLY = False
 NAME_FIELD = 'name'
 HOST_ID_FIELD = 'hostid'
+HOST_FIELD = 'host'
+API_INFO_VERSION = 'apiinfo.version'
 
 
 class ZabbixMonitoring:
@@ -27,14 +29,14 @@ class ZabbixMonitoring:
         self._zabbix_api.user.logout()
 
     def __repr__(self):
-        answer = self._zabbix_api.do_request('apiinfo.version')
+        answer = self._zabbix_api.do_request(API_INFO_VERSION)
         print('Zabbix Api Version: {}'.format(answer['result']))
 
     def __str__(self):
         return 'ZabbixMonitoring'
 
-    def get_all_hosts(self) -> list:
-        return self._zabbix_api.host.get(status=1)
+    def get_all_monitored_hosts(self) -> list:
+        return self._zabbix_api.host.get(status=1, monitored_hosts=1, selectInterfaces=['ip'])
 
     def get_host_problem(self, host_id) -> list:
         return self._zabbix_api.problem.get(hostids=host_id, recent=UNRESOLVED_PROBLEMS_ONLY)
@@ -42,7 +44,7 @@ class ZabbixMonitoring:
 
 def get_zabbix_monitoring_hosts() -> list:
     with ZabbixMonitoring() as zabbix_monitoring:
-        hosts = zabbix_monitoring.get_all_hosts()
+        hosts = zabbix_monitoring.get_all_monitored_hosts()
     return hosts
 
 
@@ -51,22 +53,30 @@ def get_zabbix_host_problems(host) -> list:
     with ZabbixMonitoring() as zabbix_monitoring:
         try:
             if host['error'] or host['snmp_error']:
-                result = zabbix_monitoring.get_host_problem(host['hostid'])
-        except KeyError:
-            logging.error('KeyError')
+                result = zabbix_monitoring.get_host_problem(host[HOST_ID_FIELD])
+        except KeyError as error:
+            logging.error(f'KeyError {error}')
     return result
 
 
 def main():
     hosts = get_zabbix_monitoring_hosts()
     for host in hosts:
-        problems = get_zabbix_host_problems(host)
-        for problem in problems:
-            logging.info('Host: {host}, Hostid: {hostid} Problem: {problem}\r\n'.format(
-                host=host['host'],
-                hostid=host['hostid'],
-                problem=problem['name'],
-            ))
+        interface = host['interfaces'][0]['ip']
+        logging.info('Host: "{host}", Hostid: "{hostid}" Name: "{name}"\r\nInterface: {interfaces}\r\n'.format(
+            host=host[HOST_FIELD],
+            hostid=host[HOST_ID_FIELD],
+            name=host['name'],
+            interfaces=interface,
+        ))
+    # problems = get_zabbix_host_problems(host)
+    # for problem in problems:
+    #     logging.info('Host: {host}, Hostid: {hostid} Problem: {problem}\r\n'.format(
+    #         host=host[HOST_FIELD],
+    #         hostid=host[HOST_ID_FIELD],
+    #         problem=problem[NAME_FIELD],
+    #     ))
+    return
 
 
 if __name__ == '__main__':

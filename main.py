@@ -72,7 +72,8 @@ def update_monitoring_hosts(db) -> list:
             view_host.update({COLUMN_FIELD: column})
 
         monitoring_hosts.append(view_host)
-    monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x['name'])
+    # Финальная сортировка списка по Имени(NAME_FIELD) машины
+    monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
     return monitoring_hosts
 
 

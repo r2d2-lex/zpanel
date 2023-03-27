@@ -4,7 +4,7 @@
         <div class="card text-white  {% if host.snmp_error %}bg-warning{% elif host.error %}
 bg-danger{% else %}bg-primary{% endif %}">
             <div class="card-body">
-            <h5 class="card-title">{{ host.name }}</h5>
+            <h5 class="card-title">{{ host.name }} ({{ host.interfaces[0]['ip'] }})</h5>
             <p class="card-text">
                 {% if host.error %}{{ host.error }}{% endif %}
                 {% if host.snmp_error %}{{ host.snmp_error }}{% endif %}
