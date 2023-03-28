@@ -1,10 +1,11 @@
 {% macro render_hosts(hosts, col) %}
     {% for host in hosts %}
         {% if host.column == col %}
-        <div class="card {% if host.snmp_error %}text-white bg-warning{% elif host.error %}
+        <div class="card {% if host.snmp_error %}bg-custom-yellow{% elif host.error %}
 text-white bg-danger{% else %}bg-custom-green{% endif %}">
             <div class="card-body">
-            <h5 class="card-title">{{ host.name }} ({{ host.interfaces[0]['ip'] }})</h5>
+            <h5 class="card-title">{{ host.name }}
+                ({{ host.interfaces[0]['ip'] }})</h5>
             <p class="card-text">
                 {% if host.error %}{{ host.error }}{% endif %}
                 {% if host.snmp_error %}{{ host.snmp_error }}{% endif %}
