@@ -19,11 +19,8 @@ $(document).ready(function() {
     contentType: "application/json",
     success: function (html) {
         $("#modal_content").html(html);
-        console.log('POST errors/ SUCESS!!!');
     },
     error: function(html){
-        console.log('POST errors/ error!!!');
-        console.log(html);
     }
     })
 

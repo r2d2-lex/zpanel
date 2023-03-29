@@ -11,27 +11,22 @@ $(document).ready(function() {
           let operation = 'СОХРАНЕН: '+hostid;
           // Вычисляем select id например: #select_1234
           let selectName = '#select_'+hostid;
-          console.log('selectName:', selectName);
 
           if (hostid.indexOf(del_template) >=0){
                 hostid = hostid.replace(del_template,'')
                 selectName = selectName.replace(del_template,'')
                 method = 'DELETE';
                 operation = 'УДАЛЕН: '+hostid;
-                console.log(del_template, ':  ', hostid);
-                console.log('OPERATION DELETE!');
           } else if (hostid.indexOf(mdf_template) >=0){
                 hostid = hostid.replace(mdf_template,'')
                 selectName = selectName.replace(mdf_template,'')
                 method = 'PATCH';
                 operation = 'ИЗМЕНЕН: '+hostid;
-                console.log(mdf_template, ': ', hostid);
-                console.log('OPERATION MODIFY!');
           }
           let select_val = $(selectName).val();
 
-          console.log('ID:', hostid);
-          console.log('select_val:', select_val);
+          //console.log('ID:', hostid);
+          //console.log('select_val:', select_val);
 
           $.ajax({
             type : method,
@@ -52,7 +47,6 @@ $(document).ready(function() {
             error: function(data){
                 showMessage('Неудачная операция: '+operation, 'alert-warning');
                 console.log('ERRORR!!!');
-                console.log(data);
             }
           })
           /* ---------------------------- ajax end -------------------------------- */
