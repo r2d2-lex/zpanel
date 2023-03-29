@@ -12,6 +12,7 @@ HOST_FIELD = 'host'
 API_INFO_VERSION = 'apiinfo.version'
 
 CLOCK_FIELD = 'clock'
+SEVERITY_FIELD = 'severity'
 TIME_TEMPLATE = '%Y-%m-%d %H:%M:%S'
 
 
@@ -70,7 +71,7 @@ def get_zabbix_host_problems(host_id: int) -> list:
         except TypeError as error:
             logging.error(f'Error return host: {host_id} problems: {error}')
     if result:
-        result = sorted(result, key=lambda x: x[NAME_FIELD])
+        result = sorted(result, reverse=False, key=lambda x: x[CLOCK_FIELD])
     return result
 
 

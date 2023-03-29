@@ -62,7 +62,6 @@ $(document).ready(function() {
 });
 
 function showMessage(message, classAlert) {
-    console.log('Status: Message: ',message,' Class: ',classAlert);
     $('#id_status').empty();
     let div = document.createElement('div');
     div.classList.add("alert");

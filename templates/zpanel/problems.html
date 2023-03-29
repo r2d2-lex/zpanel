@@ -1,3 +1,17 @@
+<table class="table table-sm">
+
+    <tr class="table-info">
+        <th scope="col">Event ID</th>
+        <th scope="col">Время</th>
+        <th scope="col">Описание проблемы</th>
+    </tr>
+
 {% for problem in problems %}
-Event: {{ problem.eventid }} Clock: {{ problem.clock }} {{ problem.name }}<br>
+    <tr>
+        <td>{{ problem.eventid }}</td>
+        <td>{{ problem.clock }}</td>
+        <td>{{ problem.name }}</td>
+    </tr>
 {% endfor %}
+
+</table>
