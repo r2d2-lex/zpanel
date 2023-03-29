@@ -2,7 +2,7 @@
     {% for host in hosts %}
         {% if host.column == col %}
         <div class="card {% if host.snmp_error %}bg-custom-yellow{% elif host.error %}
-text-white bg-danger{% else %}bg-custom-green{% endif %}">
+text-white bg-danger{% elif host.problems %}bg-custom-yellow{% else %}bg-custom-green{% endif %}">
             <div class="row g-0 justify-content-center align-items-center">
 
                     <div class="col-md-10">
@@ -12,11 +12,16 @@ text-white bg-danger{% else %}bg-custom-green{% endif %}">
                         <p class="card-text">
                             {% if host.error %}{{ host.error }}{% endif %}
                             {% if host.snmp_error %}snmp: {{ host.snmp_error }}{% endif %}
+                            {% if host.problems|count < 2 %}
+                                {% for problem in host.problems %}
+                                    {{ problem.name }}
+                                {% endfor %}
+                            {% endif %}
                         </p>
                         </div>
                     </div>
                     <div class="col-md-2">
-                            {% if host.error or host.snmp_error %}
+                            {% if host.error or host.snmp_error or host.problems|count > 1 %}
                                     <a class="btn btn-outline-dark btn-sm" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">EXPAND PROBLEMS</a>
                             {% endif %}
                     </div>

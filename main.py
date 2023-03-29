@@ -15,6 +15,7 @@ import crud
 import logging
 
 COLUMN_FIELD = 'column'
+PROBLEMS_FIELD = 'problems'
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
@@ -46,18 +47,24 @@ async def get_schema_from_json_request(request: Request, schema_model):
     return
 
 
-def update_monitoring_hosts(db) -> list:
-    """ Добавляет значение колонки (column) из БД в словарь мониторинга """""
+def update_monitoring_hosts(db, with_problems: bool = False) -> list:
+    """ 
+    Добавляет значение колонки (column) из БД в словарь мониторинга 
+    Добавляет количество проблем (problems) в словарь мониторинга 
+    """""
     monitoring_hosts = []
     zabbix_hosts = get_zabbix_monitoring_hosts()
     db_hosts = crud.get_monitored_hosts(db)
 
     for zabbix_host in zabbix_hosts:
+        problems = []
         column = 0
         for db_host in db_hosts:
             try:
                 if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.hostid):
-                    logging.debug('{host} in database'.format(host=zabbix_host[HOST_ID_FIELD]))
+                    if with_problems:
+                        problems = get_zabbix_host_problems(db_host.hostid)
+                    logging.debug('{host} in database'.format(host=db_host.hostid))
                     column = db_host.column
             except KeyError as error:
                 logging.error(f'KeyError: {error}')
@@ -65,6 +72,8 @@ def update_monitoring_hosts(db) -> list:
         view_host = dict()
         view_host.update(zabbix_host)
         view_host.update({COLUMN_FIELD: column})
+        if with_problems:
+            view_host.update({PROBLEMS_FIELD: problems})
 
         monitoring_hosts.append(view_host)
     # Финальная сортировка списка по Имени(NAME_FIELD) машины
@@ -85,7 +94,7 @@ def monitoring(request: Request):
 @app.get('/panel/', response_class=HTMLResponse)
 def monitoring_panel(request: Request, db: Session = Depends(get_db)):
     panel_hosts = []
-    monitoring_hosts = update_monitoring_hosts(db)
+    monitoring_hosts = update_monitoring_hosts(db, with_problems=True)
     for host in monitoring_hosts:
         try:
             if host[COLUMN_FIELD] > 0:
