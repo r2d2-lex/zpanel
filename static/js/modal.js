@@ -5,7 +5,5 @@ $(document).ready(function() {
       data_id = $(this).data('id');
     }
     $('.modal-body #host_id').val(data_id);
-    monitoring = 0;
-    console.log(monitoring);
     })
 });

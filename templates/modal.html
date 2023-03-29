@@ -1,4 +1,3 @@
-<script src="{{ url_for('static', path='js/modal.js') }}" crossorigin="anonymous"></script>
 <!-- Modal -->
 <div class="modal fade open-AddBookDialog" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -15,13 +14,12 @@
                     Host problems:
 <!--                    <input type="hidden" name="hiddenValue" id="host_id" value="" readonly/>-->
                     <input name="hiddenValue" id="host_id" value="" readonly/>
-                    <input name="hiddenValue" id="id_kill_value" value="" readonly/>
+                    <div id="modal_content"></div>
                 </div>
 
                 <!-- FOOTER-->
                 <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a id="id_kill" type="button" class="btn btn-danger" onclick="closeModal();">KILL</a>
                 </div>
 
         </div>
