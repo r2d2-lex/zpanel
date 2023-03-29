@@ -170,6 +170,13 @@ def get_all_hosts():
     return get_zabbix_monitoring_hosts()
 
 
-@app.get('/errors/')
-def get_host_errors(host_id: int):
-    return get_zabbix_host_problems(host_id)
+@app.post('/errors/', response_class=HTMLResponse)
+def get_host_errors(request: Request, host: Host):
+    host_problems = get_zabbix_host_problems(host.hostid)
+    template = 'zpanel/problems.html'
+    return templates.TemplateResponse(template,
+                                      {
+                                          'request': request,
+                                          'problems': host_problems,
+                                      }
+                                      )
