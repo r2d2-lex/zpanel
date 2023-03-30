@@ -25,13 +25,21 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-def update_monitoring_hosts(db, with_problems: bool = False) -> list:
+def get_monitored_hosts_ids(db) -> list:
+    host_ids = []
+    db_hosts = crud.get_monitored_hosts(db)
+    for db_host in db_hosts:
+        if db_host.column > 0:
+            host_ids.append(db_host.hostid)
+    return host_ids
+
+
+def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> list:
     """ 
     Добавляет значение колонки (column) из БД в словарь мониторинга 
     Добавляет количество проблем (problems) в словарь мониторинга 
     """""
     monitoring_hosts = []
-    zabbix_hosts = get_zabbix_monitoring_hosts()
     db_hosts = crud.get_monitored_hosts(db)
 
     for zabbix_host in zabbix_hosts:
@@ -71,18 +79,14 @@ def monitoring(request: Request):
 
 @app.get('/panel/', response_class=HTMLResponse)
 def monitoring_panel(request: Request, db: Session = Depends(get_db)):
-    panel_hosts = []
-    monitoring_hosts = update_monitoring_hosts(db, with_problems=True)
-    for host in monitoring_hosts:
-        try:
-            if host[COLUMN_FIELD] > 0:
-                panel_hosts.append(host)
-        except KeyError:
-            continue
-    return templates.TemplateResponse('zpanel/panel.html',
+    template = 'zpanel/panel.html'
+    host_ids = get_monitored_hosts_ids(db)
+    zabbix_hosts = get_zabbix_monitoring_hosts(host_ids)
+    monitoring_hosts = update_monitoring_hosts(zabbix_hosts, db, with_problems=True)
+    return templates.TemplateResponse(template,
                                       {
                                           'request': request,
-                                          'hosts': panel_hosts,
+                                          'hosts': monitoring_hosts,
                                       }
                                       )
 
@@ -100,7 +104,8 @@ def index(request: Request):
 @app.get('/settings/', response_class=HTMLResponse)
 def settings(request: Request, db: Session = Depends(get_db)):
     template = 'zpanel/settings.html'
-    monitoring_hosts = update_monitoring_hosts(db)
+    zabbix_hosts = get_all_zabbix_monitoring_hosts()
+    monitoring_hosts = update_monitoring_hosts(zabbix_hosts, db)
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,

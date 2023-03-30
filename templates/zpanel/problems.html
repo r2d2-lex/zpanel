@@ -2,6 +2,7 @@
 
     <tr class="table-info">
         <th scope="col">Event ID</th>
+        <th scope="col">Severity</th>
         <th scope="col">Время</th>
         <th scope="col">Описание проблемы</th>
     </tr>
@@ -9,6 +10,7 @@
 {% for problem in problems %}
     <tr>
         <td>{{ problem.eventid }}</td>
+        <td>{{ problem.severity }}</td>
         <td>{{ problem.clock }}</td>
         <td>{{ problem.name }}</td>
     </tr>

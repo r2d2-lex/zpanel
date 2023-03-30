@@ -5,6 +5,9 @@ $(document).ready(function() {
       data_id = $(this).data('id');
     }
 
+    $('#exampleModalLabel').empty();
+    $('#exampleModalLabel').text('Host ID: '+data_id);
+
     $.ajax({
     type : 'POST',
     url: '/errors/',
