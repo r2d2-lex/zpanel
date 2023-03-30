@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from fastapi import Path
-from typing import Union
 
 
 class Host(BaseModel):
@@ -9,11 +8,3 @@ class Host(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class Problem(BaseModel):
-    hostid: int
-    name: str
-    eventid: int
-    clock: str
-    severity: int
