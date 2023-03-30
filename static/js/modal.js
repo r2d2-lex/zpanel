@@ -13,9 +13,6 @@ $(document).ready(function() {
         'column': 1,
     }),
     cache: false,
-    //Your server-side code returns HTML snippet with 200 OK status. jQuery was expecting valid JSON and therefore
-    // fires the error callback complaining about parseerror
-    // !!!! ----dataType: 'json',
     contentType: "application/json",
     success: function (html) {
         $("#modal_content").html(html);

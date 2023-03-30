@@ -25,28 +25,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-async def get_schema_from_json_request(request: Request, schema_model):
-    content_type = request.headers.get('content-type')
-    logging.info(f'content_type: {content_type}')
-    methods = ['POST', 'PUT', 'PATCH']
-
-    if request.method in methods and 'application/json' in content_type:
-        try:
-            result_json = await request.json()
-            if result_json:
-                logging.debug(result_json)
-                result = schema_model(**result_json)
-                return result
-        except JSONDecodeError:
-            logging.error('encounter JSONDecodeError')
-        except UnicodeDecodeError:
-            logging.error('encounter UnicodeDecodeError')
-        except ValidationError as err:
-            logging.error(f'ValidationError {err}')
-    logging.info('end request'.center(60, '*'))
-    return
-
-
 def update_monitoring_hosts(db, with_problems: bool = False) -> list:
     """ 
     Добавляет значение колонки (column) из БД в словарь мониторинга 
@@ -137,17 +115,6 @@ async def read_host_from_db(db: Session = Depends(get_db)):
     hosts = crud.get_monitored_hosts(db)
     return hosts
 
-
-# Обработка запроса в ручную
-# @app.post('/monitor/hosts/', response_model=Host)
-# async def add_host_to_db(request: Request, db: Session = Depends(get_db)):
-#     host = await get_schema_from_json_request(request, Host)
-#     if host:
-#         db_host = crud.get_host(db=db, hostid=host.hostid)
-#         if db_host:
-#             return  crud.update_host(db=db, host=host)
-#             # raise HTTPException(status_code=400, detail="Host already monitored")
-#         return crud.add_host(host=host, db=db)
 
 @app.post('/monitor/hosts/', response_model=Host)
 def add_host_to_db(host: Host, db: Session = Depends(get_db)):
