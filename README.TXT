@@ -42,3 +42,8 @@ $ sudo systemctl status zpanel.service
 10.1 ln -s /etc/nginx/sites-available/zpanel /etc/nginx/sites-enabled/
 10.2 nginx -t
 10.3 systemctl reload nginx
+
+
+11. Firefox стартовый скрипт:
+firefox -url http://zabbix.local:8000/monitoring/ &
+xdotool search --sync --onlyvisible --class "Firefox" windowactivate key F11
