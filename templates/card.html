@@ -12,10 +12,10 @@ text-white bg-danger{% elif host.problems %}bg-custom-yellow{% else %}bg-custom-
                         <p class="card-text">
                             {% if host.error %}{{ host.error }}{% endif %}
                             {% if host.snmp_error %}snmp: {{ host.snmp_error }}{% endif %}
-                            {% if host.problems|count < 3 %}
+                            {% if host.problems|count < 2 %}
                             <ul>
                                 {% for problem in host.problems %}
-                                    <li>{{ problem.clock }} {{ problem.name }}</li>
+                                    <li>[{{ problem.clock }}] {{ problem.name }}</li>
                                 {% endfor %}
                             </ul>
                             {% endif %}
