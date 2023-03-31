@@ -12,17 +12,19 @@ text-white bg-danger{% elif host.problems %}bg-custom-yellow{% else %}bg-custom-
                         <p class="card-text">
                             {% if host.error %}{{ host.error }}{% endif %}
                             {% if host.snmp_error %}snmp: {{ host.snmp_error }}{% endif %}
-                            {% if host.problems|count < 2 %}
+                            {% if host.problems|count < 3 %}
+                            <ul>
                                 {% for problem in host.problems %}
-                                    {{ problem.name }}
+                                    <li>{{ problem.clock }} {{ problem.name }}</li>
                                 {% endfor %}
+                            </ul>
                             {% endif %}
                         </p>
                         </div>
                     </div>
                     <div class="col-md-2">
                             {% if host.error or host.snmp_error or host.problems|count > 1 %}
-                                    <a class="btn btn-outline-dark btn-sm" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">EXPAND PROBLEMS</a>
+                                    <a class="btn btn-outline-dark btn-sm" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">ОБЗОР ПРОБЛЕМ</a>
                             {% endif %}
                     </div>
 

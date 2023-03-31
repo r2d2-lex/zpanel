@@ -4,8 +4,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from sqlalchemy.orm import Session
-from json import JSONDecodeError
-from pydantic.error_wrappers import ValidationError
 
 from db import get_db
 from schema import Host
@@ -148,7 +146,7 @@ def update_host_from_db(host: Host, db: Session = Depends(get_db)):
 
 @app.get('/hosts')
 def get_all_hosts():
-    return get_zabbix_monitoring_hosts()
+    return get_all_zabbix_monitoring_hosts()
 
 
 @app.post('/errors/', response_class=HTMLResponse)
