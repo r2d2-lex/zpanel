@@ -10,7 +10,19 @@
 {% for problem in problems %}
     <tr>
         <td>{{ problem.eventid }}</td>
-        <td>{{ problem.severity }}</td>
+        <td>
+            {% if problem.severity|int() == 2  %}
+                WARNING
+            {% elif problem.severity|int() == 3 %}
+                AVERAGE
+            {% elif problem.severity|int() == 4 %}
+                HIGH
+            {% elif problem.severity|int() == 5 %}
+                DISASTER
+            {% else%}
+                {{ problem.severity }}
+            {% endif %}
+        </td>
         <td>{{ problem.clock }}</td>
         <td>{{ problem.name }}</td>
     </tr>
