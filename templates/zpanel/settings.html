@@ -1,5 +1,6 @@
 <script src="{{ url_for('static', path='js/settings.js') }}" crossorigin="anonymous"></script>
-
+<script src="{{ url_for('static', path='js/upload.js') }}" crossorigin="anonymous"></script>
+{% include 'upload.html' %}
 <form action="/" method="post">
     <table class="table table-sm table-bordered">
         <tr class="table-info">
@@ -29,13 +30,16 @@
                 </select>
             </td>
             <td>
-            {% if host.column > 0 %}
-                <input class="btn btn-primary btn-sm inputClass" type="button" name="Изменить" value="Изменить" id="mdf_{{ host.hostid }}"/>
-            {% else %}
-                <input class="btn btn-success btn-sm inputClass" type="button" name="Сохранить" value="Сохранить" id="{{ host.hostid }}"/>
-            {% endif %}
-            <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
-            <a class="btn btn-info btn-sm" href="/monitoring/">Панель</a></td>
+                {% if host.column > 0 %}
+                    <input class="btn btn-primary btn-sm inputClass" type="button" name="Изменить" value="Изменить" id="mdf_{{ host.hostid }}"/>
+                {% else %}
+                    <input class="btn btn-success btn-sm inputClass" type="button" name="Сохранить" value="Сохранить" id="{{ host.hostid }}"/>
+                {% endif %}
+                <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
+
+                <a class="btn btn-outline-dark btn-sm" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">Загрузить изображение</a>
+                <a class="btn btn-info btn-sm" href="/monitoring/">Панель</a>
+            </td>
         </tr>
     {% endfor %}
     </table>

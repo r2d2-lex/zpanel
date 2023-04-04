@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Request, HTTPException
+from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -11,6 +11,7 @@ from Zabbix import *
 import config
 import crud
 import logging
+import os
 
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
@@ -97,6 +98,20 @@ def index(request: Request):
                                           'page_title': 'Настройка',
                                       }
                                       )
+
+
+@app.post('/upload/')
+async def upload_image(image: UploadFile):
+    cwd = os.getcwd()
+    logging.info(f'Current work directory {cwd}')
+
+    image_path = cwd + '/images/' + image.filename
+    logging.info(f'Image full path: {image_path}')
+
+    res = await image.read()
+    with open(image_path, "wb") as f:
+        f.write(res)
+    return {'message': image.filename}
 
 
 @app.get('/settings/', response_class=HTMLResponse)
