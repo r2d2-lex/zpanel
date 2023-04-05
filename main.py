@@ -61,6 +61,7 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
                         problems = get_zabbix_host_problems(db_host.hostid)
                     logging.debug('{host} in database'.format(host=db_host.hostid))
                     column = db_host.column
+                    break
             except KeyError as error:
                 logging.error(f'KeyError: {error}')
 
