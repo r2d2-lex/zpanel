@@ -16,6 +16,7 @@ import os
 
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
+IMAGE_FIELD = 'image'
 # from upload.js:
 IMAGE_HOST_ID_FIELD = 'host-id'
 
@@ -40,16 +41,22 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
     """ 
     Добавляет значение колонки (column) из БД в словарь мониторинга 
     Добавляет количество проблем (problems) в словарь мониторинга 
+    Добавляет название файла изображения (image) в словарь мониторинга 
     """""
     monitoring_hosts = []
     db_hosts = crud.get_monitored_hosts(db)
 
     for zabbix_host in zabbix_hosts:
+        image = ''
         problems = []
         column = 0
         for db_host in db_hosts:
             try:
                 if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.hostid):
+
+                    if db_host.image:
+                        image = db_host.image
+
                     if with_problems:
                         problems = get_zabbix_host_problems(db_host.hostid)
                     logging.debug('{host} in database'.format(host=db_host.hostid))
@@ -60,6 +67,8 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
         view_host = dict()
         view_host.update(zabbix_host)
         view_host.update({COLUMN_FIELD: column})
+        if image:
+            view_host.update({IMAGE_FIELD: image})
         if with_problems:
             view_host.update({PROBLEMS_FIELD: problems})
 
