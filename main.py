@@ -148,9 +148,10 @@ async def upload_image(image: UploadFile, request: Request, db: Session = Depend
     host_id = await parse_host_id(request)
     logging.info(f'Load image for Host ID: {host_id}')
 
-    # db_host = crud.get_host(db=db, hostid=host_id)
-    # if db_host:
-    #     crud.update_host(db=db, host=db_host.)
+    db_host = crud.get_host(db=db, hostid=host_id)
+    if db_host:
+        logging.info(f'Image name: {image_name}')
+        crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
     return {'message': image.filename}
 
 

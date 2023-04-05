@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from models import Host as ModelHost
 from schema import Host as SchemaHost
+from schema import HostImage as SchemaImageHost
 
 
 def get_monitored_hosts(db: Session):
@@ -32,6 +33,15 @@ def update_host(db: Session, host: SchemaHost):
     db_host = db.query(ModelHost).filter(ModelHost.hostid == host.hostid).first()
     if db_host:
         db.query(ModelHost).filter(ModelHost.hostid == host.hostid).update(host.dict())
+        db.commit()
+        db.refresh(db_host)
+    return db_host
+
+
+def update_host_image(db: Session, host: SchemaImageHost, image_name: str):
+    db_host = db.query(ModelHost).filter(ModelHost.hostid == host.hostid).first()
+    if db_host:
+        db.query(ModelHost).filter(ModelHost.hostid == host.hostid).update({'image': image_name})
         db.commit()
         db.refresh(db_host)
     return db_host
