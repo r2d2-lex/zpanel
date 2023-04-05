@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -103,17 +103,33 @@ def index(request: Request):
                                       )
 
 
-@app.post('/upload/')
-async def upload_image(image: UploadFile, request: Request):
-
+# Эта функция костыль. Иначе изображение не загружается корректно. Связано с асинхронностью выполнения
+async def parse_host_id(request):
+    host_id = ''
     form_data = await request.form()
     form_data = jsonable_encoder(form_data)
     try:
         host_id = form_data[IMAGE_HOST_ID_FIELD]
     except KeyError as error:
         logging.error(f'Ошибка получения host_id: {error}')
-        return
+    return host_id
 
+
+@app.get('/images/{image_name}')
+async def download_image(image_name: str, db: Session = Depends(get_db)):
+    file_path = os.getcwd() + '/images/' + image_name
+    logging.info(f'File path: {file_path}')
+    try:
+        result = FileResponse(path=file_path, filename=image_name)
+    except RuntimeError as error:
+        logging.error(f'Невозможно загрузить файл {error}')
+    return result
+
+
+@app.post('/upload/')
+async def upload_image(image: UploadFile, request: Request):
+
+    host_id = parse_host_id(request)
     logging.info(f'Load image for Host ID: {host_id}')
 
     cwd = os.getcwd()
