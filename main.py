@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -15,6 +16,8 @@ import os
 
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
+# from upload.js:
+IMAGE_HOST_ID_FIELD = 'host-id'
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
@@ -101,16 +104,27 @@ def index(request: Request):
 
 
 @app.post('/upload/')
-async def upload_image(image: UploadFile):
+async def upload_image(image: UploadFile, request: Request):
+
+    form_data = await request.form()
+    form_data = jsonable_encoder(form_data)
+    try:
+        host_id = form_data[IMAGE_HOST_ID_FIELD]
+    except KeyError as error:
+        logging.error(f'Ошибка получения host_id: {error}')
+        return
+
+    logging.info(f'Load image for Host ID: {host_id}')
+
     cwd = os.getcwd()
     logging.info(f'Current work directory {cwd}')
 
     image_path = cwd + '/images/' + image.filename
     logging.info(f'Image full path: {image_path}')
 
-    res = await image.read()
+    image_content = await image.read()
     with open(image_path, "wb") as f:
-        f.write(res)
+        f.write(image_content)
     return {'message': image.filename}
 
 
