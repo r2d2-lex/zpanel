@@ -17,7 +17,12 @@
              <tr>
         {% endif %}
 
-            <td>{{ host.hostid }}</td>
+            <td>
+                {{ host.hostid }}
+                {% if host.image %}
+                    <img src="images/{{ host.image }}">
+                {% endif %}
+            </td>
             <td>{{ host.host }}</td>
             <td>{{ host.name }}</td>
             <td>

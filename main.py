@@ -103,20 +103,21 @@ def index(request: Request):
                                       )
 
 
-# Эта функция костыль. Иначе изображение не загружается корректно. Связано с асинхронностью выполнения
+# Эта функция - костыль. Иначе изображение не загружается корректно. Связано с асинхронностью выполнения
 async def parse_host_id(request):
-    host_id = ''
+    host_id = 0
     form_data = await request.form()
     form_data = jsonable_encoder(form_data)
     try:
         host_id = form_data[IMAGE_HOST_ID_FIELD]
     except KeyError as error:
         logging.error(f'Ошибка получения host_id: {error}')
-    return host_id
+    return int(host_id)
 
 
 @app.get('/images/{image_name}')
 async def download_image(image_name: str, db: Session = Depends(get_db)):
+    result = ''
     file_path = os.getcwd() + '/images/' + image_name
     logging.info(f'File path: {file_path}')
     try:
@@ -127,20 +128,29 @@ async def download_image(image_name: str, db: Session = Depends(get_db)):
 
 
 @app.post('/upload/')
-async def upload_image(image: UploadFile, request: Request):
-
-    host_id = parse_host_id(request)
-    logging.info(f'Load image for Host ID: {host_id}')
-
+async def upload_image(image: UploadFile, request: Request, db: Session = Depends(get_db)):
     cwd = os.getcwd()
     logging.info(f'Current work directory {cwd}')
 
-    image_path = cwd + '/images/' + image.filename
+    image_name = image.filename
+    image_path = cwd + '/images/' + image_name
     logging.info(f'Image full path: {image_path}')
 
-    image_content = await image.read()
-    with open(image_path, "wb") as f:
-        f.write(image_content)
+    try:
+        image_content = image.file.read()
+        with open(image_path, "wb") as f:
+            f.write(image_content)
+    except Exception:
+        return {"message": "There was an error uploading the file"}
+    finally:
+        image.file.close()
+
+    host_id = await parse_host_id(request)
+    logging.info(f'Load image for Host ID: {host_id}')
+
+    # db_host = crud.get_host(db=db, hostid=host_id)
+    # if db_host:
+    #     crud.update_host(db=db, host=db_host.)
     return {'message': image.filename}
 
 

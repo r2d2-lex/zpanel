@@ -36,6 +36,9 @@
                     </div>
                     <!-- Вторая колонка карточки -->
                     <div class="col-md-2">
+                        {% if host.image %}
+                            <img src="images/{{ host.image }}">
+                        {% endif %}
                     </div>
 
             </div>
