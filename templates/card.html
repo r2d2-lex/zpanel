@@ -12,8 +12,14 @@
             bg-custom-green
         {% endif %}">
             <div class="row g-0 justify-content-center align-items-center">
-
                     <!-- Первая колонка карточки  -->
+                    <div class="col-md-2">
+                        {% if host.image %}
+                            <img src="http://127.0.0.1:8000/static/images/{{ host.image }}" width="85" height="85" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Вторая колонка карточки -->
                     <div class="col-md-10">
                         <div class="card-body p-0">
 
@@ -33,12 +39,6 @@
                             </p>
 
                         </div>
-                    </div>
-                    <!-- Вторая колонка карточки -->
-                    <div class="col-md-2">
-                        {% if host.image %}
-                            <img src="http://127.0.0.1:8000/static/images/{{ host.image }}" width="85" height="85" />
-                        {% endif %}
                     </div>
 
             </div>

@@ -39,13 +39,13 @@ $(document).ready(function() {
             contentType: "application/json",
             /* ---------------------------- success begin -------------------------------- */
             success: function (data) {
-            showMessage('Успешная операция: '+operation, 'alert-success');
+            showMessage('#id_status', 'Успешная операция: '+operation, 'alert-success');
             console.log('SUCESS!!!');
             show();
           },
           /* ---------------------------- success end -------------------------------- */
             error: function(data){
-                showMessage('Неудачная операция: '+operation, 'alert-warning');
+                showMessage('#id_status', 'Неудачная операция: '+operation, 'alert-warning');
                 console.log('ERRORR!!!');
             }
           })
@@ -55,22 +55,3 @@ $(document).ready(function() {
    });
 });
 
-function showMessage(message, classAlert) {
-    $('#id_status').empty();
-    let div = document.createElement('div');
-    div.classList.add("alert");
-    div.classList.add(classAlert);
-    div.setAttribute("role", "alert");
-    div.innerHTML = message;
-    $('#id_status').append(div);
-}
-
- function show() {
-  $.ajax ({
-   url: "/settings",
-   cache: false,
-   success: function(html) {
-    $("#settings").html(html);
-   }
-  });
-}

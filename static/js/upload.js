@@ -35,10 +35,10 @@ $("#upload_id").change(function(){
 			    console.log(msg);
 				if (msg.error == '') {
 					$("#upload_id").hide();
-					$('#result').html(msg.success);
+					showMessage('#result_upload', 'Успешная сохранено: '+msg.success, 'alert-success');
 					console.log('SUCCESS',msg.success)
 				} else {
-					$('#result').html(msg.error);
+					showMessage('#result_upload', 'Неудачная операция: '+msg.error, 'alert-warning');
 					console.log('ERROR',msg.error)
 				}
 			}
@@ -50,13 +50,3 @@ $('#exampleModal').on('hide.bs.modal', function (e) {
   console.log('CLOSE MODAL WINDOW');
   show();
 })
-
-function show() {
-  $.ajax({
-   url: "/settings/",
-   cache: false,
-   success: function(html) {
-    $("#settings").html(html);
-   }
-  });
-}
