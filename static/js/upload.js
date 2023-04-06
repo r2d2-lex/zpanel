@@ -46,7 +46,7 @@ $("#upload_id").change(function(){
 	}
 });
 
-$('#exampleModalLabel').on('hide.bs.modal', function (e) {
+$('#exampleModal').on('hide.bs.modal', function (e) {
   console.log('CLOSE MODAL WINDOW');
   show();
 })

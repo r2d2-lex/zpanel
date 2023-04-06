@@ -150,19 +150,23 @@ async def upload_image(image: UploadFile, request: Request, db: Session = Depend
         image_content = image.file.read()
         with open(image_path, "wb") as f:
             f.write(image_content)
-    except Exception:
-        return {"message": "There was an error uploading the file"}
+    except Exception as error:
+        return {'error': error, }
     finally:
         image.file.close()
 
     host_id = await parse_host_id(request)
+    if not host_id:
+        return {'error': 'Невозможно получить host_id', }
     logging.info(f'Load image for Host ID: {host_id}')
 
     db_host = crud.get_host(db=db, hostid=host_id)
     if db_host:
         logging.info(f'Image name: {image_name}')
         crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
-    return {'message': image.filename}
+    else:
+        return {'error': 'Ошибка БД', }
+    return {'error': '', 'success': image_name, }
 
 
 @app.get('/settings/', response_class=HTMLResponse)
