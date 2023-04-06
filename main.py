@@ -26,6 +26,8 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+CURRENT_WORK_DIRECTORY = os.getcwd()
+CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
 
 
 def get_monitored_hosts_ids(db) -> list:
@@ -41,7 +43,7 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
     """ 
     Добавляет значение колонки (column) из БД в словарь мониторинга 
     Добавляет количество проблем (problems) в словарь мониторинга 
-    Добавляет название файла изображения (image) в словарь мониторинга 
+    Добавляет имя файла изображения (image) в словарь мониторинга 
     """""
     monitoring_hosts = []
     db_hosts = crud.get_monitored_hosts(db)
@@ -128,7 +130,7 @@ async def parse_host_id(request):
 @app.get('/images/{image_name}')
 async def download_image(image_name: str, db: Session = Depends(get_db)):
     result = ''
-    file_path = os.getcwd() + '/images/' + image_name
+    file_path = CURRENT_IMAGES_DIRECTORY + image_name
     logging.info(f'File path: {file_path}')
     try:
         result = FileResponse(path=file_path, filename=image_name)
@@ -139,11 +141,9 @@ async def download_image(image_name: str, db: Session = Depends(get_db)):
 
 @app.post('/upload/')
 async def upload_image(image: UploadFile, request: Request, db: Session = Depends(get_db)):
-    cwd = os.getcwd()
-    logging.info(f'Current work directory {cwd}')
-
+    logging.info(f'Current work directory {CURRENT_WORK_DIRECTORY}')
     image_name = image.filename
-    image_path = cwd + '/images/' + image_name
+    image_path = CURRENT_IMAGES_DIRECTORY + image_name
     logging.info(f'Image full path: {image_path}')
 
     try:

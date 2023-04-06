@@ -45,3 +45,18 @@ $("#upload_id").change(function(){
 		});
 	}
 });
+
+$('#exampleModalLabel').on('hide.bs.modal', function (e) {
+  console.log('CLOSE MODAL WINDOW');
+  show();
+})
+
+function show() {
+  $.ajax({
+   url: "/settings/",
+   cache: false,
+   success: function(html) {
+    $("#settings").html(html);
+   }
+  });
+}
