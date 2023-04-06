@@ -1,6 +1,6 @@
  function show() {
   $.ajax ({
-   url: "/panel",
+   url: "/panel/",
    cache: false,
    success: function(html) {
     $('#id_status').empty();

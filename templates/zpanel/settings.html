@@ -20,7 +20,7 @@
             <td>
                 {{ host.hostid }}
                 {% if host.image %}
-                    <img src="images/{{ host.image }}">
+                    <img src="{{ url_for('static', path='images/' + host.image) }}">
                 {% endif %}
             </td>
             <td>{{ host.host }}</td>
