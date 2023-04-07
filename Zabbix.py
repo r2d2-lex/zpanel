@@ -32,6 +32,10 @@ SEVERITY_HIGH = 4
 SEVERITY_DISASTER = 5
 SEVERITIES = [SEVERITY_DISASTER, SEVERITY_HIGH, SEVERITY_AVERAGE, SEVERITY_WARNING]
 
+ITEMS_LAST_VALUE = 'lastvalue'
+SORT_FIELD_KEY = 'key_'
+SORT_FIELD_NAME = 'name'
+
 
 class ZabbixMonitoring:
 
@@ -56,6 +60,15 @@ class ZabbixMonitoring:
 
     def __str__(self):
         return 'ZabbixMonitoring'
+
+    def get_all_items(self, host_ids: list):
+        return self._zabbix_api.item.get(hostids=host_ids)
+
+    def get_item_by_key(self, host_id: list, item_name: str):
+        return self._zabbix_api.item.get(hostids=list(host_id), search={SORT_FIELD_KEY: item_name})
+
+    def get_item_by_name(self, host_id: list, item_name: str):
+        return self._zabbix_api.item.get(hostids=list(host_id), search={SORT_FIELD_NAME: item_name})
 
     def get_all_monitored_hosts(self) -> list:
         return self._zabbix_api.host.get(status=1, monitored_hosts=1, selectInterfaces=['ip'])
@@ -105,6 +118,24 @@ def get_zabbix_monitoring_hosts(host_ids: list) -> list:
     return hosts
 
 
+def get_all_host_items(host_ids: list) -> list:
+    with ZabbixMonitoring() as zabbix_monitoring:
+        items = zabbix_monitoring.get_all_items(host_ids)
+    return items
+
+
+def get_host_item_value(host_ids: list, item_name: str) -> str:
+    with ZabbixMonitoring() as zabbix_monitoring:
+        items = zabbix_monitoring.get_item_by_key(host_ids, item_name)
+        if items:
+            try:
+                result = str((float(items[0][ITEMS_LAST_VALUE])))
+            except (IndexError, KeyError) as err:
+                logging.error(f'{err}')
+                result = ''
+    return result
+
+
 def get_all_zabbix_monitoring_hosts() -> list:
     with ZabbixMonitoring() as zabbix_monitoring:
         hosts = zabbix_monitoring.get_all_monitored_hosts()
@@ -140,25 +171,27 @@ def get_zabbix_host_problems(host_id: int, with_time: bool = False) -> list:
 
 def main():
     # hosts = get_zabbix_monitoring_hosts([10451, 10434])
-    hosts = get_all_zabbix_monitoring_hosts()
-    for host in hosts:
-        interface = host['interfaces'][0]['ip']
-        logging.info('--------------------------------------------------------\r\n'
-                     'Host: "{host}", Hostid: "{hostid}" Name: "{name}"\r\nInterface: {interfaces}\r\n'.format(
-            host=host[HOST_FIELD],
-            hostid=host[HOST_ID_FIELD],
-            name=host['name'],
-            interfaces=interface,
-        ))
-        # problems = get_zabbix_host_problems(host[HOST_ID_FIELD], with_time=True)
-        problems = get_zabbix_host_problems(host[HOST_ID_FIELD])
-        for problem in problems:
-            logging.info('Problem: {eventid}, clock: {clock} name: {name} Severity: {severity}\r\n'.format(
-                eventid=problem['eventid'],
-                clock=problem['clock'],
-                name=problem['name'],
-                severity=problem['severity'],
-            ))
+    print(get_host_item_value([10440], 'ups.temperature'))
+
+    # hosts = get_all_zabbix_monitoring_hosts()
+    # for host in hosts:
+    #     interface = host['interfaces'][0]['ip']
+    #     logging.info('--------------------------------------------------------\r\n'
+    #                  'Host: "{host}", Hostid: "{hostid}" Name: "{name}"\r\nInterface: {interfaces}\r\n'.format(
+    #         host=host[HOST_FIELD],
+    #         hostid=host[HOST_ID_FIELD],
+    #         name=host['name'],
+    #         interfaces=interface,
+    #     ))
+    #     # problems = get_zabbix_host_problems(host[HOST_ID_FIELD], with_time=True)
+    #     problems = get_zabbix_host_problems(host[HOST_ID_FIELD])
+    #     for problem in problems:
+    #         logging.info('Problem: {eventid}, clock: {clock} name: {name} Severity: {severity}\r\n'.format(
+    #             eventid=problem['eventid'],
+    #             clock=problem['clock'],
+    #             name=problem['name'],
+    #             severity=problem['severity'],
+    #         ))
     return
 
 
