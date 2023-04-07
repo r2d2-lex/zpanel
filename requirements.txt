@@ -6,3 +6,4 @@ pydantic==1.10.6
 psycopg2==2.9.5
 py-zabbix==1.1.7
 Jinja2==3.1.2
+python-multipart==0.0.6

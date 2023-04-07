@@ -1,17 +1,32 @@
 {% macro render_hosts(hosts, col) %}
     {% for host in hosts %}
         {% if host.column == col %}
+
         <div class="card
-        {% if host.snmp_error %}
-            bg-custom-yellow
-        {% elif host.error %}
+        {% if host.error %}
+            text-white bg-danger
+        {% elif host.snmp_error %}
             text-white bg-danger
         {% elif host.problems %}
-            bg-custom-yellow
+
+            {% if host.problems[0].severity|int() == 5  %}
+                text-white bg-danger
+            {% elif host.problems[0].severity|int() == 4 %}
+                text-white bg-danger
+            {% elif host.problems[0].severity|int() == 3 %}
+                bg-custom-yellow
+            {% elif host.problems[0].severity|int() == 2 %}
+                bg-custom-yellow
+            {% else %}
+                bg-custom-aqua
+            {% endif %}
+
         {% else %}
             bg-custom-green
-        {% endif %}">
+        {% endif %}
+        fw-bolder">
             <div class="row g-0 justify-content-center align-items-center">
+
                     <!-- Первая колонка карточки  -->
                     <div class="col-md-2">
                         {% if host.image %}
@@ -21,8 +36,8 @@
 
                     <!-- Вторая колонка карточки -->
                     <div class="col-md-10">
-                        <div class="card-body p-0">
 
+                        <div class="card-body p-0">
                             <h2 class="card-title fw-bolder">
                                 <a class="text-decoration-none text-reset" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                     {{ host.name }} ({{ host.interfaces[0]['ip'] }})
@@ -39,6 +54,7 @@
                             </p>
 
                         </div>
+
                     </div>
 
             </div>
