@@ -40,18 +40,16 @@
                         <div class="card-body p-0">
                             <h2 class="card-title fw-bolder">
                                 <a class="text-decoration-none text-reset" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                    {{ host.name }} ({{ host.interfaces[0]['ip'] }})
+                                    {{ host.name }} ({{ host.interfaces[0]['ip'] }}) {% if host.problems|count > 2 %}[P:{{ host.problems|count }}]{% endif %}
                                 </a>
                             </h2>
-                            <p class="card-text fw-bolder">
-                                {% if host.error %}{{ host.error }}{% endif %}
-                                {% if host.snmp_error %}snmp: {{ host.snmp_error }}{% endif %}
-                                {% if host.problems|count < 2 %}
+                                {% if host.error %}<p class="card-text fw-bolder">{{ host.error }}</p>{% endif %}
+                                {% if host.snmp_error %}<p class="card-text fw-bolder">snmp: {{ host.snmp_error }}</p>{% endif %}
+                                {% if host.problems|count < 3 %}
                                     {% for problem in host.problems %}
-                                    [{{ problem.clock }}] {{ problem.name }}
+                                        <p class="card-text fw-bolder">[{{ problem.clock }}] {{ problem.name }}</p>
                                     {% endfor %}
                                 {% endif %}
-                            </p>
 
                         </div>
 
