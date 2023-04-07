@@ -7,6 +7,7 @@ logging.basicConfig(level=config.LOGGING_LEVEL)
 
 RESOLVED_PROBLEMS = True
 UNRESOLVED_PROBLEMS_ONLY = False
+RECENT_PROBLEMS = UNRESOLVED_PROBLEMS_ONLY
 NAME_FIELD = 'name'
 HOST_ID_FIELD = 'hostid'
 HOST_FIELD = 'host'
@@ -15,8 +16,7 @@ API_INFO_VERSION = 'apiinfo.version'
 CLOCK_FIELD = 'clock'
 SEVERITY_FIELD = 'severity'
 TIME_TEMPLATE = '%Y-%m-%d %H:%M:%S'
-PROBLEMS_TIME_DAYS_RANGE = 14
-
+PROBLEMS_TIME_DAYS_RANGE = 30
 
 SEVERITY_CLASSIFIED = 0
 SEVERITY_INFORMATION = 1
@@ -24,6 +24,7 @@ SEVERITY_WARNING = 2
 SEVERITY_AVERAGE = 3
 SEVERITY_HIGH = 4
 SEVERITY_DISASTER = 5
+SEVERITIES = [SEVERITY_DISASTER, SEVERITY_HIGH, SEVERITY_AVERAGE, SEVERITY_WARNING]
 
 
 class ZabbixMonitoring:
@@ -55,23 +56,37 @@ class ZabbixMonitoring:
 
     def get_monitored_hosts(self, host_ids: list) -> list:
         return self._zabbix_api.host.get(
+            output=[
+                'hostid',
+                'host',
+                'name',
+                'snmp_error',
+                'error',
+            ],
             hostids=host_ids,
             status=1,
             monitored_hosts=1,
             selectInterfaces=['ip'],
         )
 
-    def get_host_problem(self, host_id, time_from) -> list:
-        return self._zabbix_api.problem.get(
-            hostids=host_id,
-            recent=UNRESOLVED_PROBLEMS_ONLY,
-            severities=[SEVERITY_DISASTER, SEVERITY_HIGH, SEVERITY_AVERAGE, SEVERITY_WARNING],
-            time_from=time_from,
-        )
+    def get_host_problem(self, host_id, time_from: int = None) -> list:
+        if time_from:
+            return self._zabbix_api.problem.get(
+                hostids=host_id,
+                recent=RECENT_PROBLEMS,
+                severities=SEVERITIES,
+                time_from=time_from,
+            )
+        else:
+            return self._zabbix_api.problem.get(
+                hostids=host_id,
+                recent=RECENT_PROBLEMS,
+                severities=SEVERITIES,
+            )
 
 
 def get_time_from_now(days_offset=PROBLEMS_TIME_DAYS_RANGE):
-    delta_time = datetime.datetime.today()-datetime.timedelta(days=days_offset)
+    delta_time = datetime.datetime.today() - datetime.timedelta(days=days_offset)
     logging.debug(f'Get delta: ({days_offset}) days -  Date: {delta_time} from now')
     return int(delta_time.timestamp())
 
@@ -88,12 +103,15 @@ def get_all_zabbix_monitoring_hosts() -> list:
     return hosts
 
 
-def get_zabbix_host_problems(host_id: int) -> list:
+def get_zabbix_host_problems(host_id: int, with_time: bool = False) -> list:
     result = []
     with ZabbixMonitoring() as zabbix_monitoring:
         try:
-            time_from = get_time_from_now()
-            host_problems = list(zabbix_monitoring.get_host_problem(host_id, time_from))
+            if with_time:
+                time_from = get_time_from_now()
+                host_problems = list(zabbix_monitoring.get_host_problem(host_id, time_from))
+            else:
+                host_problems = list(zabbix_monitoring.get_host_problem(host_id))
 
             for problem in host_problems:
                 try:
@@ -107,29 +125,32 @@ def get_zabbix_host_problems(host_id: int) -> list:
         except TypeError as error:
             logging.error(f'Error return host: {host_id} problems: {error}')
     if result:
-        result = sorted(result, reverse=False, key=lambda x: x[CLOCK_FIELD])
+        # Сортировка должна быть по SEVERITY_FIELD и reverse=True чтобы получить корректный цвет ошибки на карточке
+        result = sorted(result, reverse=True, key=lambda x: x[SEVERITY_FIELD])
     return result
 
 
 def main():
     # hosts = get_zabbix_monitoring_hosts([10451, 10434])
-    # print(hosts)
-    # for host in hosts:
-    #     interface = host['interfaces'][0]['ip']
-    #     logging.info('Host: "{host}", Hostid: "{hostid}" Name: "{name}"\r\nInterface: {interfaces}\r\n'.format(
-    #         host=host[HOST_FIELD],
-    #         hostid=host[HOST_ID_FIELD],
-    #         name=host['name'],
-    #         interfaces=interface,
-    #     ))
-    problems = get_zabbix_host_problems(10451)
-    # problems = get_zabbix_host_problems(10434)
-    for problem in problems:
-        logging.info('Problem: {eventid}, clock: {clock} name: {name}\r\n'.format(
-            eventid=problem['eventid'],
-            clock=problem['clock'],
-            name=problem['name'],
+    hosts = get_all_zabbix_monitoring_hosts()
+    for host in hosts:
+        interface = host['interfaces'][0]['ip']
+        logging.info('--------------------------------------------------------\r\n'
+                     'Host: "{host}", Hostid: "{hostid}" Name: "{name}"\r\nInterface: {interfaces}\r\n'.format(
+            host=host[HOST_FIELD],
+            hostid=host[HOST_ID_FIELD],
+            name=host['name'],
+            interfaces=interface,
         ))
+        # problems = get_zabbix_host_problems(host[HOST_ID_FIELD], with_time=True)
+        problems = get_zabbix_host_problems(host[HOST_ID_FIELD])
+        for problem in problems:
+            logging.info('Problem: {eventid}, clock: {clock} name: {name} Severity: {severity}\r\n'.format(
+                eventid=problem['eventid'],
+                clock=problem['clock'],
+                name=problem['name'],
+                severity=problem['severity'],
+            ))
     return
 
 
