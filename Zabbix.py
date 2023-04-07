@@ -65,10 +65,18 @@ class ZabbixMonitoring:
         return self._zabbix_api.item.get(hostids=host_ids)
 
     def get_item_by_key(self, host_id: list, item_name: str):
-        return self._zabbix_api.item.get(hostids=list(host_id), search={SORT_FIELD_KEY: item_name})
+        return self._zabbix_api.item.get(
+            hostids=list(host_id),
+            search={SORT_FIELD_KEY: item_name},
+            output=[ITEMS_LAST_VALUE],
+        )
 
     def get_item_by_name(self, host_id: list, item_name: str):
-        return self._zabbix_api.item.get(hostids=list(host_id), search={SORT_FIELD_NAME: item_name})
+        return self._zabbix_api.item.get(
+            hostids=list(host_id),
+            search={SORT_FIELD_NAME: item_name},
+            output=[ITEMS_LAST_VALUE],
+        )
 
     def get_all_monitored_hosts(self) -> list:
         return self._zabbix_api.host.get(status=1, monitored_hosts=1, selectInterfaces=['ip'])
@@ -129,7 +137,8 @@ def get_host_item_value(host_ids: list, item_name: str) -> str:
         items = zabbix_monitoring.get_item_by_key(host_ids, item_name)
         if items:
             try:
-                result = str((float(items[0][ITEMS_LAST_VALUE])))
+                value = round(float(items[0][ITEMS_LAST_VALUE]), 2)
+                result = str(value)
             except (IndexError, KeyError) as err:
                 logging.error(f'{err}')
                 result = ''
@@ -171,7 +180,7 @@ def get_zabbix_host_problems(host_id: int, with_time: bool = False) -> list:
 
 def main():
     # hosts = get_zabbix_monitoring_hosts([10451, 10434])
-    print(get_host_item_value([10440], 'ups.temperature'))
+    print(get_host_item_value([10436], 'ups.temperature'))
 
     # hosts = get_all_zabbix_monitoring_hosts()
     # for host in hosts:
