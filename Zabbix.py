@@ -8,6 +8,12 @@ logging.basicConfig(level=config.LOGGING_LEVEL)
 RESOLVED_PROBLEMS = True
 UNRESOLVED_PROBLEMS_ONLY = False
 RECENT_PROBLEMS = UNRESOLVED_PROBLEMS_ONLY
+PROBLEMS_OUTPUT_FIELDS_DICT = [
+    'eventid',
+    'clock',
+    'name',
+    'severity',
+]
 NAME_FIELD = 'name'
 HOST_ID_FIELD = 'hostid'
 HOST_FIELD = 'host'
@@ -76,12 +82,14 @@ class ZabbixMonitoring:
                 recent=RECENT_PROBLEMS,
                 severities=SEVERITIES,
                 time_from=time_from,
+                output=PROBLEMS_OUTPUT_FIELDS_DICT,
             )
         else:
             return self._zabbix_api.problem.get(
                 hostids=host_id,
                 recent=RECENT_PROBLEMS,
                 severities=SEVERITIES,
+                output=PROBLEMS_OUTPUT_FIELDS_DICT,
             )
 
 
