@@ -47,3 +47,15 @@ $ sudo systemctl status zpanel.service
 11. Firefox стартовый скрипт:
 firefox -url http://zabbix.local:8000/monitoring/ &
 xdotool search --sync --onlyvisible --class "Firefox" windowactivate key F11
+
+===
+Zabbix выполнить внешний скрипт:
+/etc/zabbix/zabbix_agentd.conf
+UserParameter=test,/home/user/test.sh
+
+Create item:
+proc.num[Service]
+
+Create trigger:
+Name: Service shutdown on {HOST.NAME}
+{hostname:proc.num[Service].last(#2)}=0
