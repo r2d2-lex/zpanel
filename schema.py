@@ -10,9 +10,7 @@ class Host(BaseModel):
         orm_mode = True
 
 
-class HostImage(BaseModel):
-    hostid: int
-    column: int = Path(..., ge=0, le=3, title='Monitoring column')
+class HostImage(Host):
     image: str
 
     class Config:
