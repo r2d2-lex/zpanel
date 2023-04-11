@@ -5,3 +5,4 @@ config.py
 task.txt
 static/images/*
 migrations/__pycache__/*
+migrations/versions/__pycache__/*
