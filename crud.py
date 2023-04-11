@@ -1,9 +1,46 @@
 from sqlalchemy.orm import Session
 
 from models import Host as ModelHost
+from models import MonitoredItem as ModelMonitoredItem
+from schema import Item as SchemaItem
 from schema import Host as SchemaHost
 from schema import HostImage as SchemaImageHost
 
+
+# --------------------- ОПЕРАЦИИ С MonitoredItem -------------------- #
+
+def get_items(db: Session, host_id: int):
+    return db.query(ModelMonitoredItem).filter(ModelHost.hostid == host_id).all()
+
+
+def add_item(db: Session, item: SchemaItem):
+    db_item = ModelMonitoredItem(hostid=item.host_id, name=item.name, value_type=item.value_type)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def delete_item(db: Session, host_id: int, name: str):
+    db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == host_id,
+                                                  ModelMonitoredItem.name == name,
+                                                  )
+    if db_item:
+        db.delete(db_item)
+        db.commit()
+    return db_item
+
+
+def update_item(db: Session, item: SchemaItem):
+    db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == item.host_id).first()
+    if db_item:
+        db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == item.host_id).update(item.dict())
+        db.commit()
+        db.refresh(db_item)
+    return db_item
+
+
+# --------------------- ОПЕРАЦИИ С Host -------------------- #
 
 def get_monitored_hosts(db: Session):
     return db.query(ModelHost).all()

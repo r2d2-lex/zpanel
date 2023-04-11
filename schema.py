@@ -15,3 +15,9 @@ class HostImage(Host):
 
     class Config:
         orm_mode = True
+
+
+class Item(BaseModel):
+    host_id: int
+    name: str
+    value_type: str
