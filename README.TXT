@@ -59,3 +59,7 @@ proc.num[Service]
 Create trigger:
 Name: Service shutdown on {HOST.NAME}
 {hostname:proc.num[Service].last(#2)}=0
+
+===
+Alembic:
+$ alembic init migrations
