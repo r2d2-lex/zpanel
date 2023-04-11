@@ -63,3 +63,7 @@ Name: Service shutdown on {HOST.NAME}
 ===
 Alembic:
 $ alembic init migrations
+После установки переменных в alembic.ini:
+$ alembic revision --autogenerate -m "First migration"
+Запуск  миграции:
+$ alembic upgrade head или $ alembic upgrade %revision%

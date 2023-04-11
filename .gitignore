@@ -4,3 +4,4 @@ __pycache__/*
 config.py
 task.txt
 static/images/*
+migrations/__pycache__/*
