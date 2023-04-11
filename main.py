@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from db import get_db
-from schema import Host
+from schema import Host, Item
 from Zabbix import *
 import config
 import crud
@@ -229,3 +229,18 @@ def get_host_errors(request: Request, host: Host):
                                           'problems': host_problems,
                                       }
                                       )
+
+
+# -------------------------- ( Item ) -----------------------
+@app.get('/items/', response_model=Item)
+async def get_item_from_db(host_id: int, db: Session = Depends(get_db)):
+    items = crud.get_items(db, host_id)
+    return items
+
+
+@app.post('/items/', response_model=Item)
+def add_item_to_db(item: Item, db: Session = Depends(get_db)):
+    db_item = crud.get_items(db=db, host_id=item.host_id)
+    if db_item:
+        raise HTTPException(status_code=400, detail="Item already exist")
+    return crud.add_item(item=item, db=db)
