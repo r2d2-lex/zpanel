@@ -10,11 +10,11 @@ from schema import HostImage as SchemaImageHost
 # --------------------- ОПЕРАЦИИ С MonitoredItem -------------------- #
 
 def get_items(db: Session, host_id: int):
-    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == host_id).all()
+    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == host_id).all()
 
 
 def get_item(db: Session, item: SchemaItem):
-    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == item.host_id, ModelMonitoredItem.name).first()
+    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id, ModelMonitoredItem.name).first()
 
 
 def add_item(db: Session, item: SchemaItem):
@@ -26,7 +26,7 @@ def add_item(db: Session, item: SchemaItem):
 
 
 def delete_item(db: Session, host_id: int, name: str):
-    db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == host_id,
+    db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == host_id,
                                                   ModelMonitoredItem.name == name,
                                                   )
     if db_item:
@@ -36,9 +36,9 @@ def delete_item(db: Session, host_id: int, name: str):
 
 
 def update_item(db: Session, item: SchemaItem):
-    db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == item.host_id).first()
+    db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id).first()
     if db_item:
-        db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == item.host_id).update(item.dict())
+        db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id).update(item.dict())
         db.commit()
         db.refresh(db_item)
     return db_item
