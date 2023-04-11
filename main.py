@@ -232,7 +232,7 @@ def get_host_errors(request: Request, host: Host):
 
 
 # -------------------------- ( Item ) -----------------------
-@app.get('/items/', response_model=Item)
+@app.get('/items/', response_model=list[Item])
 async def get_item_from_db(host_id: int, db: Session = Depends(get_db)):
     items = crud.get_items(db, host_id)
     return items

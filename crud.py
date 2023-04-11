@@ -14,11 +14,12 @@ def get_items(db: Session, host_id: int):
 
 
 def get_item(db: Session, item: SchemaItem):
-    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id, ModelMonitoredItem.name).first()
+    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id,
+                                               ModelMonitoredItem.name == item.name).first()
 
 
 def add_item(db: Session, item: SchemaItem):
-    db_item = ModelMonitoredItem(hostid=item.host_id, name=item.name, value_type=item.value_type)
+    db_item = ModelMonitoredItem(host_id=item.host_id, name=item.name, value_type=item.value_type)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
