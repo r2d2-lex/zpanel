@@ -239,8 +239,24 @@ async def get_item_from_db(host_id: int, db: Session = Depends(get_db)):
 
 
 @app.post('/items/', response_model=Item)
-def add_item_to_db(item: Item, db: Session = Depends(get_db)):
-    db_item = crud.get_items(db=db, host_id=item.host_id)
+async def add_item_to_db(item: Item, db: Session = Depends(get_db)):
+    db_item = crud.get_item(db=db, item=item)
     if db_item:
         raise HTTPException(status_code=400, detail="Item already exist")
     return crud.add_item(item=item, db=db)
+
+
+@app.delete('/items/', response_model=Item)
+async def delete_item_from_db(item: Item, db: Session = Depends(get_db)):
+    db_item = crud.get_item(db=db, item=item)
+    if not db_item:
+        raise HTTPException(status_code=400, detail="Item not found")
+    return crud.delete_item(db=db, host_id=item.host_id, name=item.name)
+
+
+@app.patch('/items/', response_model=Item)
+async def update_item(item: Item, db: Session = Depends(get_db)):
+    db_item = crud.get_item(db=db, item=item)
+    if not db_item:
+        raise HTTPException(status_code=400, detail="Item not found")
+    return crud.update_item(db=db, item=item)

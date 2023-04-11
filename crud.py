@@ -10,7 +10,11 @@ from schema import HostImage as SchemaImageHost
 # --------------------- ОПЕРАЦИИ С MonitoredItem -------------------- #
 
 def get_items(db: Session, host_id: int):
-    return db.query(ModelMonitoredItem).filter(ModelHost.hostid == host_id).all()
+    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == host_id).all()
+
+
+def get_item(db: Session, item: SchemaItem):
+    return db.query(ModelMonitoredItem).filter(ModelMonitoredItem.hostid == item.host_id, ModelMonitoredItem.name).first()
 
 
 def add_item(db: Session, item: SchemaItem):
