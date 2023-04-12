@@ -29,7 +29,7 @@ def add_item(db: Session, item: SchemaItem):
 def delete_item(db: Session, host_id: int, name: str):
     db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == host_id,
                                                   ModelMonitoredItem.name == name,
-                                                  )
+                                                  ).first()
     if db_item:
         db.delete(db_item)
         db.commit()
@@ -39,7 +39,9 @@ def delete_item(db: Session, host_id: int, name: str):
 def update_item(db: Session, item: SchemaItem):
     db_item = db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id).first()
     if db_item:
-        db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id).update(item.dict())
+        db.query(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == item.host_id,
+                                            ModelMonitoredItem.name == item.name,
+                                            ).update(item.dict())
         db.commit()
         db.refresh(db_item)
     return db_item

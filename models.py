@@ -11,8 +11,10 @@ class Host(Base):
     image = Column(String)
 
 
+# autoincrement=True!!!
 class MonitoredItem(Base):
     __tablename__ = 'item'
-    host_id = Column(Integer, ForeignKey(Host.hostid), nullable=False, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    host_id = Column(Integer, ForeignKey(Host.hostid))
     name = Column(String)
     value_type = Column(String)

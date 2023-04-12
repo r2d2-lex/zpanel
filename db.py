@@ -6,7 +6,7 @@ from models import Base
 import config
 import logging
 
-engine = create_engine(config.ZABBIX_DATABASE_URI, echo=True)
+engine = create_engine(config.ZABBIX_DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
