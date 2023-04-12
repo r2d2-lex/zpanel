@@ -1,3 +1,15 @@
-{% for item in items %}
-    {{ item.host_id }} {{ item.name }} {{ item.value_type }}<br>
-{% endfor %}
+<div class="input-group input-group-sm mb-3">
+  <span class="input-group-text" id="item_name">Элемент мониторинга</span>
+  <input type="text" placeholder="Введите ключ элемента данных Zabbix" class="form-control" aria-label="" aria-describedby="">
+</div>
+
+<div class="input-group input-group-sm mb-3">
+  <span class="input-group-text" id="item_type">Тип данных</span>
+  <input type="text" placeholder="Введите тип значения для отображения" class="form-control" aria-label="" aria-describedby="">
+</div>
+
+<select class="form-select" aria-label="multiple select example" id="items" name="items" size="3" multiple>
+    {% for item in items %}
+            <option value="{{ item.name }}">{{ item.name }};{{ item.value_type }}</option>
+    {% endfor %}
+</select>

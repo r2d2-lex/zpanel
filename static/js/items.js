@@ -34,3 +34,7 @@ $(items).filter(function() {
     });
 
 });
+
+$('#item_add').click(function(){
+
+});
