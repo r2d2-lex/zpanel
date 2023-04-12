@@ -1,17 +1,18 @@
 {% extends "modal.html" %}
 
 {% block id %}exampleModal{% endblock %}
-{% block title %}Загрузите изображение для:{% endblock %}
+{% block title %}Данные для:{% endblock %}
 
 {% block content %}
     <div class="overflow-auto">
 
         <input type="hidden" id="Host-Id">
-        <input type="file" id="upload_id">
-        <div id="result_upload">
+        <div id="items_status">
             <!-- статус upload_image -->
         </div>
 
     </div>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Добавить</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Удалить</button>
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
 {% endblock %}
