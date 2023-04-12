@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from db import get_db
-from schema import Host, Item
+from schema import Host, Item, HostId
 from Zabbix import *
 import config
 import crud
@@ -227,6 +227,18 @@ def get_host_errors(request: Request, host: Host):
                                       {
                                           'request': request,
                                           'problems': host_problems,
+                                      }
+                                      )
+
+
+@app.post('/data-items/', response_class=HTMLResponse)
+def get_host_items(request: Request, host_id: HostId, db: Session = Depends(get_db)):
+    host_items = crud.get_items(db, host_id.host_id)
+    template = 'zpanel/items.html'
+    return templates.TemplateResponse(template,
+                                      {
+                                          'request': request,
+                                          'items': host_items,
                                       }
                                       )
 

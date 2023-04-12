@@ -1,6 +1,8 @@
 <script src="{{ url_for('static', path='js/settings.js') }}" crossorigin="anonymous"></script>
 <script src="{{ url_for('static', path='js/upload.js') }}" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', path='js/items.js') }}" crossorigin="anonymous"></script>
 {% include 'upload-modal.html' %}
+{% include 'items-modal.html' %}
 <form action="/" method="post">
     <table class="table table-sm table-bordered">
         <tr class="table-info">
@@ -43,6 +45,9 @@
                 <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
 
                 <a class="btn btn-outline-dark btn-sm" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">Загрузить изображение</a>
+
+                <input class="btn btn-outline-dark btn-sm item_class" type="button" name="Элементы данных" value="Элементы данных" id="item_{{ host.hostid }}"/>
+
                 <a class="btn btn-info btn-sm" href="/monitoring/">Панель</a>
             </td>
         </tr>

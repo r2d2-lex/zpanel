@@ -1,14 +1,16 @@
 {% extends "modal.html" %}
 
-{% block id %}exampleModal{% endblock %}
+{% block id %}itemsModal{% endblock %}
 {% block title %}Данные для:{% endblock %}
 
 {% block content %}
     <div class="overflow-auto">
 
-        <input type="hidden" id="Host-Id">
+        <input type="hidden" id="Items-Id">
+        <div id="items_content">
+        </div>
+
         <div id="items_status">
-            <!-- статус upload_image -->
         </div>
 
     </div>
