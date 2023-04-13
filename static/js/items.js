@@ -11,8 +11,9 @@ $(items).filter(function() {
           let host_id = button_id.replace(item_template,'');
           console.log(host_id);
 
-          $('#Item-Id').val(host_id);
           $('#itemsModal').modal('show');
+          // Устанавливаем значение input в модальной форме
+          $("#itemsModal").find('input[name="items_id"]').val(host_id);
 
           $.ajax({
             type : 'POST',
@@ -35,6 +36,13 @@ $(items).filter(function() {
 
 });
 
-$('#item_add').click(function(){
+// Modal button click!!!
+$(document).on("click", "#item_add", function(event){
+    console.log('------------ NEW!!!! -------------------');
+//    let val2 = $('.modal-body input[name=items_id]').val();
+    let host_id = $('#itemsModal').find('input[name="items_id"]').val();
+    let item_name = $('#item_name').val();
+    let item_type = $('#item_type').val();
 
+    console.log('Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
 });

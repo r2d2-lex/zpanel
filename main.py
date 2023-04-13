@@ -60,7 +60,7 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
                         image = db_host.image
 
                     if with_problems:
-                        problems = get_zabbix_host_problems(db_host.hostid, with_time=True)
+                        problems = get_zabbix_host_problems(db_host.hostid)
                     logging.debug('{host} in database'.format(host=db_host.hostid))
                     column = db_host.column
                     break

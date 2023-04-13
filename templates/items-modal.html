@@ -7,7 +7,18 @@
 {% block content %}
     <div class="overflow-auto">
 
-        <input type="hidden" id="Items-Id">
+        <input name="items_id" type="hidden" id="Items-Id">
+
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text">Элемент мониторинга:</span>
+            <input type="text" id="item_name" value="111" placeholder="Введите ключ элемента данных Zabbix" class="form-control" aria-label="" aria-describedby="">
+        </div>
+
+        <div class="input-group input-group-sm mb-3">
+            <span class="input-group-text" >Тип данных:</span>
+            <input type="text" id="item_type" value="222" placeholder="Введите тип значения для отображения" class="form-control" aria-label="" aria-describedby="">
+        </div>
+
         <div id="items_content">
         </div>
 
@@ -19,4 +30,5 @@
     <button type="button" class="btn btn-primary" id="item_path">Изменить</button>
     <button type="button" class="btn btn-danger" id="item_delete">Удалить</button>
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+
 {% endblock %}
