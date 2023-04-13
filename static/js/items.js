@@ -3,6 +3,8 @@ $(items).filter(function() {
     $(this).click(function(){
           $('#items_content').empty();
           $('#items_status').empty();
+          $('#item_name').val('');
+          $('#item_type').val('');
 
           let button_id = $(this).attr('id');
           let item_template = 'item_';
@@ -19,14 +21,36 @@ $(items).filter(function() {
 
 // Modal button click!!!
 $(document).on("click", "#item_add", function(event){
-    console.log('------------ NEW!!!! -------------------');
+    console.log('------------ ADD ITEM!!!! -------------------');
     let host_id = $('#itemsModal').find('input[name="items_id"]').val();
     let item_name = $('#item_name').val();
     let item_type = $('#item_type').val();
 
     console.log('Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
-    $.ajax({
-        type : 'POST',
+    crudItems(host_id, item_name, item_type, 'POST');
+});
+
+$(document).on("click", "#item_patch", function(event){
+    console.log('------------  PATCH ITEM!!!! -------------------');
+    let host_id = $('#itemsModal').find('input[name="items_id"]').val();
+    let item_name = $('#item_name').val();
+    let item_type = $('#item_type').val();
+    crudItems(host_id, item_name, item_type, 'PATCH');
+    console.log('PATCH Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
+});
+
+$(document).on("click", "#item_delete", function(event){
+    console.log('------------ DELETE ITEM!!!! -------------------');
+    let host_id = $('#itemsModal').find('input[name="items_id"]').val();
+    let item_name = $('#item_name').val();
+    let item_type = ' ';
+    crudItems(host_id, item_name, item_type, 'DELETE');
+    console.log('DELETE Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
+});
+
+function crudItems(host_id, item_name, item_type, method) {
+        $.ajax({
+        type : method,
         url: '/items/',
         data: JSON.stringify({
             'host_id': host_id,
@@ -36,25 +60,16 @@ $(document).on("click", "#item_add", function(event){
         dataType: 'json',
         contentType: "application/json",
         success: function(data){
-            showMessage('#items_status', 'Успешная добавлено: '+ host_id, 'alert-success');
-            console.log('success');
+            showMessage('#items_status', 'Успешная операция. Метод : '+ method + ' для хоста:' + host_id, 'alert-success');
+            console.log('CRUD: Success method: ' + method);
             reloadItems(host_id);
         },
         error: function(data){
-            showMessage('#items_status', 'Неудачная операция: '+ host_id + ' Name: ' + item_name, 'alert-warning');
-            console.log('error');
+            showMessage('#items_status', 'Неудачная операция: '+ host_id + ' Name: ' + item_name, 'alert-danger');
+            console.log('CRUD: Error method: ' + method);
         }
     });
-
-});
-
-$(document).on("click", "#item_path", function(event){
-    showMessage('#items_status', 'test!', 'alert-info');
-});
-
-$(document).on("click", "#item_delete", function(event){
-    showMessage('#items_status', 'test!', 'alert-danger');
-});
+}
 
 function reloadItems(host_id) {
             $.ajax({
