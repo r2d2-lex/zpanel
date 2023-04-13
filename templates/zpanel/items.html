@@ -1,4 +1,4 @@
-<select class="form-select" aria-label="multiple select example" id="items" name="items" size="3" multiple>
+<select class="form-select" aria-label="multiple select example" id="select_items" name="select_items" size="3" multiple>
     {% for item in items %}
             <option value="{{ item.name }}">Элемент: {{ item.name }}; Тип данных: {{ item.value_type }}</option>
     {% endfor %}
