@@ -25,8 +25,6 @@ $(document).on("click", "#item_add", function(event){
     let host_id = $('#items_id').val();
     let item_name = $('#item_name').val();
     let item_type = $('#item_type').val();
-
-    console.log('Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
     crudItems(host_id, item_name, item_type, 'POST');
 });
 
@@ -36,7 +34,6 @@ $(document).on("click", "#item_patch", function(event){
     let item_name = $('#item_name').val();
     let item_type = $('#item_type').val();
     crudItems(host_id, item_name, item_type, 'PATCH');
-    console.log('PATCH Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
 });
 
 $(document).on("click", "#item_delete", function(event){
@@ -45,7 +42,6 @@ $(document).on("click", "#item_delete", function(event){
     let item_name = $('#item_name').val();
     let item_type = ' ';
     crudItems(host_id, item_name, item_type, 'DELETE');
-    console.log('DELETE Host id: ' + host_id + ' Item_Name: ' +  item_name + ' Item_Type: ' + item_type);
 });
 
 function crudItems(host_id, item_name, item_type, method) {
@@ -88,10 +84,4 @@ function reloadItems(host_id) {
                 console.log('Error load items!');
             }
           });
-}
-
-function addSelectRecord(item_name, item_type) {
-    $('#select_items').append($('<option>', { value: item_name,
-        text : 'Элемент: ' + item_name + '; Тип данных:' + item_type,
-    }));
 }

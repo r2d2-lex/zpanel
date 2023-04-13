@@ -128,7 +128,7 @@ async def parse_host_id(request):
 
 
 @app.get('/images/{image_name}')
-async def download_image(image_name: str, db: Session = Depends(get_db)):
+async def download_image(image_name: str):
     result = ''
     file_path = CURRENT_IMAGES_DIRECTORY + image_name
     logging.info(f'File path: {file_path}')
