@@ -12,7 +12,7 @@ $(items).filter(function() {
 
           $('#itemsModal').modal('show');
           // Устанавливаем значение input в модальной форме
-          $("#itemsModal").find('input[name="items_id"]').val(host_id);
+          $('#items_id').val(host_id);
           $("#itemsModal").find('h5').empty();
           $("#itemsModal").find('h5').text('Данные для:' + host_id);
           reloadItems(host_id);
@@ -22,7 +22,7 @@ $(items).filter(function() {
 // Modal button click!!!
 $(document).on("click", "#item_add", function(event){
     console.log('------------ ADD ITEM!!!! -------------------');
-    let host_id = $('#itemsModal').find('input[name="items_id"]').val();
+    let host_id = $('#items_id').val();
     let item_name = $('#item_name').val();
     let item_type = $('#item_type').val();
 
@@ -32,7 +32,7 @@ $(document).on("click", "#item_add", function(event){
 
 $(document).on("click", "#item_patch", function(event){
     console.log('------------  PATCH ITEM!!!! -------------------');
-    let host_id = $('#itemsModal').find('input[name="items_id"]').val();
+    let host_id = $('#items_id').val();
     let item_name = $('#item_name').val();
     let item_type = $('#item_type').val();
     crudItems(host_id, item_name, item_type, 'PATCH');
@@ -41,7 +41,7 @@ $(document).on("click", "#item_patch", function(event){
 
 $(document).on("click", "#item_delete", function(event){
     console.log('------------ DELETE ITEM!!!! -------------------');
-    let host_id = $('#itemsModal').find('input[name="items_id"]').val();
+    let host_id = $('#items_id').val();
     let item_name = $('#item_name').val();
     let item_type = ' ';
     crudItems(host_id, item_name, item_type, 'DELETE');
