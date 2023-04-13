@@ -3,3 +3,11 @@
             <option value="{{ item.name }}">Элемент: {{ item.name }}; Тип данных: {{ item.value_type }}</option>
     {% endfor %}
 </select>
+<script>
+$('#select_items').change(function(){
+    let element = $('#select_items').val();
+    $('#itemsModal').find('input[name="item_name"]').val(element);
+    $('#itemsModal').find('input[name="item_type"]').val('');
+    console.log('Select click!!!: ' + element);
+});
+</script>
