@@ -66,7 +66,7 @@
                     {% if host.data_items %}
                     <div class="col-md-2 d-flex justify-content-center">
                                     {% for item in host.data_items %}
-                                            {{ card_text(item.item_value + ' ' + item.item_type) }}
+                                        <h5 class="fw-bolder">{{ item.item_value + ' ' + item.item_type }}</h5>
                                     {% endfor %}
                     </div>
                     {% endif %}
