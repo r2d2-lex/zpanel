@@ -31,16 +31,24 @@
         fw-bolder">
             <div class="row g-0 justify-content-center align-items-center">
 
-                    <!-- Первая колонка карточки  -->
-                    <div class="col-md-2">
-                        {% if host.image %}
+                {% set middle_column = 12 %}
+                {% if host.image %}
+                    {% set middle_column = middle_column - 2 %}
+                {% endif %}
+                {% if host.data_items %}
+                    {% set middle_column = middle_column - 2 %}
+                {% endif %}
+
+                <!-- Первая колонка карточки  -->
+                    {% if host.image %}
+                    <div class="col-md-2 justify-content-start">
+
                             <img src="http://127.0.0.1:8000/static/images/{{ host.image }}" width="85" height="85" />
-                        {% endif %}
                     </div>
+                    {% endif %}
 
                     <!-- Вторая колонка карточки -->
-                    <div class="col-md-10">
-
+                    <div class="col-md-{{ middle_column }} justify-content-start">
                         <div class="card-body p-0">
                             <h2 class="card-title fw-bolder">
                                 <a class="text-decoration-none text-reset" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -51,16 +59,17 @@
                                 {% if host.snmp_error %} {{ card_text(host.snmp_error) }} {% endif %}
                                 {% if host.problems[0] %} {{ card_text('[' + host.problems[0].clock + '] ' + host.problems[0].name) }} {% endif %}
                                 {% if host.problems[1] %} {{ card_text('[' + host.problems[1].clock + '] ' + host.problems[1].name) }} {% endif %}
+                        </div>
+                    </div>
 
-                                {% if host.data_items %}
+                    <!-- Третья колонка карточки -->
+                    {% if host.data_items %}
+                    <div class="col-md-2 d-flex justify-content-center">
                                     {% for item in host.data_items %}
                                             {{ card_text(item.item_value + ' ' + item.item_type) }}
                                     {% endfor %}
-                                {% endif %}
-
-                        </div>
-
                     </div>
+                    {% endif %}
 
             </div>
         </div>

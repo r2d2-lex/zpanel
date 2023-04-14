@@ -55,6 +55,7 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
     Добавляет значение колонки (column) из БД в словарь мониторинга 
     Добавляет количество проблем (problems) в словарь мониторинга 
     Добавляет имя файла изображения (image) в словарь мониторинга 
+    Добавляет элементы данных (data_items) в словарь мониторинга 
     """""
     monitoring_hosts = []
     db_hosts = crud.get_monitored_hosts(db)
