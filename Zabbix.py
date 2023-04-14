@@ -64,16 +64,16 @@ class ZabbixMonitoring:
     def get_all_items(self, host_ids: list):
         return self._zabbix_api.item.get(hostids=host_ids)
 
-    def get_item_by_key(self, host_id: list, item_name: str):
+    def get_item_by_key(self, host_ids: list, item_name: str):
         return self._zabbix_api.item.get(
-            hostids=list(host_id),
+            hostids=host_ids,
             search={SORT_FIELD_KEY: item_name},
             output=[ITEMS_LAST_VALUE],
         )
 
-    def get_item_by_name(self, host_id: list, item_name: str):
+    def get_item_by_name(self, host_ids: list, item_name: str):
         return self._zabbix_api.item.get(
-            hostids=list(host_id),
+            hostids=host_ids,
             search={SORT_FIELD_NAME: item_name},
             output=[ITEMS_LAST_VALUE],
         )
@@ -133,6 +133,7 @@ def get_all_host_items(host_ids: list) -> list:
 
 
 def get_host_item_value(host_ids: list, item_name: str) -> str:
+    host_ids = [host_ids]
     with ZabbixMonitoring() as zabbix_monitoring:
         items = zabbix_monitoring.get_item_by_key(host_ids, item_name)
         if items:

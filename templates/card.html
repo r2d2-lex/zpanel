@@ -47,6 +47,13 @@
                                 {% if host.snmp_error %}<p class="card-text fw-bolder">snmp: {{ host.snmp_error }}</p>{% endif %}
                                 {% if host.problems[0] %}<p class="card-text fw-bolder">[{{ host.problems[0].clock }}] {{ host.problems[0].name }}</p>{% endif %}
                                 {% if host.problems[1] %}<p class="card-text fw-bolder">[{{ host.problems[1].clock }}] {{ host.problems[1].name }}</p>{% endif %}
+
+                                {% if host.data_items %}
+                                    {% for item in host.data_items %}
+                                            <p class="card-text fw-bolder">{{ item.item_value }}{{ item.item_type }}</p>
+                                    {% endfor %}
+                                {% endif %}
+
                         </div>
 
                     </div>

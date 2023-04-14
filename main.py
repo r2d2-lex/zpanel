@@ -17,6 +17,7 @@ import os
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
 IMAGE_FIELD = 'image'
+DATA_ITEMS_FIELD = 'data_items'
 # from upload.js:
 IMAGE_HOST_ID_FIELD = 'host-id'
 
@@ -39,6 +40,16 @@ def get_monitored_hosts_ids(db) -> list:
     return host_ids
 
 
+def get_data_items(db, host_id) -> list:
+    result = []
+    data_items = crud.get_items(db, host_id)
+    for item in data_items:
+        items_result = get_host_item_value(host_id, item.name)
+        if items_result:
+            result.append({'item_value': items_result, 'item_type': item.value_type})
+    return result
+
+
 def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> list:
     """ 
     Добавляет значение колонки (column) из БД в словарь мониторинга 
@@ -52,9 +63,11 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
         image = ''
         problems = []
         column = 0
+        items = []
         for db_host in db_hosts:
             try:
                 if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.hostid):
+                    items = get_data_items(db, db_host.hostid)
 
                     if db_host.image:
                         image = db_host.image
@@ -74,6 +87,8 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
             view_host.update({IMAGE_FIELD: image})
         if with_problems:
             view_host.update({PROBLEMS_FIELD: problems})
+        if items:
+            view_host.update({DATA_ITEMS_FIELD: items})
 
         monitoring_hosts.append(view_host)
     # Финальная сортировка списка по Имени(NAME_FIELD) машины
