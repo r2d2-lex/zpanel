@@ -139,7 +139,7 @@ def get_host_item_value(host_ids: list, item_name: str) -> str:
         items = zabbix_monitoring.get_item_by_key(host_ids, item_name)
         if items:
             try:
-                value = round(float(items[0][ITEMS_LAST_VALUE]), 2)
+                value = int(float(items[0][ITEMS_LAST_VALUE]))
                 result = str(value)
             except (IndexError, KeyError) as err:
                 logging.error(f'{err}')
