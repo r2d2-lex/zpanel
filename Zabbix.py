@@ -133,6 +133,7 @@ def get_all_host_items(host_ids: list) -> list:
 
 
 def get_host_item_value(host_ids: list, item_name: str) -> str:
+    result = ''
     host_ids = [host_ids]
     with ZabbixMonitoring() as zabbix_monitoring:
         items = zabbix_monitoring.get_item_by_key(host_ids, item_name)

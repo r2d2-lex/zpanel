@@ -47,6 +47,8 @@ def get_data_items(db, host_id) -> list:
         items_result = get_host_item_value(host_id, item.name)
         if items_result:
             result.append({'item_value': items_result, 'item_type': item.value_type})
+        else:
+            result.append({'item_value': 'None', 'item_type': item.value_type})
     return result
 
 
