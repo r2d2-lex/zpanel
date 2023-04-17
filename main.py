@@ -45,6 +45,7 @@ def get_data_items(db, host_id) -> list:
     data_items = crud.get_items(db, host_id)
     for item in data_items:
         items_result = get_host_item_value(host_id, item.name)
+        logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
         if items_result:
             result.append({'item_value': items_result, 'item_type': item.value_type})
         else:
@@ -94,8 +95,8 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
             view_host.update({DATA_ITEMS_FIELD: items})
 
         monitoring_hosts.append(view_host)
-    # Финальная сортировка списка по Имени(NAME_FIELD) машины
-    monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
+    # Финальная сортировка списка по кол-во проблем (PROBLEMS_FIELD) элемента
+    monitoring_hosts = sorted(monitoring_hosts, reverse=True, key=lambda x: len(x[PROBLEMS_FIELD]))
     return monitoring_hosts
 
 
