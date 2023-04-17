@@ -5,5 +5,5 @@ workers = cpu_count() + 1
 worker_class = 'uvicorn.workers.UvicornWorker'
 
 loglevel = 'debug'
-accesslog = '/var/www/zpanel/access_log'
-errorlog =  '/var/www/zpanel/error_log'
+accesslog = '/var/log/zpanel/access_log'
+errorlog =  '/var/log/zpanel/error_log'

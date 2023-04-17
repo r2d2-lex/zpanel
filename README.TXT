@@ -48,6 +48,10 @@ $ sudo systemctl status zpanel.service
 firefox -url http://zabbix.local:8000/monitoring/ &
 xdotool search --sync --onlyvisible --class "Firefox" windowactivate key F11
 
+12. Настройка логов
+mkdir /var/log/zpanel && chown www-data. /var/log/zpanel && systemctl restart zpanel.service
+cp service/logrotate.d/zpanel /etc/logrotate.d/
+systemctl restart logrotate.service
 ===
 Zabbix выполнить внешний скрипт:
 /etc/zabbix/zabbix_agentd.conf
