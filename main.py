@@ -95,8 +95,12 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
             view_host.update({DATA_ITEMS_FIELD: items})
 
         monitoring_hosts.append(view_host)
-    # Финальная сортировка списка по кол-во проблем (PROBLEMS_FIELD) элемента
-    monitoring_hosts = sorted(monitoring_hosts, reverse=True, key=lambda x: len(x[PROBLEMS_FIELD]))
+    if with_problems:
+        # Финальная сортировка списка по кол-ву проблем (PROBLEMS_FIELD) элемента
+        monitoring_hosts = sorted(monitoring_hosts, reverse=True, key=lambda x: len(x[PROBLEMS_FIELD]))
+    else:
+        # Финальная сортировка списка по Имени(NAME_FIELD) машины
+        monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
     return monitoring_hosts
 
 
