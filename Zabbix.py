@@ -153,11 +153,11 @@ def get_all_zabbix_monitoring_hosts() -> list:
     return hosts
 
 
-def get_zabbix_host_problems(host_id: int, with_time: bool = False) -> list:
+def get_zabbix_host_problems(host_id: int, with_time_from: bool = False) -> list:
     result = []
     with ZabbixMonitoring() as zabbix_monitoring:
         try:
-            if with_time:
+            if with_time_from:
                 time_from = get_time_from_now()
                 host_problems = list(zabbix_monitoring.get_host_problem(host_id, time_from))
             else:
