@@ -3,6 +3,7 @@
 {%- endmacro %}
 
 {% macro render_hosts(hosts, col) %}
+{% if hosts %}
     {% for host in hosts %}
         {% if host.column == col %}
 
@@ -75,4 +76,5 @@
         </div>
         {% endif %}
     {% endfor %}
+{% endif %}
 {% endmacro %}

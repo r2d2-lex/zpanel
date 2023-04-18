@@ -1,8 +1,11 @@
-from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
+from functools import wraps
+
+from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi_utils.tasks import repeat_every
 
 from sqlalchemy.orm import Session
 
@@ -13,6 +16,7 @@ import config
 import crud
 import logging
 import os
+import time
 
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
@@ -29,6 +33,34 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 CURRENT_WORK_DIRECTORY = os.getcwd()
 CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
+app.monitoring_hosts = None
+
+
+def time_sand(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        time_start = time.time()
+        result = func(*args, **kwargs)
+        time_end = time.time()
+        logging.info(f'Function {func.__name__} delta time: {time_end - time_start}')
+        return result
+    return wrapper
+
+
+@app.on_event("startup")
+@repeat_every(seconds=15)
+def startup_updater() -> None:
+    print_time = datetime.datetime.today()
+    logging.info(f'Get monitoring data ({print_time})')
+    refresh_monitoring_data()
+
+
+def refresh_monitoring_data() -> None:
+    db = next(get_db())
+    host_ids = get_monitored_hosts_ids(db)
+    zabbix_hosts = get_zabbix_monitoring_hosts(host_ids)
+    app.monitoring_hosts = update_monitoring_hosts(zabbix_hosts, db, with_problems=True)
+    return
 
 
 def get_monitored_hosts_ids(db) -> list:
@@ -115,15 +147,12 @@ def monitoring(request: Request):
 
 
 @app.get('/panel/', response_class=HTMLResponse)
-def monitoring_panel(request: Request, db: Session = Depends(get_db)):
+def monitoring_panel(request: Request):
     template = 'zpanel/panel.html'
-    host_ids = get_monitored_hosts_ids(db)
-    zabbix_hosts = get_zabbix_monitoring_hosts(host_ids)
-    monitoring_hosts = update_monitoring_hosts(zabbix_hosts, db, with_problems=True)
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,
-                                          'hosts': monitoring_hosts,
+                                          'hosts': app.monitoring_hosts,
                                       }
                                       )
 
