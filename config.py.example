@@ -1,12 +1,12 @@
 import logging
 
 LOGGING_LEVEL = logging.INFO
-ZABBIX_HOST = '127.0.0.1'
-ZABBIX_LOGIN = 'zabbix-login'
-ZABBIX_PASSWORD = 'zabbix-pass'
-ZABBIX_DB = 'zabbix'
-ZABBIX_ENGINE = 'postgresql+psycopg2'
-ZABBIX_DATABASE_URI = f'{ZABBIX_ENGINE}://{ZABBIX_LOGIN}:{ZABBIX_PASSWORD}@{ZABBIX_HOST}/{ZABBIX_DB}'
+ZPANEL_HOST = '127.0.0.1'
+ZPANEL_LOGIN = 'zabbix-login'
+ZPANEL_PASSWORD = 'zabbix-pass'
+ZPANEL_DB = 'zabbix'
+ZPANEL_ENGINE = 'postgresql+psycopg2'
+ZPANEL_DATABASE_URI = f'{ZPANEL_ENGINE}://{ZPANEL_LOGIN}:{ZPANEL_PASSWORD}@{ZPANEL_HOST}/{ZPANEL_DB}'
 
 ZABBIX_API_USER = 'zabbix-login'
 ZABBIX_API_PASSWORD = 'zabbix-pass'

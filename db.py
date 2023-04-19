@@ -6,7 +6,7 @@ from models import Base
 import config
 import logging
 
-engine = create_engine(config.ZABBIX_DATABASE_URI)
+engine = create_engine(config.ZPANEL_DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -21,7 +21,7 @@ def get_db():
 class Database:
     def __init__(self):
         self.connection = None
-        self.engine = create_engine(config.ZABBIX_DATABASE_URI)
+        self.engine = create_engine(config.ZPANEL_DATABASE_URI)
 
     def __enter__(self):
         try:

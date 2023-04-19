@@ -6,18 +6,18 @@ from sqlalchemy import pool
 from alembic import context
 
 from models import Base
-from config import ZABBIX_HOST, ZABBIX_LOGIN, ZABBIX_PASSWORD, ZABBIX_DB, ZABBIX_ENGINE
+from config import ZPANEL_HOST, ZPANEL_LOGIN, ZPANEL_PASSWORD, ZPANEL_DB, ZPANEL_ENGINE
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, 'ZABBIX_HOST', ZABBIX_HOST)
-config.set_section_option(section, 'ZABBIX_LOGIN', ZABBIX_LOGIN)
-config.set_section_option(section, 'ZABBIX_PASSWORD', ZABBIX_PASSWORD)
-config.set_section_option(section, 'ZABBIX_DB', ZABBIX_DB)
-config.set_section_option(section, 'ZABBIX_ENGINE', ZABBIX_ENGINE)
+config.set_section_option(section, 'ZPANEL_HOST', ZPANEL_HOST)
+config.set_section_option(section, 'ZPANEL_LOGIN', ZPANEL_LOGIN)
+config.set_section_option(section, 'ZPANEL_PASSWORD', ZPANEL_PASSWORD)
+config.set_section_option(section, 'ZPANEL_DB', ZPANEL_DB)
+config.set_section_option(section, 'ZPANEL_ENGINE', ZPANEL_ENGINE)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
