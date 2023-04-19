@@ -2,7 +2,7 @@
     <p class="card-text fw-bolder">{{ text }}</p>
 {%- endmacro %}
 
-{% macro render_hosts(hosts, col) %}
+{% macro render_hosts(hosts, col, img_path) %}
     {% for host in hosts %}
         {% if host.column == col %}
 
@@ -42,8 +42,7 @@
                 <!-- Первая колонка карточки  -->
                     {% if host.image %}
                     <div class="col-md-2 justify-content-start">
-
-                            <img src="http://127.0.0.1:8000/static/images/{{ host.image }}" width="85" height="85" />
+                        <img src="{{ img_path|string() + host.image }}" width="85" height="85" />
                     </div>
                     {% endif %}
 
