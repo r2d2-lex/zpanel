@@ -7,7 +7,7 @@
     $("#content").html(html);
    },
    error: function(html){
-    showMessage('ошибка соединения с сервером', 'alert-danger');
+    showMessage('#id_status', 'ошибка соединения с сервером', 'alert-danger');
    }
   });
 }
@@ -17,12 +17,12 @@
   setInterval ('show()',5000);
  });
 
-function showMessage(message, classAlert) {
-    $('#id_status').empty();
+function showMessage(id, message, classAlert) {
+    $(id).empty();
     let div = document.createElement('div');
     div.classList.add("alert");
     div.classList.add(classAlert);
     div.setAttribute("role", "alert");
     div.innerHTML = message;
-    $('#id_status').append(div);
+    $(id).append(div);
 }
