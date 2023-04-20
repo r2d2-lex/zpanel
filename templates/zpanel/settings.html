@@ -12,6 +12,7 @@
             <th scope="col">Колонка</th>
             <th scope="col">Мониторинг</th>
         </tr>
+{% if hosts %}
     {% for host in hosts %}
         {% if host.column > 0 %}
             <tr class="table-primary">
@@ -52,5 +53,6 @@
             </td>
         </tr>
     {% endfor %}
+{% endif %}
     </table>
 </form>
