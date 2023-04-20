@@ -65,9 +65,11 @@
                     <!-- Третья колонка карточки -->
                     {% if host.data_items %}
                     <div class="col-md-2 d-flex justify-content-center">
+                            <div class="container">
                                     {% for item in host.data_items %}
-                                        <h5 class="fw-bolder">{{ item.item_value + ' ' + item.item_type }}</h5>
+                                        <div class="row"><h5 class="fw-bolder">{{ item.item_value + ' ' + item.item_type }}</h5></div>
                                     {% endfor %}
+                            </div>
                     </div>
                     {% endif %}
 
