@@ -262,9 +262,15 @@ def get_host_errors(request: Request, host_id: int):
                                       )
 
 
+# -------------------------- ( Item ) -----------------------
+@app.get('/items/{host_id}', response_model=list[Item])
+async def get_item_from_db(host_id: int, db: Session = Depends(get_db)):
+    items = crud.get_items(db, host_id)
+    return items
+
+
 @app.get('/data-items/{host_id}', response_class=HTMLResponse)
-def get_host_items(request: Request, host_id: int, db: Session = Depends(get_db)):
-    host_items = crud.get_items(db, host_id)
+def get_host_items(request: Request, host_items=Depends(get_item_from_db)):
     template = 'zpanel/items.html'
     return templates.TemplateResponse(template,
                                       {
@@ -272,13 +278,6 @@ def get_host_items(request: Request, host_id: int, db: Session = Depends(get_db)
                                           'items': host_items,
                                       }
                                       )
-
-
-# -------------------------- ( Item ) -----------------------
-@app.get('/items/', response_model=list[Item])
-async def get_item_from_db(host_id: int, db: Session = Depends(get_db)):
-    items = crud.get_items(db, host_id)
-    return items
 
 
 @app.post('/items/', response_model=Item)
