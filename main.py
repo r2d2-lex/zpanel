@@ -36,7 +36,7 @@ def get_monitored_hosts_ids(db) -> list:
     db_hosts = crud.get_monitored_hosts(db)
     for db_host in db_hosts:
         if db_host.column > 0:
-            host_ids.append(db_host.hostid)
+            host_ids.append(db_host.host_id)
     return host_ids
 
 
@@ -70,15 +70,15 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
         items = []
         for db_host in db_hosts:
             try:
-                if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.hostid):
-                    items = get_data_items(db, db_host.hostid)
+                if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.host_id):
+                    items = get_data_items(db, db_host.host_id)
 
                     if db_host.image:
                         image = db_host.image
 
                     if with_problems:
-                        problems = get_zabbix_host_problems(db_host.hostid)
-                    logging.debug('{host} in database'.format(host=db_host.hostid))
+                        problems = get_zabbix_host_problems(db_host.host_id)
+                    logging.debug('{host} in database'.format(host=db_host.host_id))
                     column = db_host.column
                     break
             except KeyError as error:
@@ -183,7 +183,7 @@ async def upload_image(image: UploadFile, request: Request, db: Session = Depend
         return {'error': 'Невозможно получить host_id', }
     logging.info(f'Load image for Host ID: {host_id}')
 
-    db_host = crud.get_host(db=db, hostid=host_id)
+    db_host = crud.get_host(db=db, host_id=host_id)
     if db_host:
         logging.info(f'Image name: {image_name}')
         crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
@@ -212,9 +212,17 @@ async def read_host_from_db(db: Session = Depends(get_db)):
     return hosts
 
 
+@app.get('/monitor/hosts/{host_id}', response_model=Host)
+def get_host_from_db(host_id: int, db: Session = Depends(get_db)):
+    db_host = crud.get_host(db=db, host_id=host_id)
+    if not db_host:
+        raise HTTPException(status_code=404, detail="Host not found")
+    return db_host
+
+
 @app.post('/monitor/hosts/', response_model=Host)
 def add_host_to_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, hostid=host.hostid)
+    db_host = crud.get_host(db=db, host_id=host.host_id)
     if db_host:
         # raise HTTPException(status_code=400, detail="Host already monitored")
         return crud.update_host(db=db, host=host)
@@ -223,15 +231,15 @@ def add_host_to_db(host: Host, db: Session = Depends(get_db)):
 
 @app.delete('/monitor/hosts/', response_model=Host)
 def delete_host_from_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, hostid=host.hostid)
+    db_host = crud.get_host(db=db, host_id=host.host_id)
     if not db_host:
         raise HTTPException(status_code=400, detail="Host not found")
-    return crud.delete_host(db=db, hostid=host.hostid)
+    return crud.delete_host(db=db, host_id=host.host_id)
 
 
 @app.patch('/monitor/hosts/', response_model=Host)
 def update_host_from_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, hostid=host.hostid)
+    db_host = crud.get_host(db=db, host_id=host.host_id)
     if not db_host:
         raise HTTPException(status_code=400, detail="Host not found")
     return crud.update_host(db=db, host=host)
@@ -242,9 +250,9 @@ def get_all_hosts():
     return get_all_zabbix_monitoring_hosts()
 
 
-@app.post('/errors/', response_class=HTMLResponse)
-def get_host_errors(request: Request, host: Host):
-    host_problems = get_zabbix_host_problems(host.hostid)
+@app.get('/errors/{host_id}', response_class=HTMLResponse)
+def get_host_errors(request: Request, host_id: int):
+    host_problems = get_zabbix_host_problems(host_id)
     template = 'zpanel/problems.html'
     return templates.TemplateResponse(template,
                                       {
@@ -254,9 +262,9 @@ def get_host_errors(request: Request, host: Host):
                                       )
 
 
-@app.post('/data-items/', response_class=HTMLResponse)
-def get_host_items(request: Request, host_id: HostId, db: Session = Depends(get_db)):
-    host_items = crud.get_items(db, host_id.host_id)
+@app.get('/data-items/{host_id}', response_class=HTMLResponse)
+def get_host_items(request: Request, host_id: int, db: Session = Depends(get_db)):
+    host_items = crud.get_items(db, host_id)
     template = 'zpanel/items.html'
     return templates.TemplateResponse(template,
                                       {

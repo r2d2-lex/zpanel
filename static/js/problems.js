@@ -9,14 +9,8 @@ $(document).ready(function() {
     $('#exampleModalLabel').text('Host ID: '+data_id);
 
     $.ajax({
-    type : 'POST',
-    url: '/errors/',
-    data: JSON.stringify({
-        'hostid': data_id,
-        'column': 1,
-    }),
+    url: '/errors/'+data_id,
     cache: false,
-    contentType: "application/json",
     success: function (html) {
         $("#modal_content").html(html);
     },

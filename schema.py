@@ -6,9 +6,9 @@ class HostId(BaseModel):
     host_id: int
 
 
-class Host(BaseModel):
-    hostid: int
+class Host(HostId):
     column: int = Path(..., ge=0, le=3, title='Monitoring column')
+    name: str
 
     class Config:
         orm_mode = True

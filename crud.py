@@ -53,20 +53,20 @@ def get_monitored_hosts(db: Session):
     return db.query(ModelHost).all()
 
 
-def get_host(db: Session, hostid: int):
-    return db.query(ModelHost).filter(ModelHost.hostid == hostid).first()
+def get_host(db: Session, host_id: int):
+    return db.query(ModelHost).filter(ModelHost.host_id == host_id).first()
 
 
 def add_host(db: Session, host: SchemaHost):
-    db_host = ModelHost(hostid=host.hostid, column=host.column)
+    db_host = ModelHost(host_id=host.host_id, column=host.column, name=host.name)
     db.add(db_host)
     db.commit()
     db.refresh(db_host)
     return db_host
 
 
-def delete_host(db: Session, hostid: int):
-    db_host = db.query(ModelHost).filter(ModelHost.hostid == hostid).first()
+def delete_host(db: Session, host_id: int):
+    db_host = db.query(ModelHost).filter(ModelHost.host_id == host_id).first()
     if db_host:
         db.delete(db_host)
         db.commit()
@@ -74,18 +74,18 @@ def delete_host(db: Session, hostid: int):
 
 
 def update_host(db: Session, host: SchemaHost):
-    db_host = db.query(ModelHost).filter(ModelHost.hostid == host.hostid).first()
+    db_host = db.query(ModelHost).filter(ModelHost.host_id == host.host_id).first()
     if db_host:
-        db.query(ModelHost).filter(ModelHost.hostid == host.hostid).update(host.dict())
+        db.query(ModelHost).filter(ModelHost.host_id == host.host_id).update(host.dict())
         db.commit()
         db.refresh(db_host)
     return db_host
 
 
 def update_host_image(db: Session, host: SchemaImageHost, image_name: str):
-    db_host = db.query(ModelHost).filter(ModelHost.hostid == host.hostid).first()
+    db_host = db.query(ModelHost).filter(ModelHost.host_id == host.host_id).first()
     if db_host:
-        db.query(ModelHost).filter(ModelHost.hostid == host.hostid).update({'image': image_name})
+        db.query(ModelHost).filter(ModelHost.host_id == host.host_id).update({'image': image_name})
         db.commit()
         db.refresh(db_host)
     return db_host

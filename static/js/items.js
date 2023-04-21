@@ -69,13 +69,8 @@ function crudItems(host_id, item_name, item_type, method) {
 
 function reloadItems(host_id) {
             $.ajax({
-            type : 'POST',
-            url: '/data-items/',
-            data: JSON.stringify({
-            'host_id': host_id,
-             }),
+            url: '/data-items/'+host_id,
             cache: false,
-            contentType: "application/json",
             success: function (html) {
                 $("#items_content").html(html);
                 console.log('Success load items!');
