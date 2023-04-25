@@ -19,29 +19,43 @@ $(items).filter(function() {
     });
 });
 
+class Item {
+    constructor() {
+        this.host_id;
+        this.item_name;
+        this.item_type;
+    }
+    getDataFromInput() {
+        const id_host_id = '#items_id';
+        const id_item_name = '#item_name';
+        const id_item_type = '#item_type';
+        this.host_id = $(id_host_id).val();
+        this.item_name = $(id_item_name).val();
+        this.item_type = $(id_item_type).val();
+        return 1;
+    }
+}
+
 // Modal button click!!!
 $(document).on("click", "#item_add", function(event){
     console.log('------------ ADD ITEM!!!! -------------------');
-    let host_id = $('#items_id').val();
-    let item_name = $('#item_name').val();
-    let item_type = $('#item_type').val();
-    crudItems(host_id, item_name, item_type, 'POST');
+    let item = new Item;
+    host.getDataFromInput();
+    crudItems(item.host_id, item.item_name, item.item_type, 'POST');
 });
 
 $(document).on("click", "#item_patch", function(event){
     console.log('------------  PATCH ITEM!!!! -------------------');
-    let host_id = $('#items_id').val();
-    let item_name = $('#item_name').val();
-    let item_type = $('#item_type').val();
-    crudItems(host_id, item_name, item_type, 'PATCH');
+    let item = new Item;
+    host.getDataFromInput();
+    crudItems(item.host_id, item.item_name, item.item_type, 'PATCH');
 });
 
 $(document).on("click", "#item_delete", function(event){
     console.log('------------ DELETE ITEM!!!! -------------------');
-    let host_id = $('#items_id').val();
-    let item_name = $('#item_name').val();
-    let item_type = ' ';
-    crudItems(host_id, item_name, item_type, 'DELETE');
+    let item = new Item;
+    host.getDataFromInput();
+    crudItems(item.host_id, item.item_name, item.item_type, 'DELETE');
 });
 
 function crudItems(host_id, item_name, item_type, method) {
