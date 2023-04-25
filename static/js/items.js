@@ -21,18 +21,18 @@ $(items).filter(function() {
 
 class Item {
     constructor() {
-        this.host_id;
-        this.item_name;
-        this.item_type;
-    }
-    getDataFromInput() {
         const id_host_id = '#items_id';
         const id_item_name = '#item_name';
         const id_item_type = '#item_type';
+
         this.host_id = $(id_host_id).val();
         this.item_name = $(id_item_name).val();
         this.item_type = $(id_item_type).val();
-        return 1;
+        return {
+                host_id: this.host_id,
+                item_name: this.item_name,
+                item_type: this.item_type,
+        }
     }
 }
 
@@ -40,21 +40,18 @@ class Item {
 $(document).on("click", "#item_add", function(event){
     console.log('------------ ADD ITEM!!!! -------------------');
     let item = new Item;
-    item.getDataFromInput();
     crudItems(item.host_id, item.item_name, item.item_type, 'POST');
 });
 
 $(document).on("click", "#item_patch", function(event){
     console.log('------------  PATCH ITEM!!!! -------------------');
     let item = new Item;
-    item.getDataFromInput();
     crudItems(item.host_id, item.item_name, item.item_type, 'PATCH');
 });
 
 $(document).on("click", "#item_delete", function(event){
     console.log('------------ DELETE ITEM!!!! -------------------');
     let item = new Item;
-    item.getDataFromInput();
     crudItems(item.host_id, item.item_name, item.item_type, 'DELETE');
 });
 
