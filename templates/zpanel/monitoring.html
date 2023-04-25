@@ -8,6 +8,10 @@
 
 {% block content %}
 {% include 'problems-modal.html' %}
-<div id="id_status"></div>
+<div id="id_status">
+        <div class="alert alert-primary" role="alert">
+                Происходит загрузка данных. Пожалуйста подождите!
+        </div>
+</div>
 <div id="content"></div>
 {% endblock %}
