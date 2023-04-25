@@ -40,21 +40,21 @@ class Item {
 $(document).on("click", "#item_add", function(event){
     console.log('------------ ADD ITEM!!!! -------------------');
     let item = new Item;
-    host.getDataFromInput();
+    item.getDataFromInput();
     crudItems(item.host_id, item.item_name, item.item_type, 'POST');
 });
 
 $(document).on("click", "#item_patch", function(event){
     console.log('------------  PATCH ITEM!!!! -------------------');
     let item = new Item;
-    host.getDataFromInput();
+    item.getDataFromInput();
     crudItems(item.host_id, item.item_name, item.item_type, 'PATCH');
 });
 
 $(document).on("click", "#item_delete", function(event){
     console.log('------------ DELETE ITEM!!!! -------------------');
     let item = new Item;
-    host.getDataFromInput();
+    item.getDataFromInput();
     crudItems(item.host_id, item.item_name, item.item_type, 'DELETE');
 });
 
