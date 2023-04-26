@@ -19,7 +19,7 @@ $("#upload_id").change(function(){
 		var formData = new FormData();
 		formData.append('image', $("#upload_id")[0].files[0]);
 
-        let data_id = $('#Host-Id').val();
+        const data_id = $('#Host-Id').val();
         console.log('DATA ID inside upload: ', data_id);
         formData.append('host-id', data_id);
 

@@ -4,9 +4,9 @@ $(document).ready(function() {
           console.log('-----------N e x t r e q u e s t------------');
           let host_id = $(this).attr('id');
 
-          let del_template = 'del_';
-          let mdf_template = 'mdf_';
-          let host_extract_template = 'name_';
+          const del_template = 'del_';
+          const mdf_template = 'mdf_';
+          const host_extract_template = 'name_';
 
           let method = 'POST';
           let operation = 'СОХРАНЕН: '+host_id;

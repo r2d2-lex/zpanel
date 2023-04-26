@@ -6,9 +6,9 @@ $(items).filter(function() {
           $('#item_name').val('');
           $('#item_type').val('');
 
-          let button_id = $(this).attr('id');
-          let item_template = 'item_';
-          let host_id = button_id.replace(item_template,'');
+          const button_id = $(this).attr('id');
+          const item_template = 'item_';
+          const host_id = button_id.replace(item_template,'');
 
           $('#itemsModal').modal('show');
           // Устанавливаем значение input в модальной форме
@@ -19,8 +19,7 @@ $(items).filter(function() {
     });
 });
 
-class Item {
-    constructor() {
+function getHostItem() {
         const id_host_id = '#items_id';
         const id_item_name = '#item_name';
         const id_item_type = '#item_type';
@@ -33,25 +32,24 @@ class Item {
                 item_name: this.item_name,
                 item_type: this.item_type,
         }
-    }
 }
 
 // Modal button click!!!
 $(document).on("click", "#item_add", function(event){
     console.log('------------ ADD ITEM!!!! -------------------');
-    let item = new Item;
+    let item = getHostItem();
     crudItems(item.host_id, item.item_name, item.item_type, 'POST');
 });
 
 $(document).on("click", "#item_patch", function(event){
     console.log('------------  PATCH ITEM!!!! -------------------');
-    let item = new Item;
+    let item = getHostItem();
     crudItems(item.host_id, item.item_name, item.item_type, 'PATCH');
 });
 
 $(document).on("click", "#item_delete", function(event){
     console.log('------------ DELETE ITEM!!!! -------------------');
-    let item = new Item;
+    let item = getHostItem();
     crudItems(item.host_id, item.item_name, item.item_type, 'DELETE');
 });
 
