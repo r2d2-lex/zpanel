@@ -1,7 +1,8 @@
 var img_items = $(".img_class");
 $(img_items).filter(function() {
-    $(this).click(function(){
-          const button_id = $(this).attr('id');
+    const $that = $(this);
+    $that.click(function(){
+          const button_id = $that.attr('id');
           const img_template = 'img_';
           const host_id = button_id.replace(img_template,'');
 
@@ -12,7 +13,6 @@ $(img_items).filter(function() {
     });
 });
 
-
 $("#upload_id").change(function(){
 	if (window.FormData === undefined) {
 		alert('В вашем браузере FormData не поддерживается')
@@ -21,7 +21,6 @@ $("#upload_id").change(function(){
 		formData.append('image', $("#upload_id")[0].files[0]);
 
         const data_id = $('#Host-Id').val();
-        console.log('DATA ID inside upload: ', data_id);
         formData.append('host-id', data_id);
 
 		$.ajax({
@@ -48,6 +47,5 @@ $("#upload_id").change(function(){
 });
 
 $('#uploadModal').on('hide.bs.modal', function (e) {
-  console.log('CLOSE MODAL WINDOW');
   show();
 })
