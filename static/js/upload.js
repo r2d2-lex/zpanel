@@ -1,13 +1,14 @@
-$(document).ready(function(){
-    $('a[data-bs-toggle=modal], button[data-toggle=modal]').click(function () {
-    var data_id = '';
-    if (typeof $(this).data('id') !== 'undefined') {
-      data_id = $(this).data('id');
-    }
+var img_items = $(".img_class");
+$(img_items).filter(function() {
+    $(this).click(function(){
+          const button_id = $(this).attr('id');
+          const img_template = 'img_';
+          const host_id = button_id.replace(img_template,'');
 
-    $('#exampleModalLabel').empty();
-    $('#exampleModalLabel').text('Загрузить изображение для Host-ID: '+data_id);
-    $('#Host-Id').val(data_id);
+          $('#uploadModal').modal('show');
+          $('#Host-Id').val(host_id);
+          $("#uploadModal").find('h5').empty();
+          $("#uploadModal").find('h5').text('Загрузка изображения для: ' + host_id);
     });
 });
 
@@ -36,17 +37,17 @@ $("#upload_id").change(function(){
 				if (msg.error == '') {
 					$("#upload_id").hide();
 					showMessage('#result_upload', 'Успешная сохранено: '+msg.success, 'alert-success');
-					console.log('SUCCESS',msg.success)
+					console.log('success: upload',msg.success)
 				} else {
 					showMessage('#result_upload', 'Неудачная операция: '+msg.error, 'alert-warning');
-					console.log('ERROR',msg.error)
+					console.log('error: upload',msg.error)
 				}
 			}
 		});
 	}
 });
 
-$('#exampleModal').on('hide.bs.modal', function (e) {
+$('#uploadModal').on('hide.bs.modal', function (e) {
   console.log('CLOSE MODAL WINDOW');
   show();
 })

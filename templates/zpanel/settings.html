@@ -45,8 +45,7 @@
                 {% endif %}
                 <input class="btn btn-danger btn-sm inputClass" type="button" name="Удалить" value="Удалить" id="del_{{ host.hostid }}"/>
 
-                <a class="btn btn-outline-dark btn-sm" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">Загрузить изображение</a>
-
+                <input class="btn btn-outline-dark btn-sm img_class" type="button" name="Загрузить изображение" value="Загрузить изображение" id="img_{{ host.hostid }}"/>
                 <input class="btn btn-outline-dark btn-sm item_class" type="button" name="Элементы данных" value="Элементы данных" id="item_{{ host.hostid }}"/>
                 <input name="name_{{ host.name }}" type="hidden" id="name_{{ host.hostid }}">
 
