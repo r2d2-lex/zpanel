@@ -165,7 +165,8 @@ def get_zabbix_host_problems(host_id: int, with_time_from: bool = False) -> list
 
             for problem in host_problems:
                 try:
-                    clock = datetime.datetime.utcfromtimestamp(int(problem[CLOCK_FIELD])).strftime(TIME_TEMPLATE)
+                    clock = datetime.datetime.fromtimestamp(int(problem[CLOCK_FIELD]))
+                    clock = clock.strftime(TIME_TEMPLATE)
                     problem.update({CLOCK_FIELD: clock})
                     result.append(problem)
                 except KeyError as error:
