@@ -45,7 +45,11 @@ $("#upload_id").change(function(){
 					showMessage('#result_upload', 'Успешная сохранено: '+msg.success, 'alert-success');
 					console.log('success: upload ', msg.success);
 					// Меняем изображение элемента без перезагрузки страницы
-					$('#' + img_id).attr('src', img_path + msg.success);
+					$('#' + img_id).attr({
+					        src: img_path + msg.success,
+					        width: 85,
+					        height: 85,
+					    });
 				} else {
 					showMessage('#result_upload', 'Неудачная операция: '+msg.error, 'alert-warning');
 					console.log('error: upload',msg.error)
