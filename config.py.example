@@ -11,3 +11,7 @@ ZPANEL_DATABASE_URI = f'{ZPANEL_ENGINE}://{ZPANEL_LOGIN}:{ZPANEL_PASSWORD}@{ZPAN
 ZABBIX_API_USER = 'zabbix-login'
 ZABBIX_API_PASSWORD = 'zabbix-pass'
 ZABBIX_API_URL = 'https://localhost/'
+
+ORIGINS = [
+    "http://localhost:8081",
+]

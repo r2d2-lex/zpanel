@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -24,6 +25,15 @@ IMAGE_HOST_ID_FIELD = 'host-id'
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
 app = FastAPI()
+
+if config.ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=config.ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
