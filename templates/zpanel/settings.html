@@ -23,7 +23,7 @@
             <td>
                 {{ host.hostid }}
                 {% if host.image %}
-                    <img src="{{ url_for('static', path='images/' + host.image) }}" width="85" height="85" />
+                    <img id="img_src_{{ host.hostid }}" src="{{ url_for('static', path='images/' + host.image) }}" width="85" height="85" />
                 {% endif %}
             </td>
             <td>{{ host.host }}</td>
