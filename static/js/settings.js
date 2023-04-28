@@ -9,27 +9,23 @@ $(document).ready(function() {
           const host_extract_template = 'name_';
 
           let method = 'POST';
-          let operation = 'СОХРАНЕН: '+host_id;
-          // Вычисляем select id например: #select_1234
-          let selectName = '#select_'+host_id;
+          let operation = ' Сохранение: ' + host_id;
+          let selectName = '#select_' + host_id;
 
-          if (host_id.indexOf(del_template) >=0){
-                host_id = host_id.replace(del_template,'')
-                selectName = selectName.replace(del_template,'')
+          if (host_id.indexOf(del_template) >=0) {
+                host_id = host_id.replace(del_template, '')
+                selectName = selectName.replace(del_template, '')
                 method = 'DELETE';
-                operation = 'УДАЛЕН: '+host_id;
-          } else if (host_id.indexOf(mdf_template) >=0){
-                host_id = host_id.replace(mdf_template,'')
-                selectName = selectName.replace(mdf_template,'')
+                operation = ' Удаление: ' + host_id;
+          } else if (host_id.indexOf(mdf_template) >=0) {
+                host_id = host_id.replace(mdf_template, '')
+                selectName = selectName.replace(mdf_template, '')
                 method = 'PATCH';
-                operation = 'ИЗМЕНЕН: '+host_id;
+                operation = ' Изменение: ' + host_id;
           }
-          let select_val = $(selectName).val();
 
-          let host_name = $('#name_'+host_id).attr('name');
-          host_name = host_name.replace(host_extract_template,'')
-          console.log('HOSTNAME:', host_name);
-          //console.log('select_val:', select_val);
+          const host_name = $('#name_' + host_id).attr('name').replace(host_extract_template,'');
+          const select_val = $(selectName).val();
 
           $.ajax({
             type : method,
@@ -43,14 +39,14 @@ $(document).ready(function() {
             contentType: "application/json",
             /* ---------------------------- success begin -------------------------------- */
             success: function (data) {
-            showMessage('#id_status', 'Успешная операция: '+operation, 'alert-success');
-            console.log('SUCESS!!!');
+            showMessage('#id_status', 'Успешная операция: ' + operation, 'alert-success');
+            console.log('/monitor/hosts/: success!'  + operation);
             show();
           },
           /* ---------------------------- success end -------------------------------- */
             error: function(data){
-                showMessage('#id_status', 'Неудачная операция: '+operation, 'alert-warning');
-                console.log('ERRORR!!!');
+                showMessage('#id_status', 'Неудачная операция: '+ operation, 'alert-warning');
+                console.log('/monitor/hosts/: error! ' + operation);
             }
           })
           /* ---------------------------- ajax end -------------------------------- */
@@ -58,4 +54,3 @@ $(document).ready(function() {
       });
    });
 });
-
