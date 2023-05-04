@@ -71,3 +71,11 @@ $ alembic init migrations
 $ alembic revision --autogenerate -m "First migration"
 Запуск  миграции:
 $ alembic upgrade head или $ alembic upgrade %revision%
+===
+Настройка Firefox:
+about:config:
+"browser.sessionstore.max_resumed_crashes" ставим значение "0"
+Также ставим значение в ноль у параметров:
+browser.sessionstore.max_tabs_undo
+browser.sessionstore.max_windows_undo
+browser.sessionstore.resume_from_crash ставим в FALSE
