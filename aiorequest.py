@@ -2,7 +2,11 @@ import aiohttp
 from aiohttp import ClientSession
 from time import time
 from config import logging
-from AioZabbix import headers
+
+headers = {
+    'Content-Type': 'application/json-rpc',
+    'User-Agent': 'py-zabbix/1.1.7',
+}
 
 
 async def fetch(session: ClientSession, url: str) -> dict:
