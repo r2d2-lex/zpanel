@@ -7,3 +7,4 @@ psycopg2==2.9.5
 py-zabbix==1.1.7
 Jinja2==3.1.2
 python-multipart==0.0.6
+aiohttp==3.8.4
