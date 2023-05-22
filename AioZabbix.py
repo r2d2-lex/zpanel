@@ -56,19 +56,19 @@ class AioZabbixApi:
         return await self._zabbix_request(method)
 
 
-def main():
+async def main_async():
     aio_zabbix = AioZabbixApi()
-    loop = asyncio.get_event_loop()
-    auth = loop.run_until_complete(aio_zabbix.zabbix_login())
-
-    loop2 = asyncio.get_event_loop()
+    auth = await aio_zabbix.zabbix_login()
     params = {'status': 1, 'monitored_hosts': 1, 'selectInterfaces': ['ip'], }
-    hosts = loop2.run_until_complete(aio_zabbix.zabbix_host_get(params))
-
-    loop3 = asyncio.get_event_loop()
-    exit = loop3.run_until_complete(aio_zabbix.zabbix_logout())
-
+    hosts = await aio_zabbix.zabbix_host_get(params)
+    exit = await aio_zabbix.zabbix_logout()
     print(f'{auth} {hosts} {exit}')
+
+
+def main():
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main_async())
+    loop.close()
 
 
 if __name__ == '__main__':
