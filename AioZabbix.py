@@ -55,6 +55,29 @@ class AioZabbixApi:
         method = 'user.logout'
         return await self._zabbix_request(method)
 
+    async def get_monitored_hosts(self, host_ids: list) -> list:
+        return await self.zabbix_host_get(dict(
+            output=[
+                'hostid',
+                'host',
+                'name',
+                'snmp_error',
+                'error',
+            ],
+            hostids=host_ids,
+            status=1,
+            monitored_hosts=1,
+            selectInterfaces=['ip'],
+        ))
+
+
+async def get_zabbix_monitoring_hosts(host_ids: list) -> list:
+    aio_zabbix = AioZabbixApi()
+    await aio_zabbix.zabbix_login()
+    hosts = await aio_zabbix.get_monitored_hosts(host_ids)
+    await aio_zabbix.zabbix_logout()
+    return hosts
+
 
 async def main_async():
     aio_zabbix = AioZabbixApi()
@@ -67,8 +90,9 @@ async def main_async():
 
 def main():
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(main_async())
+    result = loop.run_until_complete(get_zabbix_monitoring_hosts([10454, 10462]))
     loop.close()
+    print(result)
 
 
 if __name__ == '__main__':
