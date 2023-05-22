@@ -17,6 +17,13 @@ class AioZabbixApi:
     def __str__(self):
         return 'ZabbixMonitoring'
 
+    async def __aenter__(self):
+        await self.zabbix_login()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.zabbix_logout()
+
     async def _zabbix_request(self, method: str, params=None):
         result = ''
         request_json = {
@@ -72,10 +79,8 @@ class AioZabbixApi:
 
 
 async def get_zabbix_monitoring_hosts(host_ids: list) -> list:
-    aio_zabbix = AioZabbixApi()
-    await aio_zabbix.zabbix_login()
-    hosts = await aio_zabbix.get_monitored_hosts(host_ids)
-    await aio_zabbix.zabbix_logout()
+    async with AioZabbixApi() as aio_zabbix:
+        hosts = await aio_zabbix.get_monitored_hosts(host_ids)
     return hosts
 
 
