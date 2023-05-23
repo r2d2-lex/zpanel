@@ -61,7 +61,7 @@ def get_data_items(db, host_id) -> list:
     return result
 
 
-async def get_async_host_details(api, host_id: int, zabbix_hosts, db, monitoring_hosts):
+async def get_async_host_details(api, zabbix_host, db, monitoring_hosts):
     """
         api - context aio_zabbix_api для запроса;
         host_id - zabbix host id
@@ -69,45 +69,39 @@ async def get_async_host_details(api, host_id: int, zabbix_hosts, db, monitoring
         db - контекст БД
         monitoring_hosts - словарь, который будет выведен на панель мониторинга
     """
-    view_host = dict()
-    db_host = crud.get_host(db, host_id)
-
-    for zabbix_host in zabbix_hosts:
-        try:
-            if int(zabbix_host[HOST_ID_FIELD]) == host_id:
-                logging.debug(f'Host: {host_id} in database')
-                view_host.update(zabbix_host)
-                break
-        except KeyError as error:
-            logging.info(f'Ошибка ключа списка zabbix: {error}')
-    else:
-        logging.info('Ошибка получения хоста из списка zabbix')
+    await asyncio.sleep(0)
+    column = 0
+    try:
+        host_id = zabbix_host[HOST_ID_FIELD]
+    except KeyError as error:
+        logging.info(f'Ошибка ключа {HOST_ID_FIELD} элемента списка zabbix: {error}')
         return
 
-    view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
-    view_host.update({DATA_ITEMS_FIELD: get_data_items(db, host_id)})
-    view_host.update({COLUMN_FIELD: db_host.column})
+    view_host = dict()
+    view_host.update(zabbix_host)
 
-    if db_host.image:
-        view_host.update({IMAGE_FIELD: db_host.image})
-    logging.info(f'Host_id: {host_id} dict modified: {view_host}\r\n')
+    db_host = crud.get_host(db, host_id)
+    if db_host:
+        items = get_data_items(db, host_id)
+        if items:
+            view_host.update({DATA_ITEMS_FIELD: items})
+        if db_host.image:
+            view_host.update({IMAGE_FIELD: db_host.image})
+        column = db_host.column if db_host.column else 0
+
+        view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
+    view_host.update({COLUMN_FIELD: column})
 
     monitoring_hosts.append(view_host)
+    logging.info(f'HOST_ID: {host_id} DICT MODIFIED: {view_host}\r\n')
     return
 
 
-async def get_host_details(host_ids: list, zabbix_hosts, db) -> list:
+async def get_host_details(zabbix_hosts, db) -> list:
     monitoring_hosts = []
     async with AioZabbixApi() as aio_zabbix:
-        # futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, id, zabbix_hosts, db, monitoring_hosts)) for id in host_ids]
-        futures = []
-        for _id in host_ids:
-            fut = asyncio.ensure_future(get_async_host_details(aio_zabbix, _id, zabbix_hosts, db, monitoring_hosts))
-            futures.append(fut)
+        futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, host, db, monitoring_hosts)) for host in zabbix_hosts]
         await asyncio.wait(futures)
-
-        logging.info(f'ALL MONITORED HOSTS: {monitoring_hosts}')
-
     return monitoring_hosts
 
 
@@ -119,11 +113,9 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
     Добавляет элементы данных (data_items) в словарь мониторинга 
     """""
 
-    db_check_hosts_ids = get_monitored_hosts_ids(db)
-
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    monitoring_hosts = loop.run_until_complete(get_host_details(db_check_hosts_ids, zabbix_hosts, db))
+    monitoring_hosts = loop.run_until_complete(get_host_details(zabbix_hosts, db))
     loop.close()
 
     if with_problems:
