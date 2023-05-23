@@ -3,7 +3,8 @@ import config
 import datetime
 import json
 import logging
-from Zabbix import RECENT_PROBLEMS, SEVERITIES, PROBLEMS_OUTPUT_FIELDS_DICT, CLOCK_FIELD, TIME_TEMPLATE, SEVERITY_FIELD
+from Zabbix import RECENT_PROBLEMS, SEVERITIES, PROBLEMS_OUTPUT_FIELDS_DICT, CLOCK_FIELD, TIME_TEMPLATE, \
+    SEVERITY_FIELD
 from aiorequest import post_data
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
@@ -105,10 +106,9 @@ async def get_all_zabbix_monitoring_hosts() -> list:
     return hosts
 
 
-async def get_async_host_problem(api, host_id: int, all_results: list):
+async def async_get_zabbix_host_problems(api, host_id: int) -> list:
     problem_list = []
     host_problems = await api.get_host_problem(host_id)
-
     for problem in host_problems:
         try:
             clock = datetime.datetime.fromtimestamp(int(problem[CLOCK_FIELD]))
@@ -118,25 +118,20 @@ async def get_async_host_problem(api, host_id: int, all_results: list):
         except KeyError as error:
             logging.error(f'KeyError: {error}')
             continue
-
-    all_results.append(dict(host_id=host_id, problems=problem_list))
-
-
-async def get_host_details(host_ids: list) -> list:
-    all_results = []
-    async with AioZabbixApi() as aio_zabbix:
-        futures = [asyncio.ensure_future(get_async_host_problem(aio_zabbix, id, all_results)) for id in host_ids]
-        await asyncio.wait(futures)
-    return all_results
+    if problem_list:
+        # Сортировка должна быть по SEVERITY_FIELD и reverse=True чтобы получить корректный цвет ошибки на карточке
+        problem_list = sorted(problem_list, reverse=True, key=lambda x: x[SEVERITY_FIELD])
+    return problem_list
 
 
 def main():
-    loop = asyncio.get_event_loop()
-    # result = loop.run_until_complete(get_zabbix_monitoring_hosts([10454, 10462]))
-    result = loop.run_until_complete(get_host_details([10472, 10434]))
-    loop.close()
-    for item in result:
-        print(item)
+    pass
+    # loop = asyncio.get_event_loop()
+    # # result = loop.run_until_complete(get_zabbix_monitoring_hosts([10454, 10462]))
+    # result = loop.run_until_complete(get_host_details([10472, 10434]))
+    # loop.close()
+    # for item in result:
+    #     print(item)
 
 
 if __name__ == '__main__':

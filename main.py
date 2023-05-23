@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 from db import get_db
 from schema import Host, Item, HostId
 from Zabbix import *
+from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems
+import asyncio
 import config
 import crud
 import logging
@@ -42,12 +44,8 @@ CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
 
 
 def get_monitored_hosts_ids(db) -> list:
-    host_ids = []
     db_hosts = crud.get_monitored_hosts(db)
-    for db_host in db_hosts:
-        if db_host.column > 0:
-            host_ids.append(db_host.host_id)
-    return host_ids
+    return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
 def get_data_items(db, host_id) -> list:
@@ -63,6 +61,56 @@ def get_data_items(db, host_id) -> list:
     return result
 
 
+async def get_async_host_details(api, host_id: int, zabbix_hosts, db, monitoring_hosts):
+    """
+        api - context aio_zabbix_api для запроса;
+        host_id - zabbix host id
+        zabbix_hosts - список словарей всех хостов из api zabbix
+        db - контекст БД
+        monitoring_hosts - словарь, который будет выведен на панель мониторинга
+    """
+    view_host = dict()
+    db_host = crud.get_host(db, host_id)
+
+    for zabbix_host in zabbix_hosts:
+        try:
+            if int(zabbix_host[HOST_ID_FIELD]) == host_id:
+                logging.debug(f'Host: {host_id} in database')
+                view_host.update(zabbix_host)
+                break
+        except KeyError as error:
+            logging.info(f'Ошибка ключа списка zabbix: {error}')
+    else:
+        logging.info('Ошибка получения хоста из списка zabbix')
+        return
+
+    view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
+    view_host.update({DATA_ITEMS_FIELD: get_data_items(db, host_id)})
+    view_host.update({COLUMN_FIELD: db_host.column})
+
+    if db_host.image:
+        view_host.update({IMAGE_FIELD: db_host.image})
+    logging.info(f'Host_id: {host_id} dict modified: {view_host}\r\n')
+
+    monitoring_hosts.append(view_host)
+    return
+
+
+async def get_host_details(host_ids: list, zabbix_hosts, db) -> list:
+    monitoring_hosts = []
+    async with AioZabbixApi() as aio_zabbix:
+        # futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, id, zabbix_hosts, db, monitoring_hosts)) for id in host_ids]
+        futures = []
+        for _id in host_ids:
+            fut = asyncio.ensure_future(get_async_host_details(aio_zabbix, _id, zabbix_hosts, db, monitoring_hosts))
+            futures.append(fut)
+        await asyncio.wait(futures)
+
+        logging.info(f'ALL MONITORED HOSTS: {monitoring_hosts}')
+
+    return monitoring_hosts
+
+
 def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> list:
     """ 
     Добавляет значение колонки (column) из БД в словарь мониторинга 
@@ -70,41 +118,14 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
     Добавляет имя файла изображения (image) в словарь мониторинга 
     Добавляет элементы данных (data_items) в словарь мониторинга 
     """""
-    monitoring_hosts = []
-    db_hosts = crud.get_monitored_hosts(db)
 
-    for zabbix_host in zabbix_hosts:
-        image = ''
-        problems = []
-        column = 0
-        items = []
-        for db_host in db_hosts:
-            try:
-                if int(zabbix_host[HOST_ID_FIELD]) == int(db_host.host_id):
-                    items = get_data_items(db, db_host.host_id)
+    db_check_hosts_ids = get_monitored_hosts_ids(db)
 
-                    if db_host.image:
-                        image = db_host.image
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    monitoring_hosts = loop.run_until_complete(get_host_details(db_check_hosts_ids, zabbix_hosts, db))
+    loop.close()
 
-                    if with_problems:
-                        problems = get_zabbix_host_problems(db_host.host_id)
-                    logging.debug('{host} in database'.format(host=db_host.host_id))
-                    column = db_host.column
-                    break
-            except KeyError as error:
-                logging.error(f'KeyError: {error}')
-
-        view_host = dict()
-        view_host.update(zabbix_host)
-        view_host.update({COLUMN_FIELD: column})
-        if image:
-            view_host.update({IMAGE_FIELD: image})
-        if with_problems:
-            view_host.update({PROBLEMS_FIELD: problems})
-        if items:
-            view_host.update({DATA_ITEMS_FIELD: items})
-
-        monitoring_hosts.append(view_host)
     if with_problems:
         # Финальная сортировка списка по кол-ву проблем (PROBLEMS_FIELD) элемента
         monitoring_hosts = sorted(monitoring_hosts, reverse=True, key=lambda x: len(x[PROBLEMS_FIELD]))
