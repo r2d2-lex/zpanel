@@ -8,9 +8,8 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from db import get_db
-from schema import Host, Item, HostId
-from Zabbix import HOST_ID_FIELD, NAME_FIELD, get_host_item_value, get_zabbix_monitoring_hosts, \
-    get_all_zabbix_monitoring_hosts
+from schema import Host, Item
+from Zabbix import HOST_ID_FIELD, NAME_FIELD, get_host_item_value
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
     async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
 import asyncio
@@ -104,19 +103,11 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
     return
 
 
-async def get_host_details(zabbix_hosts, db, with_problems) -> list:
+async def get_host_details(zabbix_hosts, db, with_problems: bool = False) -> list:
     monitoring_hosts = []
     async with AioZabbixApi() as aio_zabbix:
         futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
         await asyncio.wait(futures)
-    return monitoring_hosts
-
-
-def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> list:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    monitoring_hosts = loop.run_until_complete(get_host_details(zabbix_hosts, db, with_problems))
-    loop.close()
 
     # сортировка списка по Имени(NAME_FIELD) машины
     monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
@@ -138,11 +129,11 @@ def monitoring(request: Request):
 
 
 @app.get('/panel/', response_class=HTMLResponse)
-def monitoring_panel(request: Request, db: Session = Depends(get_db)):
+async def monitoring_panel(request: Request, db: Session = Depends(get_db)):
     template = 'zpanel/panel.html'
     host_ids = get_monitored_hosts_ids(db)
-    zabbix_hosts = get_zabbix_monitoring_hosts(host_ids)
-    monitoring_hosts = update_monitoring_hosts(zabbix_hosts, db, with_problems=True)
+    zabbix_hosts = await async_get_zabbix_monitoring_hosts(host_ids)
+    monitoring_hosts = await get_host_details(zabbix_hosts, db, with_problems=True)
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,
@@ -216,10 +207,10 @@ async def upload_image(image: UploadFile, request: Request, db: Session = Depend
 
 
 @app.get('/settings/', response_class=HTMLResponse)
-def settings(request: Request, db: Session = Depends(get_db)):
+async def settings(request: Request, db: Session = Depends(get_db)):
     template = 'zpanel/settings.html'
-    zabbix_hosts = get_all_zabbix_monitoring_hosts()
-    monitoring_hosts = update_monitoring_hosts(zabbix_hosts, db)
+    zabbix_hosts = await async_get_all_zabbix_monitoring_hosts()
+    monitoring_hosts = await get_host_details(zabbix_hosts, db)
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,
