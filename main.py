@@ -17,6 +17,7 @@ import config
 import crud
 import logging
 import os
+import time
 
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
@@ -49,11 +50,11 @@ def get_monitored_hosts_ids(db) -> list:
     return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
-def get_data_items(db, host_id) -> list:
+async def get_data_items(db, api, host_id) -> list:
     result = []
     data_items = crud.get_items(db, host_id)
     for item in data_items:
-        items_result = get_host_item_value(host_id, item.name)
+        items_result = await api.async_get_host_item_value(host_id, item.name)
         logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
         if items_result:
             result.append({'item_value': items_result, 'item_type': item.value_type})
@@ -88,7 +89,7 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
 
     db_host = crud.get_host(db, host_id)
     if db_host:
-        items = get_data_items(db, host_id)
+        items = await get_data_items(db, api, host_id)
         if items:
             view_host.update({DATA_ITEMS_FIELD: items})
         if db_host.image:
@@ -106,7 +107,8 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
 async def get_host_details(zabbix_hosts, db, with_problems: bool = False) -> list:
     monitoring_hosts = []
     async with AioZabbixApi() as aio_zabbix:
-        futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
+        futures = [asyncio.ensure_future(
+            get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
         await asyncio.wait(futures)
 
     # сортировка списка по Имени(NAME_FIELD) машины
@@ -130,10 +132,12 @@ def monitoring(request: Request):
 
 @app.get('/panel/', response_class=HTMLResponse)
 async def monitoring_panel(request: Request, db: Session = Depends(get_db)):
+    time_start = time.time()
     template = 'zpanel/panel.html'
     host_ids = get_monitored_hosts_ids(db)
     zabbix_hosts = await async_get_zabbix_monitoring_hosts(host_ids)
     monitoring_hosts = await get_host_details(zabbix_hosts, db, with_problems=True)
+    logging.info(f'Function PANEL delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,
@@ -208,9 +212,11 @@ async def upload_image(image: UploadFile, request: Request, db: Session = Depend
 
 @app.get('/settings/', response_class=HTMLResponse)
 async def settings(request: Request, db: Session = Depends(get_db)):
+    time_start = time.time()
     template = 'zpanel/settings.html'
     zabbix_hosts = await async_get_all_zabbix_monitoring_hosts()
     monitoring_hosts = await get_host_details(zabbix_hosts, db)
+    logging.info(f'Function SETTINGS delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,

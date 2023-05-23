@@ -4,7 +4,7 @@ import datetime
 import json
 import logging
 from Zabbix import RECENT_PROBLEMS, SEVERITIES, PROBLEMS_OUTPUT_FIELDS_DICT, CLOCK_FIELD, TIME_TEMPLATE, \
-    SEVERITY_FIELD, HOST_ID_FIELD
+    SEVERITY_FIELD, HOST_ID_FIELD, ITEMS_LAST_VALUE, SORT_FIELD_KEY
 from aiorequest import post_data
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
@@ -58,6 +58,17 @@ class AioZabbixApi:
         method = 'problem.get'
         return await self._zabbix_request(method, params=params)
 
+    async def zabbix_item_get(self, params):
+        method = 'item.get'
+        return await self._zabbix_request(method, params=params)
+
+    async def get_item_by_key(self, host_ids: list, item_name: str):
+        return await self.zabbix_item_get(dict(
+            hostids=host_ids,
+            search={SORT_FIELD_KEY: item_name},
+            output=[ITEMS_LAST_VALUE],
+        ))
+
     async def zabbix_login(self):
         method = 'user.login'
         params = {'user': config.ZABBIX_API_USER, 'password': config.ZABBIX_API_PASSWORD}
@@ -67,6 +78,19 @@ class AioZabbixApi:
     async def zabbix_logout(self):
         method = 'user.logout'
         return await self._zabbix_request(method)
+
+    async def async_get_host_item_value(self, host_ids: list, item_name: str) -> str:
+        result = ''
+        host_ids = [host_ids]
+        items = await self.get_item_by_key(host_ids, item_name)
+        if items:
+            try:
+                value = int(float(items[0][ITEMS_LAST_VALUE]))
+                result = str(value)
+            except (IndexError, KeyError) as err:
+                logging.error(f'{err}')
+                result = ''
+        return result
 
     async def get_host_problem(self, host_id) -> list:
         return await self.zabbix_problem_get(dict(
