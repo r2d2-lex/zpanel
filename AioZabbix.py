@@ -36,7 +36,7 @@ class AioZabbixApi:
         }
         if self._zabbix_auth:
             request_json.update({'auth': self._zabbix_auth})
-        logging.info(f'Method {method} Request json {request_json}...')
+        logging.debug(f'Method {method} Request json {request_json}...')
 
         data = json.dumps(request_json)
         if not isinstance(data, bytes):
@@ -47,7 +47,7 @@ class AioZabbixApi:
         try:
             result = result_data['result']
         except KeyError as error:
-            logging.info(f'Method: {method} error {error}...')
+            logging.debug(f'Method: {method} error {error}...')
         return result
 
     async def zabbix_host_get(self, params):

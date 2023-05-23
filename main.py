@@ -61,7 +61,7 @@ def get_data_items(db, host_id) -> list:
     return result
 
 
-async def get_async_host_details(api, zabbix_host, db, monitoring_hosts):
+async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_problems):
     """
         api - context aio_zabbix_api для запроса;
         host_id - zabbix host id
@@ -89,7 +89,9 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts):
             view_host.update({IMAGE_FIELD: db_host.image})
         column = db_host.column if db_host.column else 0
 
-        view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
+        if with_problems:
+            view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
+
     view_host.update({COLUMN_FIELD: column})
 
     monitoring_hosts.append(view_host)
@@ -97,10 +99,10 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts):
     return
 
 
-async def get_host_details(zabbix_hosts, db) -> list:
+async def get_host_details(zabbix_hosts, db, with_problems) -> list:
     monitoring_hosts = []
     async with AioZabbixApi() as aio_zabbix:
-        futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, host, db, monitoring_hosts)) for host in zabbix_hosts]
+        futures = [asyncio.ensure_future(get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
         await asyncio.wait(futures)
     return monitoring_hosts
 
@@ -115,15 +117,16 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    monitoring_hosts = loop.run_until_complete(get_host_details(zabbix_hosts, db))
+    monitoring_hosts = loop.run_until_complete(get_host_details(zabbix_hosts, db, with_problems))
     loop.close()
+
+    # сортировка списка по Имени(NAME_FIELD) машины
+    monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
 
     if with_problems:
         # Финальная сортировка списка по кол-ву проблем (PROBLEMS_FIELD) элемента
         monitoring_hosts = sorted(monitoring_hosts, reverse=True, key=lambda x: len(x[PROBLEMS_FIELD]))
-    else:
-        # Финальная сортировка списка по Имени(NAME_FIELD) машины
-        monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
+
     return monitoring_hosts
 
 
