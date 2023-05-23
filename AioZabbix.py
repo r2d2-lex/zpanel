@@ -4,7 +4,7 @@ import datetime
 import json
 import logging
 from Zabbix import RECENT_PROBLEMS, SEVERITIES, PROBLEMS_OUTPUT_FIELDS_DICT, CLOCK_FIELD, TIME_TEMPLATE, \
-    SEVERITY_FIELD
+    SEVERITY_FIELD, HOST_ID_FIELD
 from aiorequest import post_data
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
@@ -93,13 +93,13 @@ class AioZabbixApi:
         ))
 
 
-async def get_zabbix_monitoring_hosts(host_ids: list) -> list:
+async def async_get_zabbix_monitoring_hosts(host_ids: list) -> list:
     async with AioZabbixApi() as aio_zabbix:
         hosts = await aio_zabbix.get_monitored_hosts(host_ids)
     return hosts
 
 
-async def get_all_zabbix_monitoring_hosts() -> list:
+async def async_get_all_zabbix_monitoring_hosts() -> list:
     async with AioZabbixApi() as aio_zabbix:
         params = dict(status=1, monitored_hosts=1, selectInterfaces=['ip'])
         hosts = await aio_zabbix.zabbix_host_get(params)
@@ -122,6 +122,12 @@ async def async_get_zabbix_host_problems(api, host_id: int) -> list:
         # Сортировка должна быть по SEVERITY_FIELD и reverse=True чтобы получить корректный цвет ошибки на карточке
         problem_list = sorted(problem_list, reverse=True, key=lambda x: x[SEVERITY_FIELD])
     return problem_list
+
+
+async def async_get_host_problems(host_id: int) -> list:
+    async with AioZabbixApi() as aio_zabbix:
+        problems = await async_get_zabbix_host_problems(aio_zabbix, host_id)
+    return problems
 
 
 def main():

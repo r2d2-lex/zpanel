@@ -9,8 +9,10 @@ from sqlalchemy.orm import Session
 
 from db import get_db
 from schema import Host, Item, HostId
-from Zabbix import *
-from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems
+from Zabbix import HOST_ID_FIELD, NAME_FIELD, get_host_item_value, get_zabbix_monitoring_hosts, \
+    get_all_zabbix_monitoring_hosts
+from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
+    async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
 import asyncio
 import config
 import crud
@@ -64,10 +66,15 @@ def get_data_items(db, host_id) -> list:
 async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_problems):
     """
         api - context aio_zabbix_api для запроса;
-        host_id - zabbix host id
         zabbix_hosts - список словарей всех хостов из api zabbix
         db - контекст БД
         monitoring_hosts - словарь, который будет выведен на панель мониторинга
+
+        Добавляет значение колонки (column) из БД в словарь мониторинга
+        Добавляет количество проблем (problems) в словарь мониторинга
+        Добавляет имя файла изображения (image) в словарь мониторинга
+        Добавляет элементы данных (data_items) в словарь мониторинга
+
     """
     await asyncio.sleep(0)
     column = 0
@@ -93,9 +100,7 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
             view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
 
     view_host.update({COLUMN_FIELD: column})
-
     monitoring_hosts.append(view_host)
-    logging.info(f'HOST_ID: {host_id} DICT MODIFIED: {view_host}\r\n')
     return
 
 
@@ -108,13 +113,6 @@ async def get_host_details(zabbix_hosts, db, with_problems) -> list:
 
 
 def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> list:
-    """ 
-    Добавляет значение колонки (column) из БД в словарь мониторинга 
-    Добавляет количество проблем (problems) в словарь мониторинга 
-    Добавляет имя файла изображения (image) в словарь мониторинга 
-    Добавляет элементы данных (data_items) в словарь мониторинга 
-    """""
-
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     monitoring_hosts = loop.run_until_complete(get_host_details(zabbix_hosts, db, with_problems))
@@ -122,7 +120,6 @@ def update_monitoring_hosts(zabbix_hosts, db, with_problems: bool = False) -> li
 
     # сортировка списка по Имени(NAME_FIELD) машины
     monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
-
     if with_problems:
         # Финальная сортировка списка по кол-ву проблем (PROBLEMS_FIELD) элемента
         monitoring_hosts = sorted(monitoring_hosts, reverse=True, key=lambda x: len(x[PROBLEMS_FIELD]))
@@ -272,13 +269,13 @@ def update_host_from_db(host: Host, db: Session = Depends(get_db)):
 
 
 @app.get('/hosts')
-def get_all_hosts():
-    return get_all_zabbix_monitoring_hosts()
+async def get_all_hosts():
+    return await async_get_all_zabbix_monitoring_hosts()
 
 
 @app.get('/errors/{host_id}', response_class=HTMLResponse)
-def get_host_errors(request: Request, host_id: int):
-    host_problems = get_zabbix_host_problems(host_id)
+async def get_host_errors(request: Request, host_id: int):
+    host_problems = await async_get_host_problems(host_id)
     template = 'zpanel/problems.html'
     return templates.TemplateResponse(template,
                                       {
