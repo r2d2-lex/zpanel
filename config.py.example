@@ -5,7 +5,7 @@ ZPANEL_HOST = '127.0.0.1'
 ZPANEL_LOGIN = 'zabbix-login'
 ZPANEL_PASSWORD = 'zabbix-pass'
 ZPANEL_DB = 'zabbix'
-ZPANEL_ENGINE = 'postgresql+psycopg2'
+ZPANEL_ENGINE = 'postgresql+asyncpg'
 ZPANEL_DATABASE_URI = f'{ZPANEL_ENGINE}://{ZPANEL_LOGIN}:{ZPANEL_PASSWORD}@{ZPANEL_HOST}/{ZPANEL_DB}'
 
 ZABBIX_API_USER = 'zabbix-login'

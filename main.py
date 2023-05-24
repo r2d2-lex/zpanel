@@ -4,12 +4,11 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
 from schema import Host, Item
-from Zabbix import HOST_ID_FIELD, NAME_FIELD, get_host_item_value
+from Zabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
     async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
 import asyncio
@@ -45,14 +44,14 @@ CURRENT_WORK_DIRECTORY = os.getcwd()
 CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
 
 
-def get_monitored_hosts_ids(db) -> list:
-    db_hosts = crud.get_monitored_hosts(db)
+async def get_monitored_hosts_ids(db) -> list:
+    db_hosts = await crud.get_monitored_hosts(db)
     return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
 async def get_data_items(db, api, host_id) -> list:
     result = []
-    data_items = crud.get_items(db, host_id)
+    data_items = await crud.get_items(db, host_id)
     for item in data_items:
         items_result = await api.async_get_host_item_value(host_id, item.name)
         logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
@@ -74,20 +73,21 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
         Добавляет количество проблем (problems) в словарь мониторинга
         Добавляет имя файла изображения (image) в словарь мониторинга
         Добавляет элементы данных (data_items) в словарь мониторинга
-
     """
     await asyncio.sleep(0)
     column = 0
     try:
-        host_id = zabbix_host[HOST_ID_FIELD]
+        host_id = int(zabbix_host[HOST_ID_FIELD])
     except KeyError as error:
         logging.info(f'Ошибка ключа {HOST_ID_FIELD} элемента списка zabbix: {error}')
         return
 
     view_host = dict()
     view_host.update(zabbix_host)
+    logging.info(f'Start with {host_id}')
 
-    db_host = crud.get_host(db, host_id)
+    db_host = await crud.get_host(db, host_id)
+    logging.info(f'After get_host {host_id}')
     if db_host:
         items = await get_data_items(db, api, host_id)
         if items:
@@ -104,7 +104,7 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
     return
 
 
-async def get_host_details(zabbix_hosts, db, with_problems: bool = False) -> list:
+async def get_host_details(zabbix_hosts, db: AsyncSession = Depends(get_db), with_problems: bool = False) -> list:
     monitoring_hosts = []
     async with AioZabbixApi() as aio_zabbix:
         futures = [asyncio.ensure_future(
@@ -131,10 +131,10 @@ def monitoring(request: Request):
 
 
 @app.get('/panel/', response_class=HTMLResponse)
-async def monitoring_panel(request: Request, db: Session = Depends(get_db)):
+async def monitoring_panel(request: Request, db: AsyncSession = Depends(get_db)):
     time_start = time.time()
     template = 'zpanel/panel.html'
-    host_ids = get_monitored_hosts_ids(db)
+    host_ids = await get_monitored_hosts_ids(db)
     zabbix_hosts = await async_get_zabbix_monitoring_hosts(host_ids)
     monitoring_hosts = await get_host_details(zabbix_hosts, db, with_problems=True)
     logging.info(f'Function PANEL delta time: {time.time() - time_start}')
@@ -181,7 +181,7 @@ async def download_image(image_name: str):
 
 
 @app.post('/upload/')
-async def upload_image(image: UploadFile, request: Request, db: Session = Depends(get_db)):
+async def upload_image(image: UploadFile, request: Request, db: AsyncSession = Depends(get_db)):
     logging.info(f'Current work directory {CURRENT_WORK_DIRECTORY}')
     image_name = image.filename
     image_path = CURRENT_IMAGES_DIRECTORY + image_name
@@ -201,17 +201,22 @@ async def upload_image(image: UploadFile, request: Request, db: Session = Depend
         return {'error': 'Невозможно получить host_id', }
     logging.info(f'Load image for Host ID: {host_id}')
 
-    db_host = crud.get_host(db=db, host_id=host_id)
+    db_host = await crud.get_host(db=db, host_id=host_id)
     if db_host:
         logging.info(f'Image name: {image_name}')
-        crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
+        await crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
     else:
         return {'error': 'Ошибка БД', }
     return {'error': '', 'success': image_name, }
 
 
+@app.get('/hosts')
+async def get_all_hosts():
+    return await async_get_all_zabbix_monitoring_hosts()
+
+
 @app.get('/settings/', response_class=HTMLResponse)
-async def settings(request: Request, db: Session = Depends(get_db)):
+async def settings(request: Request, db: AsyncSession = Depends(get_db)):
     time_start = time.time()
     template = 'zpanel/settings.html'
     zabbix_hosts = await async_get_all_zabbix_monitoring_hosts()
@@ -227,47 +232,42 @@ async def settings(request: Request, db: Session = Depends(get_db)):
 
 # Хосты, которые будут мониторится
 @app.get('/monitor/hosts/', response_model=list[Host])
-async def read_host_from_db(db: Session = Depends(get_db)):
-    hosts = crud.get_monitored_hosts(db)
+async def read_host_from_db(db: AsyncSession = Depends(get_db)):
+    hosts = await crud.get_monitored_hosts(db)
     return hosts
 
 
 @app.get('/monitor/hosts/{host_id}', response_model=Host)
-def get_host_from_db(host_id: int, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, host_id=host_id)
+async def get_host_from_db(host_id: int, db: AsyncSession = Depends(get_db)):
+    db_host = await crud.get_host(db=db, host_id=host_id)
     if not db_host:
         raise HTTPException(status_code=404, detail="Host not found")
     return db_host
 
 
 @app.post('/monitor/hosts/', response_model=Host)
-def add_host_to_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, host_id=host.host_id)
+async def add_host_to_db(host: Host, db: AsyncSession = Depends(get_db)):
+    db_host = await crud.get_host(db=db, host_id=host.host_id)
     if db_host:
         # raise HTTPException(status_code=400, detail="Host already monitored")
-        return crud.update_host(db=db, host=host)
-    return crud.add_host(host=host, db=db)
+        return await crud.update_host(db=db, host=host)
+    return await crud.add_host(host=host, db=db)
 
 
 @app.delete('/monitor/hosts/', response_model=Host)
-def delete_host_from_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, host_id=host.host_id)
+async def delete_host_from_db(host: Host, db: AsyncSession = Depends(get_db)):
+    db_host = await crud.get_host(db=db, host_id=host.host_id)
     if not db_host:
         raise HTTPException(status_code=400, detail="Host not found")
-    return crud.delete_host(db=db, host_id=host.host_id)
+    return await crud.delete_host(db=db, host_id=host.host_id)
 
 
 @app.patch('/monitor/hosts/', response_model=Host)
-def update_host_from_db(host: Host, db: Session = Depends(get_db)):
-    db_host = crud.get_host(db=db, host_id=host.host_id)
+async def update_host_from_db(host: Host, db: AsyncSession = Depends(get_db)):
+    db_host = await crud.get_host(db=db, host_id=host.host_id)
     if not db_host:
         raise HTTPException(status_code=400, detail="Host not found")
-    return crud.update_host(db=db, host=host)
-
-
-@app.get('/hosts')
-async def get_all_hosts():
-    return await async_get_all_zabbix_monitoring_hosts()
+    return await crud.update_host(db=db, host=host)
 
 
 @app.get('/errors/{host_id}', response_class=HTMLResponse)
@@ -284,13 +284,13 @@ async def get_host_errors(request: Request, host_id: int):
 
 # -------------------------- ( Item ) -----------------------
 @app.get('/items/{host_id}', response_model=list[Item])
-async def get_item_from_db(host_id: int, db: Session = Depends(get_db)):
-    items = crud.get_items(db, host_id)
+async def get_item_from_db(host_id: int, db: AsyncSession = Depends(get_db)):
+    items = await crud.get_items(db, host_id)
     return items
 
 
 @app.get('/data-items/{host_id}', response_class=HTMLResponse)
-def get_host_items(request: Request, host_items=Depends(get_item_from_db)):
+async def get_host_items(request: Request, host_items=Depends(get_item_from_db)):
     template = 'zpanel/items.html'
     return templates.TemplateResponse(template,
                                       {
@@ -301,24 +301,24 @@ def get_host_items(request: Request, host_items=Depends(get_item_from_db)):
 
 
 @app.post('/items/', response_model=Item)
-async def add_item_to_db(item: Item, db: Session = Depends(get_db)):
-    db_item = crud.get_item(db=db, item=item)
+async def add_item_to_db(item: Item, db: AsyncSession = Depends(get_db)):
+    db_item = await crud.get_item(db=db, item=item)
     if db_item:
         raise HTTPException(status_code=400, detail="Item already exist")
-    return crud.add_item(item=item, db=db)
+    return await crud.add_item(item=item, db=db)
 
 
 @app.delete('/items/', response_model=Item)
-async def delete_item_from_db(item: Item, db: Session = Depends(get_db)):
-    db_item = crud.get_item(db=db, item=item)
+async def delete_item_from_db(item: Item, db: AsyncSession = Depends(get_db)):
+    db_item = await crud.get_item(db=db, item=item)
     if not db_item:
         raise HTTPException(status_code=400, detail="Item not found")
-    return crud.delete_item(db=db, host_id=item.host_id, name=item.name)
+    return await crud.delete_item(db=db, host_id=item.host_id, name=item.name)
 
 
 @app.patch('/items/', response_model=Item)
-async def update_item(item: Item, db: Session = Depends(get_db)):
-    db_item = crud.get_item(db=db, item=item)
+async def update_item(item: Item, db: AsyncSession = Depends(get_db)):
+    db_item = await crud.get_item(db=db, item=item)
     if not db_item:
         raise HTTPException(status_code=400, detail="Item not found")
-    return crud.update_item(db=db, item=item)
+    return await crud.update_item(db=db, item=item)
