@@ -84,10 +84,8 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
 
     view_host = dict()
     view_host.update(zabbix_host)
-    logging.info(f'Start with {host_id}')
 
     db_host = await crud.get_host(db, host_id)
-    logging.info(f'After get_host {host_id}')
     if db_host:
         items = await get_data_items(db, api, host_id)
         if items:
