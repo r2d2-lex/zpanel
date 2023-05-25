@@ -154,7 +154,6 @@ def index(request: Request):
                                       )
 
 
-# Эта функция - костыль. Иначе изображение не загружается корректно. Связано с асинхронностью выполнения
 async def parse_host_id(request):
     host_id = 0
     form_data = await request.form()
