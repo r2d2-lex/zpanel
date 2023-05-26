@@ -81,7 +81,6 @@ class AioZabbixApi:
 
     async def async_get_host_item_value(self, host_ids: list, item_name: str) -> str:
         result = ''
-        host_ids = [host_ids]
         items = await self.get_item_by_key(host_ids, item_name)
         if items:
             try:

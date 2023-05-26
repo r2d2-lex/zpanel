@@ -44,16 +44,16 @@ CURRENT_WORK_DIRECTORY = os.getcwd()
 CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
 
 
-async def get_monitored_hosts_ids(db) -> list:
+async def get_monitored_hosts_ids(db: AsyncSession) -> list:
     db_hosts = await crud.get_monitored_hosts(db)
     return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
-async def get_data_items(db, api, host_id) -> list:
+async def get_data_items(db: AsyncSession, api: AioZabbixApi, host_id: int) -> list:
     result = []
     data_items = await crud.get_items(db, host_id)
     for item in data_items:
-        items_result = await api.async_get_host_item_value(host_id, item.name)
+        items_result = await api.async_get_host_item_value([host_id], item.name)
         logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
         if items_result:
             result.append({'item_value': items_result, 'item_type': item.value_type})
@@ -62,7 +62,11 @@ async def get_data_items(db, api, host_id) -> list:
     return result
 
 
-async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_problems):
+async def get_async_host_details(api: AioZabbixApi,
+                                 zabbix_host: dict,
+                                 db: AsyncSession,
+                                 monitoring_hosts: list,
+                                 with_problems: bool):
     """
         api - context aio_zabbix_api для запроса;
         zabbix_hosts - список словарей всех хостов из api zabbix
@@ -102,7 +106,7 @@ async def get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_pr
     return
 
 
-async def get_host_details(zabbix_hosts, db: AsyncSession = Depends(get_db), with_problems: bool = False) -> list:
+async def get_host_details(zabbix_hosts: list, db: AsyncSession = Depends(get_db), with_problems: bool = False) -> list:
     monitoring_hosts = []
     async with AioZabbixApi() as aio_zabbix:
         futures = [asyncio.ensure_future(
@@ -154,15 +158,15 @@ def index(request: Request):
                                       )
 
 
-async def parse_host_id(request):
+async def parse_host_id(request: Request) -> int:
     host_id = 0
     form_data = await request.form()
     form_data = jsonable_encoder(form_data)
     try:
-        host_id = form_data[IMAGE_HOST_ID_FIELD]
-    except KeyError as error:
+        host_id = int(form_data[IMAGE_HOST_ID_FIELD])
+    except (KeyError, ValueError) as error:
         logging.error(f'Ошибка получения host_id: {error}')
-    return int(host_id)
+    return host_id
 
 
 @app.get('/images/{image_name}')
@@ -246,7 +250,6 @@ async def get_host_from_db(host_id: int, db: AsyncSession = Depends(get_db)):
 async def add_host_to_db(host: Host, db: AsyncSession = Depends(get_db)):
     db_host = await crud.get_host(db=db, host_id=host.host_id)
     if db_host:
-        # raise HTTPException(status_code=400, detail="Host already monitored")
         return await crud.update_host(db=db, host=host)
     return await crud.add_host(host=host, db=db)
 
