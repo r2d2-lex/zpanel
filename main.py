@@ -108,10 +108,13 @@ async def get_async_host_details(api: AioZabbixApi,
 
 async def get_host_details(zabbix_hosts: list, db: AsyncSession = Depends(get_db), with_problems: bool = False) -> list:
     monitoring_hosts = []
-    async with AioZabbixApi() as aio_zabbix:
-        futures = [asyncio.ensure_future(
-            get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
-        await asyncio.wait(futures)
+    try:
+        async with AioZabbixApi() as aio_zabbix:
+            futures = [asyncio.ensure_future(
+                get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
+            await asyncio.wait(futures)
+    except ValueError as error:
+        logging.info(f'Set of coroutines/Futures is empty. Error: {error}')
 
     # сортировка списка по Имени(NAME_FIELD) машины
     monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])
