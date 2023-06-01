@@ -47,17 +47,21 @@
                     {% endif %}
 
                     <!-- Вторая колонка карточки -->
+                    {% set max_host_problems_to_display = 2 %}
                     <div class="col-md-{{ middle_column }} justify-content-start">
                         <div class="card-body p-0">
                             <h2 class="card-title fw-bolder">
                                 <a class="text-decoration-none text-reset" data-id="{{ host.hostid }}" href="#" style="background-color:transparent" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                    {{ host.name }} ({{ host.interfaces[0]['ip'] }}) {% if host.problems|count > 2 %}[P:{{ host.problems|count }}]{% endif %}
+                                    {{ host.name }} ({{ host.interfaces[0]['ip'] }}) {% if host.problems|count > max_host_problems_to_display %}[P:{{ host.problems|count }}]{% endif %}
                                 </a>
                             </h2>
                                 {% if host.error %} {{ card_text(host.error) }} {% endif %}
                                 {% if host.snmp_error %} {{ card_text(host.snmp_error) }} {% endif %}
-                                {% if host.problems[0] %} {{ card_text('[' + host.problems[0].clock + '] ' + host.problems[0].name) }} {% endif %}
-                                {% if host.problems[1] %} {{ card_text('[' + host.problems[1].clock + '] ' + host.problems[1].name) }} {% endif %}
+                                {% for index in range(max_host_problems_to_display) %}
+                                        {% if host.problems[index] %}
+                                                {{ card_text('[' + host.problems[index].clock + '] ' + host.problems[index].name) }}
+                                        {% endif %}
+                                {% endfor %}
                         </div>
                     </div>
 
