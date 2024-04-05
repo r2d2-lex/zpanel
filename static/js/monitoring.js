@@ -8,7 +8,8 @@
    },
    error: function(html){
     showMessage('#id_status', 'ошибка соединения с сервером', 'alert-danger');
-   }
+   },
+   timeout: 3000
   });
 }
 
