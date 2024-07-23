@@ -71,7 +71,7 @@ class AioZabbixApi:
 
     async def zabbix_login(self):
         method = 'user.login'
-        params = {'user': config.ZABBIX_API_USER, 'password': config.ZABBIX_API_PASSWORD}
+        params = {config.ZABBIX_API_USER_FIELD: config.ZABBIX_API_USER, 'password': config.ZABBIX_API_PASSWORD}
         self._zabbix_auth = await self._zabbix_request(method, params=params)
         return self._zabbix_auth
 

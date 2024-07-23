@@ -9,8 +9,6 @@ GRANT ALL PRIVILEGES ON DATABASE "zpanel" to zpanel;
 ### 2. Созлание таблиц для БД
 ```
 python db.py
-    with Database() as db:
-        db.create_db()
 ```
 ### 3. Установка утилит виртуального окружения
 ```
@@ -76,6 +74,12 @@ mkdir /var/log/zpanel && chown www-data. /var/log/zpanel && systemctl restart zp
 cp service/logrotate.d/zpanel /etc/logrotate.d/
 systemctl restart logrotate.service
 ```
+
+### Запуск контейнера в Docker:
+'''
+# docker build -t zpanel .
+# docker run --name=zpanel --restart unless-stopped -d -p 8000:8000 zpanel
+'''
 
 ### Zabbix выполнить внешний скрипт:
 ```
