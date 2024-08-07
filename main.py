@@ -8,7 +8,10 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
-from schema import Host, Item
+from items_views import get_item_from_db
+from items_views import router as items_router
+from hosts_views import router as hosts_router
+from schema import Host
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
     async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
@@ -29,6 +32,8 @@ IMAGE_HOST_ID_FIELD = 'host-id'
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
 app = FastAPI()
+app.include_router(items_router)
+app.include_router(hosts_router)
 
 if config.ORIGINS:
     app.add_middleware(
@@ -234,46 +239,6 @@ async def settings(request: Request, db: AsyncSession = Depends(get_db)):
                                       }
                                       )
 
-
-# Хосты, которые будут мониторится
-@app.get('/monitor/hosts/', response_model=list[Host])
-async def read_host_from_db(db: AsyncSession = Depends(get_db)):
-    hosts = await crud.get_monitored_hosts(db)
-    return hosts
-
-
-@app.get('/monitor/hosts/{host_id}', response_model=Host)
-async def get_host_from_db(host_id: int, db: AsyncSession = Depends(get_db)):
-    db_host = await crud.get_host(db=db, host_id=host_id)
-    if not db_host:
-        raise HTTPException(status_code=404, detail="Host not found")
-    return db_host
-
-
-@app.post('/monitor/hosts/', response_model=Host)
-async def add_host_to_db(host: Host, db: AsyncSession = Depends(get_db)):
-    db_host = await crud.get_host(db=db, host_id=host.host_id)
-    if db_host:
-        return await crud.update_host(db=db, host=host)
-    return await crud.add_host(host=host, db=db)
-
-
-@app.delete('/monitor/hosts/', response_model=Host)
-async def delete_host_from_db(host: Host, db: AsyncSession = Depends(get_db)):
-    db_host = await crud.get_host(db=db, host_id=host.host_id)
-    if not db_host:
-        raise HTTPException(status_code=400, detail="Host not found")
-    return await crud.delete_host(db=db, host_id=host.host_id)
-
-
-@app.patch('/monitor/hosts/', response_model=Host)
-async def update_host_from_db(host: Host, db: AsyncSession = Depends(get_db)):
-    db_host = await crud.get_host(db=db, host_id=host.host_id)
-    if not db_host:
-        raise HTTPException(status_code=400, detail="Host not found")
-    return await crud.update_host(db=db, host=host)
-
-
 @app.get('/errors/{host_id}', response_class=HTMLResponse)
 async def get_host_errors(request: Request, host_id: int):
     host_problems = await async_get_host_problems(host_id)
@@ -285,14 +250,6 @@ async def get_host_errors(request: Request, host_id: int):
                                       }
                                       )
 
-
-# -------------------------- ( Item ) -----------------------
-@app.get('/items/{host_id}', response_model=list[Item])
-async def get_item_from_db(host_id: int, db: AsyncSession = Depends(get_db)):
-    items = await crud.get_items(db, host_id)
-    return items
-
-
 @app.get('/data-items/{host_id}', response_class=HTMLResponse)
 async def get_host_items(request: Request, host_items=Depends(get_item_from_db)):
     template = 'zpanel/items.html'
@@ -302,30 +259,6 @@ async def get_host_items(request: Request, host_items=Depends(get_item_from_db))
                                           'items': host_items,
                                       }
                                       )
-
-
-@app.post('/items/', response_model=Item)
-async def add_item_to_db(item: Item, db: AsyncSession = Depends(get_db)):
-    db_item = await crud.get_item(db=db, item=item)
-    if db_item:
-        raise HTTPException(status_code=400, detail="Item already exist")
-    return await crud.add_item(item=item, db=db)
-
-
-@app.delete('/items/', response_model=Item)
-async def delete_item_from_db(item: Item, db: AsyncSession = Depends(get_db)):
-    db_item = await crud.get_item(db=db, item=item)
-    if not db_item:
-        raise HTTPException(status_code=400, detail="Item not found")
-    return await crud.delete_item(db=db, host_id=item.host_id, name=item.name)
-
-
-@app.patch('/items/', response_model=Item)
-async def update_item(item: Item, db: AsyncSession = Depends(get_db)):
-    db_item = await crud.get_item(db=db, item=item)
-    if not db_item:
-        raise HTTPException(status_code=400, detail="Item not found")
-    return await crud.update_item(db=db, item=item)
 
 
 if __name__ == '__main__':
