@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
 from schema import Host, Item
-from Zabbix import HOST_ID_FIELD, NAME_FIELD
+from AioZabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
     async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
 import asyncio
