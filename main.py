@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, FileResponse
@@ -325,3 +326,7 @@ async def update_item(item: Item, db: AsyncSession = Depends(get_db)):
     if not db_item:
         raise HTTPException(status_code=400, detail="Item not found")
     return await crud.update_item(db=db, item=item)
+
+
+if __name__ == '__main__':
+    uvicorn.run('main:app', reload=True)
