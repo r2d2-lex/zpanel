@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, Depends, Request, HTTPException, UploadFile
+from fastapi import FastAPI, Depends, Request, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,11 +7,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db import get_db
-from items_views import get_item_from_db
-from items_views import router as items_router
-from hosts_views import router as hosts_router
-from schema import Host
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
     async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
@@ -32,9 +27,6 @@ IMAGE_HOST_ID_FIELD = 'host-id'
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
 app = FastAPI()
-app.include_router(items_router)
-app.include_router(hosts_router)
-
 if config.ORIGINS:
     app.add_middleware(
         CORSMiddleware,
@@ -48,6 +40,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 CURRENT_WORK_DIRECTORY = os.getcwd()
 CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
+
+from db import get_db
+from items.views import get_item_from_db
+from items.views import router as items_router
+from hosts.views import router as hosts_router
+from monitoring.views import router as monitoring_router
+app.include_router(items_router)
+app.include_router(hosts_router)
+app.include_router(monitoring_router)
 
 
 async def get_monitored_hosts_ids(db: AsyncSession) -> list:
@@ -218,11 +219,6 @@ async def upload_image(image: UploadFile, request: Request, db: AsyncSession = D
     else:
         return {'error': 'Ошибка БД', }
     return {'error': '', 'success': image_name, }
-
-
-@app.get('/hosts')
-async def get_all_hosts():
-    return await async_get_all_zabbix_monitoring_hosts()
 
 
 @app.get('/settings/', response_class=HTMLResponse)
