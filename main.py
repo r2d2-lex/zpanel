@@ -10,9 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
     async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
+
+from hosts.crud import get_monitored_hosts, get_host, update_host_image
+from items.crud import get_items
 import asyncio
 import config
-import crud
 import logging
 import os
 import time
@@ -52,13 +54,13 @@ app.include_router(monitoring_router)
 
 
 async def get_monitored_hosts_ids(db: AsyncSession) -> list:
-    db_hosts = await crud.get_monitored_hosts(db)
+    db_hosts = await get_monitored_hosts(db)
     return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
 async def get_data_items(db: AsyncSession, api: AioZabbixApi, host_id: int) -> list:
     result = []
-    data_items = await crud.get_items(db, host_id)
+    data_items = await get_items(db, host_id)
     for item in data_items:
         items_result = await api.async_get_host_item_value([host_id], item.name)
         logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
@@ -96,7 +98,7 @@ async def get_async_host_details(api: AioZabbixApi,
     view_host = dict()
     view_host.update(zabbix_host)
 
-    db_host = await crud.get_host(db, host_id)
+    db_host = await get_host(db, host_id)
     if db_host:
         items = await get_data_items(db, api, host_id)
         if items:
@@ -212,10 +214,10 @@ async def upload_image(image: UploadFile, request: Request, db: AsyncSession = D
         return {'error': 'Невозможно получить host_id', }
     logging.info(f'Load image for Host ID: {host_id}')
 
-    db_host = await crud.get_host(db=db, host_id=host_id)
+    db_host = await get_host(db=db, host_id=host_id)
     if db_host:
         logging.info(f'Image name: {image_name}')
-        await crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
+        await update_host_image(db=db, host=db_host, image_name=str(image_name))
     else:
         return {'error': 'Ошибка БД', }
     return {'error': '', 'success': image_name, }

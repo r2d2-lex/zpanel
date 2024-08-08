@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import crud
+import hosts.crud as crud
+from hosts.schema import Host
 from db import get_db
-from schema import Host
 
 router = APIRouter(prefix='/monitor/hosts', tags=['hosts'])
 
