@@ -5,8 +5,7 @@ import asyncio
 import logging
 
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
-from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems, async_get_host_problems, \
-    async_get_all_zabbix_monitoring_hosts, async_get_zabbix_monitoring_hosts
+from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems
 from app.hosts.crud import get_host, get_monitored_hosts
 from app.items.crud import get_items
 from app.db import get_db
@@ -15,11 +14,6 @@ COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'
 IMAGE_FIELD = 'image'
 DATA_ITEMS_FIELD = 'data_items'
-
-
-async def get_monitored_hosts_ids(db: AsyncSession) -> list:
-    db_hosts = await get_monitored_hosts(db)
-    return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
 async def get_data_items(db: AsyncSession, api: AioZabbixApi, host_id: int) -> list:

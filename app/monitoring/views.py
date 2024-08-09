@@ -10,10 +10,17 @@ import time
 import logging
 
 from app.db import get_db
+from app.hosts.crud import get_monitored_hosts
 from app.items.views import get_item_from_db
-from app.service import get_monitored_hosts_ids, get_host_details
+from app.service import get_host_details
 
 router = APIRouter(tags=['monitoring'])
+
+
+async def get_monitored_hosts_ids(db: AsyncSession) -> list:
+    """Получаем список ИД-шников хостов, которые мониторятся в Zabbix + будут добавлены в мониторинг панели"""
+    db_hosts = await get_monitored_hosts(db)
+    return [db_host.host_id for db_host in db_hosts if db_host.column > 0]
 
 
 @router.get('/monitoring', response_class=HTMLResponse)
