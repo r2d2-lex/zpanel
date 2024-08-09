@@ -27,8 +27,18 @@ DATA_ITEMS_FIELD = 'data_items'
 IMAGE_HOST_ID_FIELD = 'host-id'
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
+from db import get_db
+from items.views import get_item_from_db
+from items.views import router as items_router
+from hosts.views import router as hosts_router
+from monitoring.views import router as monitoring_router
 
 app = FastAPI()
+app.include_router(items_router)
+app.include_router(hosts_router)
+app.include_router(monitoring_router)
+
+
 if config.ORIGINS:
     app.add_middleware(
         CORSMiddleware,
@@ -38,19 +48,11 @@ if config.ORIGINS:
         allow_headers=["*"],
     )
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 CURRENT_WORK_DIRECTORY = os.getcwd()
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
 CURRENT_IMAGES_DIRECTORY = CURRENT_WORK_DIRECTORY + '/static/images/'
 
-from db import get_db
-from items.views import get_item_from_db
-from items.views import router as items_router
-from hosts.views import router as hosts_router
-from monitoring.views import router as monitoring_router
-app.include_router(items_router)
-app.include_router(hosts_router)
-app.include_router(monitoring_router)
 
 
 async def get_monitored_hosts_ids(db: AsyncSession) -> list:

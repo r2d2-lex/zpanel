@@ -3,13 +3,12 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
-from models import Base
-from config import ZPANEL_HOST, ZPANEL_LOGIN, ZPANEL_PASSWORD, ZPANEL_DB, ZPANEL_ENGINE
+from app.models import Base
+from app.config import ZPANEL_HOST, ZPANEL_LOGIN, ZPANEL_PASSWORD, ZPANEL_DB, ZPANEL_ENGINE
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
