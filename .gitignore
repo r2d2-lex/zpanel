@@ -1,8 +1,8 @@
 venv/*
 .idea/*
-__pycache__/*
+*/__pycache__/*
+*/*/__pycache__/*
+*/*/*/__pycache__/*
 app/config.py
 task.txt
 app/static/images/*
-migrations/__pycache__/*
-migrations/versions/__pycache__/*
