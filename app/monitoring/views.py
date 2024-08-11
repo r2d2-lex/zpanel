@@ -3,16 +3,16 @@ from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.AioZabbix import async_get_zabbix_monitoring_hosts, async_get_host_problems
-from app.common import templates
+from AioZabbix import async_get_zabbix_monitoring_hosts, async_get_host_problems
+from common import templates
 
 import time
 import logging
 
-from app.db import get_db
-from app.hosts.crud import get_monitored_hosts
-from app.items.views import get_item_from_db
-from app.service import get_host_details
+from db import get_db
+from hosts.crud import get_monitored_hosts
+from items.views import get_item_from_db
+from service import get_host_details
 
 router = APIRouter(tags=['monitoring'])
 

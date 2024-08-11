@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import time
 import logging
 
-from app.AioZabbix import async_get_all_zabbix_monitoring_hosts
-from app.common import templates
-from app.db import get_db
-from app.service import get_host_details
+from AioZabbix import async_get_all_zabbix_monitoring_hosts
+from common import templates
+from db import get_db
+from service import get_host_details
 
 router = APIRouter(tags=['settings'])
 

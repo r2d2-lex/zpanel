@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import os
 import logging
 
-from app.db import get_db
-from app.hosts.crud import get_host, update_host_image
+from db import get_db
+from hosts.crud import get_host, update_host_image
 
 router = APIRouter(tags=['images'])
 

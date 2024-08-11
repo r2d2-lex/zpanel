@@ -9,13 +9,13 @@
    error: function(html){
     showMessage('#id_status', 'ошибка соединения с сервером', 'alert-danger');
    },
-   timeout: 3000
+   timeout: 10000
   });
 }
 
  $(document).ready(function() {
   show();
-  setInterval ('show()',5000);
+  setInterval ('show()',10000);
  });
 
 function showMessage(id, message, classAlert) {

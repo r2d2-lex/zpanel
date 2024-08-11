@@ -6,9 +6,9 @@ import logging
 
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems
-from app.hosts.crud import get_host, get_monitored_hosts
-from app.items.crud import get_items
-from app.db import get_db
+from hosts.crud import get_host
+from items.crud import get_items
+from db import get_db
 
 COLUMN_FIELD = 'column'
 PROBLEMS_FIELD = 'problems'

@@ -20,7 +20,7 @@ app.include_router(hosts_router)
 app.include_router(monitoring_router)
 app.include_router(settings_router)
 app.include_router(images_router)
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if config.ORIGINS:
     app.add_middleware(
