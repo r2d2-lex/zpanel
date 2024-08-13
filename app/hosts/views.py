@@ -29,7 +29,11 @@ async def get_host_from_db(
     return host
 
 
-@router.post('/', response_model=Host)
+@router.post(
+    '/',
+    response_model=Host,
+    status_code=status.HTTP_201_CREATED
+)
 async def add_host_to_db(host: CreateHost, db: AsyncSession = Depends(get_db)):
     return await crud.add_host(host=host, db=db)
 
@@ -52,10 +56,11 @@ async def update_host_partial(
     return await crud.update_host(host=host, db=db, db_host=db_host, partial=True)
 
 
-@router.delete('/')
+@router.delete('/', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_host_from_db(
         host: Host,
         db: AsyncSession = Depends(get_db)
-):
+) -> None:
     db_host = await get_host_by_id(db, host.host_id)
-    return await crud.delete_host(db=db, host=db_host)
+    await crud.delete_host(db=db, host=db_host)
+    return
