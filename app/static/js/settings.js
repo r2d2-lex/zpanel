@@ -11,17 +11,20 @@ $(document).ready(function() {
           let method = 'POST';
           let operation = ' Сохранение: ' + host_id;
           let selectName = '#select_' + host_id;
+          let url_api_prefix = ''
 
           if (host_id.indexOf(del_template) >=0) {
                 host_id = host_id.replace(del_template, '')
                 selectName = selectName.replace(del_template, '')
                 method = 'DELETE';
                 operation = ' Удаление: ' + host_id;
+                url_api_prefix = host_id;
           } else if (host_id.indexOf(mdf_template) >=0) {
                 host_id = host_id.replace(mdf_template, '')
                 selectName = selectName.replace(mdf_template, '')
                 method = 'PATCH';
                 operation = ' Изменение: ' + host_id;
+                url_api_prefix = host_id;
           }
 
           const host_name = $('#name_' + host_id).attr('name').replace(host_extract_template,'');
@@ -29,7 +32,7 @@ $(document).ready(function() {
 
           $.ajax({
             type : method,
-            url: '/monitor/hosts/',
+            url: '/monitor/hosts/' + url_api_prefix,
             data: JSON.stringify({
                 'host_id': host_id,
                 'column': select_val,
