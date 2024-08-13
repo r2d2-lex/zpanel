@@ -1,21 +1,27 @@
-from pydantic import BaseModel
+from typing import Union
+
+from pydantic import BaseModel, ConfigDict
 from fastapi import Path
 
 
-class HostId(BaseModel):
+class Host(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     host_id: int
-
-
-class Host(HostId):
     column: int = Path(..., ge=0, le=3, title='Monitoring column')
     name: str
 
-    class Config:
-        orm_mode = True
+class CreateHost(Host):
+    pass
+
+class UpdateHost(CreateHost):
+    pass
+
+class UpdateHostPartial(CreateHost):
+    host_id: Union[int, None] = None
+    column: Union[int, None] = None
+    name: Union[str, None] = None
 
 
 class HostImage(Host):
+    model_config = ConfigDict(from_attributes=True)
     image: str
-
-    class Config:
-        orm_mode = True
