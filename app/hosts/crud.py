@@ -40,7 +40,7 @@ async def update_host(
         db_host = ModelHost,
         partial = False,
 ) -> ModelHost:
-    for name, value in host.dict(exclude_unset=partial).items():
+    for name, value in host.model_dump(exclude_unset=partial).items():
         setattr(db_host, name, value)
     await db.commit()
     return db_host
