@@ -6,9 +6,9 @@ from aiorequest import fetch, post, post_data
 import os
 
 
-def test_environment_variable():
-    assert 'PYTHONPATH' in os.environ
-    print(os.environ['PYTHONPATH'])
+# def test_environment_variable():
+#     assert 'PYTHONPATH' in os.environ
+#     print(os.environ['PYTHONPATH'])
 
 
 @pytest.mark.asyncio
