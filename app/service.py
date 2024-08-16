@@ -5,7 +5,7 @@ import asyncio
 import logging
 
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
-from AioZabbix import AioZabbixApi, async_get_zabbix_host_problems
+from AioZabbix import AioZabbixApi, get_zabbix_host_problems
 from hosts.crud import get_host
 from items.crud import get_items_by_host_id
 from db import get_db
@@ -20,7 +20,7 @@ async def get_data_items(db: AsyncSession, api: AioZabbixApi, host_id: int) -> l
     result = []
     data_items = await get_items_by_host_id(db, host_id)
     for item in data_items:
-        items_result = await api.async_get_host_item_value([host_id], item.name)
+        items_result = await api.get_host_item_value([host_id], item.name)
         logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
         if items_result:
             result.append({'item_value': items_result, 'item_type': item.value_type})
@@ -66,7 +66,7 @@ async def get_async_host_details(api: AioZabbixApi,
         column = db_host.column if db_host.column else 0
 
         if with_problems:
-            view_host.update({PROBLEMS_FIELD: await async_get_zabbix_host_problems(api, host_id)})
+            view_host.update({PROBLEMS_FIELD: await get_zabbix_host_problems(api, host_id)})
 
     view_host.update({COLUMN_FIELD: column})
     monitoring_hosts.append(view_host)

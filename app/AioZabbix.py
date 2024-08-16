@@ -108,7 +108,7 @@ class AioZabbixApi:
         method = 'user.logout'
         return await self._zabbix_request(method)
 
-    async def async_get_host_item_value(self, host_ids: list, item_name: str) -> str:
+    async def get_host_item_value(self, host_ids: list, item_name: str) -> str:
         result = ''
         items = await self.get_item_by_key(host_ids, item_name)
         if items:
@@ -145,20 +145,20 @@ class AioZabbixApi:
         ))
 
 
-async def async_get_zabbix_monitoring_hosts(host_ids: list) -> list:
+async def get_zabbix_monitoring_hosts(host_ids: list) -> list:
     async with AioZabbixApi() as aio_zabbix:
         hosts = await aio_zabbix.get_monitored_hosts(host_ids)
     return hosts
 
 
-async def async_get_all_zabbix_monitoring_hosts() -> list:
+async def get_all_zabbix_monitoring_hosts() -> list:
     async with AioZabbixApi() as aio_zabbix:
         params = dict(status=1, monitored_hosts=1, selectInterfaces=['ip'])
         hosts = await aio_zabbix.zabbix_host_get(params)
     return hosts
 
 
-async def async_get_zabbix_host_problems(api, host_id: int) -> list:
+async def get_zabbix_host_problems(api, host_id: int) -> list:
     problem_list = []
     host_problems = await api.get_host_problem(host_id)
     for problem in host_problems:
@@ -176,9 +176,9 @@ async def async_get_zabbix_host_problems(api, host_id: int) -> list:
     return problem_list
 
 
-async def async_get_host_problems(host_id: int) -> list:
+async def get_host_problems(host_id: int) -> list:
     async with AioZabbixApi() as aio_zabbix:
-        problems = await async_get_zabbix_host_problems(aio_zabbix, host_id)
+        problems = await get_zabbix_host_problems(aio_zabbix, host_id)
     return problems
 
 

@@ -3,7 +3,7 @@ from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from AioZabbix import async_get_zabbix_monitoring_hosts, async_get_host_problems
+from AioZabbix import get_zabbix_monitoring_hosts, get_host_problems
 from common import templates
 
 import time
@@ -38,7 +38,7 @@ async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get
     time_start = time.time()
     template = 'zpanel/panel.html'
     host_ids = await get_monitored_hosts_ids(db)
-    zabbix_hosts = await async_get_zabbix_monitoring_hosts(host_ids)
+    zabbix_hosts = await get_zabbix_monitoring_hosts(host_ids)
     monitoring_hosts = await get_host_details(zabbix_hosts, db, with_problems=True)
     logging.info(f'Function PANEL delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
@@ -51,7 +51,7 @@ async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get
 
 @router.get('/errors/{host_id}', response_class=HTMLResponse)
 async def ajax_get_host_errors(request: Request, host_id: int):
-    host_problems = await async_get_host_problems(host_id)
+    host_problems = await get_host_problems(host_id)
     template = 'zpanel/problems.html'
     return templates.TemplateResponse(template,
                                       {
