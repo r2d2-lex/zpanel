@@ -33,7 +33,7 @@ $("#upload_id").change(function(){
 
 		$.ajax({
 			type: "POST",
-			url: '/upload/',
+			url: '/image/upload/',
 			cache: false,
 			contentType: false,
 			processData: false,

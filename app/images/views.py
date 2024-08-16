@@ -10,7 +10,7 @@ import logging
 from db import get_db
 from hosts.crud import get_host, update_host_image
 
-router = APIRouter(tags=['images'])
+router = APIRouter(tags=['images'], prefix='/image')
 
 # from upload.js:
 IMAGE_HOST_ID_FIELD = 'host-id'
@@ -29,7 +29,7 @@ async def parse_host_id(request: Request) -> int:
     return host_id
 
 
-@router.get('/images/{image_name}')
+@router.get('/{image_name}')
 async def show_image(image_name: str):
     result = ''
     file_path = CURRENT_IMAGES_DIRECTORY + image_name
@@ -41,8 +41,12 @@ async def show_image(image_name: str):
     return result
 
 
-@router.post('/upload/')
-async def upload_image(image: UploadFile, request: Request, db: AsyncSession = Depends(get_db)):
+@router.post('/upload')
+async def upload_image(
+        image: UploadFile,
+        request: Request,
+        db: AsyncSession = Depends(get_db)
+):
     logging.info(f'Current work directory {CURRENT_WORK_DIRECTORY}')
     image_name = image.filename
     image_path = CURRENT_IMAGES_DIRECTORY + image_name
