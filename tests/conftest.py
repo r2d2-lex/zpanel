@@ -42,6 +42,6 @@ async def setup_database():
         await conn.run_sync(Base.metadata.drop_all)
 
 @pytest.fixture(scope="session", autouse=True)
-async def client_ac() -> AsyncGenerator[AsyncClient, None]:
+async def client() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
