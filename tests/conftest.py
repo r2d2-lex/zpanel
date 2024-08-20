@@ -33,12 +33,10 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database():
     async with engine_test.begin() as conn:
-        logging.info('CREATE DB...')
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield async_session_maker
     async with engine_test.begin() as conn:
-        logging.info('DESTROY DB...')
         await conn.run_sync(Base.metadata.drop_all)
 
 @pytest.fixture(scope="session", autouse=True)
