@@ -21,7 +21,7 @@ async def get_host(db: AsyncSession, host_id: int) -> Optional[ModelHost]:
 
 
 async def add_host(db: AsyncSession, host: CreateHost) -> ModelHost:
-    db_host = ModelHost(**host.dict())
+    db_host = ModelHost(**host.model_dump())
     db.add(db_host)
     await db.commit()
     await db.refresh(db_host)
