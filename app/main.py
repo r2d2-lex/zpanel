@@ -1,3 +1,5 @@
+import os
+
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +22,8 @@ app.include_router(hosts_router)
 app.include_router(monitoring_router)
 app.include_router(settings_router)
 app.include_router(images_router)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=base_dir+"/static"), name="static")
 
 if config.ORIGINS:
     app.add_middleware(
