@@ -8,7 +8,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.models import Base
-from app.config import ZPANEL_HOST, ZPANEL_LOGIN, ZPANEL_PASSWORD, ZPANEL_DB, ZPANEL_ENGINE
+from app.config import ZPANEL_HOST, ZPANEL_LOGIN, ZPANEL_PASSWORD, ZPANEL_DB, ZPANEL_ENGINE, ZPANEL_DATABASE_URI
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -30,7 +30,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-
+config.set_main_option('sqlalchemy.url', ZPANEL_DATABASE_URI + '?async_fallback=True')
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

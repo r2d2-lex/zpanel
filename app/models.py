@@ -15,7 +15,7 @@ class Host(Base):
 # autoincrement=True!!!
 class MonitoredItem(Base):
     __tablename__ = 'item'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True, unique=True)
     host_id = Column(Integer, ForeignKey(Host.host_id, ondelete='CASCADE'))
     name = Column(String)
     value_type = Column(String)

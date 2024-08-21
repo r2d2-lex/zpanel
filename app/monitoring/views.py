@@ -11,7 +11,7 @@ import logging
 
 from db import get_db
 from hosts.crud import get_monitored_hosts
-from items.views import get_item_from_db
+from items.views import get_item_by_host_id
 from service import get_host_details
 
 router = APIRouter(tags=['monitoring'])
@@ -62,7 +62,7 @@ async def ajax_get_host_errors(request: Request, host_id: int):
 
 
 @router.get('/data-items/{host_id}', response_class=HTMLResponse)
-async def ajax_get_host_items(request: Request, host_items=Depends(get_item_from_db)):
+async def ajax_get_host_items(request: Request, host_items=Depends(get_item_by_host_id)):
     template = 'zpanel/items.html'
     return templates.TemplateResponse(template,
                                       {

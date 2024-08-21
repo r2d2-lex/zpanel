@@ -12,6 +12,10 @@ async def get_all_items(db: AsyncSession) -> list[ModelMonitoredItem]:
     result = await db.execute(select(ModelMonitoredItem))
     return result.scalars().all()
 
+async def get_item_by_id(db: AsyncSession, item_id: int) -> ModelMonitoredItem:
+    result = await db.execute(select(ModelMonitoredItem).filter(ModelMonitoredItem.id == item_id))
+    return result.scalars().first()
+
 async def get_items_by_host_id(db: AsyncSession, host_id: int) -> list[ModelMonitoredItem]:
     query = select(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == host_id)
     result = await db.execute(query)
@@ -32,16 +36,10 @@ async def add_item(db: AsyncSession, item: CreateItem) -> ModelMonitoredItem:
     return db_item
 
 
-async def delete_item(db: AsyncSession, host_id: int, name: str) -> None:
-    result = await db.execute(select(ModelMonitoredItem).filter(ModelMonitoredItem.host_id == host_id,
-                                                  ModelMonitoredItem.name == name,
-                                                  ))
-    db_item = result.scalars().first()
-
-    if db_item:
-        await db.delete(db_item)
-        await db.commit()
-        return
+async def delete_item(db: AsyncSession, db_item: ModelMonitoredItem) -> None:
+    await db.delete(db_item)
+    await db.commit()
+    return
 
 
 async def update_item(
@@ -52,6 +50,8 @@ async def update_item(
 ) -> ModelMonitoredItem:
 
     for name, value in item.model_dump(exclude_unset=partial).items():
+        if name == 'id':
+            continue
         setattr(db_item, name, value)
     await db.commit()
     await db.refresh(db_item)
