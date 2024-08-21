@@ -76,10 +76,10 @@ systemctl restart logrotate.service
 ```
 
 ### Запуск контейнера в Docker:
-'''
-# docker build -t zpanel .
-# docker run --name=zpanel --restart unless-stopped -d -p 8000:8000 zpanel
-'''
+```
+docker build -t zpanel .
+docker run --name=zpanel --restart unless-stopped -d -p 8000:8000 zpanel
+```
 
 ### Zabbix выполнить внешний скрипт:
 ```
