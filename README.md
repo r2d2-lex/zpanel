@@ -96,6 +96,12 @@ Name: Service shutdown on {HOST.NAME}
 
 ### Настройка миграций Alembic:
 ```
+After creating a migration, either manually or as --autogenerate, 
+you must apply it with alembic upgrade head. If you used db.create_all() 
+from a shell, you can use alembic stamp head to indicate that the current 
+state of the database represents the application of all migrations.
+$ alembic stamp head
+
 $ alembic init -t async <script_directory_here>
 После установки переменных в alembic.ini:
 $ alembic revision --autogenerate -m "First migration"
