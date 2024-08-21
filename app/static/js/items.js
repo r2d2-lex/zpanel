@@ -56,12 +56,16 @@ $(document).on("click", "#item_delete", function(event){
     crudItems(item.item_id, item.host_id, item.item_name, item.item_type, 'DELETE');
 });
 
-function crudItems(host_id, item_name, item_type, method) {
+function crudItems(item_id, host_id, item_name, item_type, method) {
+        let url_api_prefix = '';
+        if (method === 'PATCH' || method === 'DELETE') {
+            url_api_prefix = item_id;
+        }
         $.ajax({
         type : method,
-        url: '/items/',
+        url: '/items/' + url_api_prefix,
         data: JSON.stringify({
-            'item_id': item_id,
+            'id': item_id,
             'host_id': host_id,
             'name': item_name,
             'value_type': item_type,
