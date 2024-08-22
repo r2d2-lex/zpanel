@@ -61,6 +61,7 @@ function crudItems(item_id, host_id, item_name, item_type, method) {
         if (method === 'PATCH' || method === 'DELETE') {
             url_api_prefix = item_id;
         }
+        if (method === 'POST') { item_id = 0; }
         $.ajax({
         type : method,
         url: '/items/' + url_api_prefix,

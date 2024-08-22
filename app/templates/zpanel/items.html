@@ -1,6 +1,6 @@
 <select class="form-select" aria-label="multiple select example" id="select_items" name="select_items" size="3" multiple>
     {% for item in items %}
-            <option value="{{ item.name }};{{ item.value_type }};{{ item.id }}">Элемент: {{ item.name }}; Тип данных: {{ item.value_type }} Ид: {{ item.id }}</option>
+            <option value="{{ item.name }};{{ item.value_type }};{{ item.id }}">Элемент: {{ item.name }}; Тип данных: {{ item.value_type }}</option>
     {% endfor %}
 </select>
 <script>
