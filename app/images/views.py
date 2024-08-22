@@ -1,5 +1,5 @@
-from fastapi import APIRouter, UploadFile
-from fastapi import Depends, Request
+from fastapi import APIRouter, UploadFile, HTTPException
+from fastapi import Depends, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,14 +31,18 @@ async def parse_host_id(request: Request) -> int:
 
 @router.get('/{image_name}')
 async def show_image(image_name: str):
-    result = ''
-    file_path = CURRENT_IMAGES_DIRECTORY + image_name
+    file_path = os.path.join(CURRENT_IMAGES_DIRECTORY, image_name)
+
     logging.info(f'File path: {file_path}')
+    if not os.path.isfile(file_path):
+        logging.error(f'Файл не найден: {file_path}')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Файл не найден")
+
     try:
-        result = FileResponse(path=file_path, filename=image_name)
-    except RuntimeError as error:
-        logging.error(f'Невозможно загрузить файл {error}')
-    return result
+        return FileResponse(path=file_path, filename=image_name)
+    except Exception as error:
+        logging.error(f'Ошибка при загрузке файла: {error}')
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка при загрузке файла")
 
 
 @router.post('/upload')
