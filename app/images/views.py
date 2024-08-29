@@ -53,7 +53,7 @@ async def upload_image(
 ):
     logging.info(f'Current work directory {CURRENT_WORK_DIRECTORY}')
     image_name = image.filename
-    image_path = CURRENT_IMAGES_DIRECTORY + image_name
+    image_path = os.path.join(CURRENT_IMAGES_DIRECTORY, image_name)
     logging.info(f'Image full path: {image_path}')
 
     try:

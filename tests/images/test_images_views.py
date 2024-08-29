@@ -1,8 +1,18 @@
 import os
-import pytest
+from io import BytesIO
 
+import pytest
 from images.views import CURRENT_IMAGES_DIRECTORY
 
+@pytest.fixture(scope='function')
+async def create_host(client):
+    response = await client.post('/monitor/hosts/', json={
+        "host_id": 1,
+        "column": 3,
+        "name": "superhost"
+})
+    yield response
+    await client.delete('/monitor/hosts/1')
 
 @pytest.fixture
 def create_image_file():
@@ -21,3 +31,22 @@ async def test_show_image_success(client, create_image_file):
 async def test_show_image_not_found(client):
     response = await client.get('/image/non_existent_image.png')
     assert response.status_code == 404
+    assert response.json() == {"detail": "Файл не найден"}
+
+async def test_upload_image_success(client, create_host):
+    image_file = BytesIO(b'test image content')
+    response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")}, data={'host-id': '1'})
+    assert response.status_code == 200
+    assert response.json() == {'error': '', 'success': 'test_image.jpg'}
+
+async def test_upload_image_missing_host_id(client):
+    image_file = BytesIO(b'test image content')
+    response = await client.post('/image/upload', files={'image': image_file})
+    assert response.status_code == 200
+    assert response.json() == {'error': 'Невозможно получить host_id'}
+
+async def test_upload_image_db_error(client):
+    image_file = BytesIO(b'test image content')
+    response = await client.post('/image/upload', files={'image': image_file}, data={'host-id': '1'})
+    assert response.status_code == 200
+    assert response.json() == {'error': 'Ошибка БД'}
