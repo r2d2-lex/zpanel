@@ -10,6 +10,7 @@ import logging
 
 logging.basicConfig(level=config.LOGGING_LEVEL)
 
+from common import BASE_DIR
 from items.views import router as items_router
 from hosts.views import router as hosts_router
 from monitoring.views import router as monitoring_router
@@ -22,8 +23,7 @@ app.include_router(hosts_router)
 app.include_router(monitoring_router)
 app.include_router(settings_router)
 app.include_router(images_router)
-base_dir = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=base_dir+"/static"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, 'static')), name="static")
 
 if config.ORIGINS:
     app.add_middleware(
