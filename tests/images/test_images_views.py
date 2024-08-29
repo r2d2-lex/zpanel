@@ -41,12 +41,12 @@ async def test_upload_image_success(client, create_host):
 
 async def test_upload_image_missing_host_id(client):
     image_file = BytesIO(b'test image content')
-    response = await client.post('/image/upload', files={'image': image_file})
+    response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")})
     assert response.status_code == 200
     assert response.json() == {'error': 'Невозможно получить host_id'}
 
 async def test_upload_image_db_error(client):
     image_file = BytesIO(b'test image content')
-    response = await client.post('/image/upload', files={'image': image_file}, data={'host-id': '1'})
+    response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")}, data={'host-id': '1'})
     assert response.status_code == 200
     assert response.json() == {'error': 'Ошибка БД'}
