@@ -44,7 +44,7 @@ async def test_get_item_returns_not_found_hostid(client):
     assert response.json()['detail'] == 'Item 9999999 not found'
 
 
-async def test_update_item(client, create_item):
+async def test_update_item(client, create_host_for_item):
     response = await client.post('/items/', json={
         'id': 0,
         'host_id': 31338,
