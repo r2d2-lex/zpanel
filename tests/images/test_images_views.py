@@ -2,10 +2,17 @@ import logging
 import os
 import shutil
 from io import BytesIO
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 import pytest
-from models import Host as ModelHost
 from images.views import CURRENT_IMAGES_DIRECTORY
+
+@pytest.fixture(autouse=True)
+def clean_upload():
+    logging.info('Создание директории для тестов')
+    os.makedirs(CURRENT_IMAGES_DIRECTORY, exist_ok=True)
+    yield
+    logging.info('Удаление директории для тестов')
+    shutil.rmtree(CURRENT_IMAGES_DIRECTORY, ignore_errors=True)
 
 @pytest.fixture(scope='function')
 async def create_host(client):
@@ -42,21 +49,18 @@ async def test_upload_image_success(client, create_host):
     assert response.json() == {'error': '', 'success': 'test_image.jpg'}
 
 async def test_upload_image_missing_host_id(client):
-    image_file = BytesIO(b'test image content')
-    response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")})
-    assert response.status_code == 200
-    assert response.json() == {'error': 'Невозможно получить host_id'}
+    with patch('hosts.crud.get_host', return_value=True), \
+        patch('hosts.crud.update_host_image'):
+
+        image_file = BytesIO(b'test image content')
+        response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")})
+        assert response.status_code == 200
+        assert response.json() == {'error': 'Невозможно получить host_id'}
 
 async def test_upload_image_db_error(client):
-    image_file = BytesIO(b'test image content')
-    response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")}, data={'host-id': '1'})
-    assert response.status_code == 200
-    assert response.json() == {'error': 'Ошибка БД'}
+    with patch('hosts.crud.get_host', return_value=False):
+        image_file = BytesIO(b'test image content')
+        response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")}, data={'host-id': '1'})
+        assert response.status_code == 200
+        assert response.json() == {'error': 'Ошибка БД'}
 
-@pytest.fixture(autouse=True)
-def clean_upload():
-    logging.info('Создание директории для тестов')
-    os.makedirs(CURRENT_IMAGES_DIRECTORY, exist_ok=True)
-    yield
-    logging.info('Удаление директории для тестов')
-    shutil.rmtree(CURRENT_IMAGES_DIRECTORY, ignore_errors=True)
