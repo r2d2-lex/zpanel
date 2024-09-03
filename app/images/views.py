@@ -8,7 +8,7 @@ import os
 import logging
 
 from db import get_db
-from hosts.crud import get_host, update_host_image
+import hosts.crud
 
 router = APIRouter(tags=['images'], prefix='/image')
 
@@ -70,10 +70,10 @@ async def upload_image(
         return {'error': 'Невозможно получить host_id', }
     logging.info(f'Load image for Host ID: {host_id}')
 
-    db_host = await get_host(db=db, host_id=host_id)
+    db_host = await hosts.crud.get_host(db=db, host_id=host_id)
     if db_host:
         logging.info(f'Image name: {image_name}')
-        await update_host_image(db=db, host=db_host, image_name=str(image_name))
+        await hosts.crud.update_host_image(db=db, host=db_host, image_name=str(image_name))
     else:
         return {'error': 'Ошибка БД', }
     return {'error': '', 'success': image_name, }

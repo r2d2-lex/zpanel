@@ -1,7 +1,10 @@
+import logging
 import os
+import shutil
 from io import BytesIO
-
+from unittest.mock import AsyncMock, patch
 import pytest
+from models import Host as ModelHost
 from images.views import CURRENT_IMAGES_DIRECTORY
 
 @pytest.fixture(scope='function')
@@ -16,7 +19,6 @@ async def create_host(client):
 
 @pytest.fixture
 def create_image_file():
-    os.makedirs(CURRENT_IMAGES_DIRECTORY, exist_ok=True)
     test_image_path = os.path.join(CURRENT_IMAGES_DIRECTORY, "test_image.png")
     with open(test_image_path, 'wb') as f:
         f.write(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\xf3\xff\xff\x00\x00\x00\x00IEND\xAEB`\x82')
@@ -50,3 +52,11 @@ async def test_upload_image_db_error(client):
     response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")}, data={'host-id': '1'})
     assert response.status_code == 200
     assert response.json() == {'error': 'Ошибка БД'}
+
+@pytest.fixture(autouse=True)
+def clean_upload():
+    logging.info('Создание директории для тестов')
+    os.makedirs(CURRENT_IMAGES_DIRECTORY, exist_ok=True)
+    yield
+    logging.info('Удаление директории для тестов')
+    shutil.rmtree(CURRENT_IMAGES_DIRECTORY, ignore_errors=True)
