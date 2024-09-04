@@ -8,7 +8,7 @@ from models import Host
 
 
 async def test_get_monitored_hosts_ids_returns_correct_values(db: AsyncSession = Depends(override_get_db)):
-    with patch('hosts.crud.get_monitored_hosts', new_callable=AsyncMock) as mock_get_monitored_hosts:
+    with patch('monitoring.views.get_monitored_hosts', new_callable=AsyncMock) as mock_get_monitored_hosts:
         mock_get_monitored_hosts.return_value=[
             Host(
                 host_id=1,
@@ -40,13 +40,13 @@ async def test_monitoring(client):
 
 
 async def test_ajax_monitoring_panel(client):
-    # with patch('get_monitored_hosts_ids', new_callable=AsyncMock, return_value=[10000, 10001, 10002]), \
-    with patch('AioZabbix.get_zabbix_monitoring_hosts', new_callable=AsyncMock, return_value=[
+    with patch('monitoring.views.get_monitored_hosts_ids', new_callable=AsyncMock, return_value=[10000, 10001, 10002]), \
+            patch('monitoring.views.get_zabbix_monitoring_hosts', new_callable=AsyncMock, return_value=[
             {'hostid': '10000', 'host': 'node0', 'name': 'node0', 'interfaces': [{'ip': '172.20.0.4'}]},
             {'hostid': '10001', 'host': 'node1', 'name': 'node1', 'interfaces': [{'ip': '172.20.0.5'}]},
             {'hostid': '10002', 'host': 'node2', 'name': 'node2', 'interfaces': [{'ip': '172.20.0.6'}]},
         ]), \
-        patch('service.get_host_details', new_callable=AsyncMock, return_value=[
+        patch('monitoring.views.get_host_details', new_callable=AsyncMock, return_value=[
             {'hostid': '10000', 'host': 'node0', 'name': 'node0', 'interfaces': [{'ip': '172.20.0.4'}], 'image': 'node0.png',
              'problems': [
                  {'eventid': '001', 'clock': '2024-01-02 12:30:30', 'name': 'Postgres shutdown on node0',
@@ -81,7 +81,7 @@ async def test_ajax_monitoring_panel(client):
 
 
 async def test_ajax_get_host_errors(client):
-    with patch('AioZabbix.get_host_problems', new_callable=AsyncMock, return_value=[
+    with patch('monitoring.views.get_host_problems', new_callable=AsyncMock, return_value=[
         {'eventid': '001', 'clock': '2024-01-02 12:30:30', 'name': 'Postgres shutdown on node0', 'severity': '4'},
         {'eventid': '002', 'clock': '2024-01-02 12:30:30', 'name': '1c RAgent shutdown on node0', 'severity': '4'},
         {'eventid': '003', 'clock': '2024-01-02 12:30:30', 'name': '1c Ras shutdown on node0', 'severity': '4'},
