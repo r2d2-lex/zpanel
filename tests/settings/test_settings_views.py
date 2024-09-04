@@ -1,5 +1,7 @@
 from unittest.mock import patch, AsyncMock
 from models import MonitoredItem
+from items.views import get_item_by_host_id
+from conftest import app
 
 async def test_index(client):
     response = await client.get('/')
@@ -27,17 +29,18 @@ async def test_ajax_settings(client):
         mock_get_all_zabbix_mh.assert_awaited_once()
         mock_get_hosts_details.assert_awaited_once()
 
-
-async def test_ajax_get_host_items(client):
-    with patch('items.views.get_item_by_host_id', new_callable=AsyncMock, return_value=MonitoredItem(
+async def mock_get_item_by_host_id():
+    return [MonitoredItem(
         id=9991,
         host_id=1001,
         name='vm.memory.size[pavailable]',
         value_type='%mem',
-    )):
-        response = await client.get('/data-items/1001')
-        assert response.status_code == 200
-        assert 'vm.memory.size[pavailable]' in response.text
-        assert '%mem' in response.text
-        assert '1001' in response.text
-        assert '9991' in response.text
+    ),]
+app.dependency_overrides[get_item_by_host_id] = mock_get_item_by_host_id
+
+async def test_ajax_get_host_items(client):
+    response = await client.get('/data-items/1001')
+    assert response.status_code == 200
+    assert 'vm.memory.size[pavailable]' in response.text
+    assert '%mem' in response.text
+    assert '9991' in response.text
