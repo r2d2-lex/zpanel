@@ -49,8 +49,8 @@ async def test_upload_image_success(client, create_host):
     assert response.json() == {'error': '', 'success': 'test_image.jpg'}
 
 async def test_upload_image_missing_host_id(client):
-    with patch('hosts.crud.get_host', return_value=True), \
-        patch('hosts.crud.update_host_image'):
+    with patch('images.views.get_host', return_value=True), \
+        patch('images.views.update_host_image'):
 
         image_file = BytesIO(b'test image content')
         response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")})
@@ -58,7 +58,7 @@ async def test_upload_image_missing_host_id(client):
         assert response.json() == {'error': 'Невозможно получить host_id'}
 
 async def test_upload_image_db_error(client):
-    with patch('hosts.crud.get_host', return_value=False):
+    with patch('images.views.get_host', return_value=False):
         image_file = BytesIO(b'test image content')
         response = await client.post('/image/upload', files={'image': ("test_image.jpg", image_file, "image/jpeg")}, data={'host-id': '1'})
         assert response.status_code == 200
