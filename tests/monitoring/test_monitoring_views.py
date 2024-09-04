@@ -78,3 +78,22 @@ async def test_ajax_monitoring_panel(client):
                       ]
         for text in check_text:
             assert text in response.text
+
+
+async def test_ajax_get_host_errors(client):
+    with patch('AioZabbix.get_host_problems', new_callable=AsyncMock, return_value=[
+        {'eventid': '001', 'clock': '2024-01-02 12:30:30', 'name': 'Postgres shutdown on node0', 'severity': '4'},
+        {'eventid': '002', 'clock': '2024-01-02 12:30:30', 'name': '1c RAgent shutdown on node0', 'severity': '4'},
+        {'eventid': '003', 'clock': '2024-01-02 12:30:30', 'name': '1c Ras shutdown on node0', 'severity': '4'},
+        {'eventid': '004', 'clock': '2024-01-02 12:30:30', 'name': '1c rmngr shutdown on node0', 'severity': '4'}
+    ]):
+        response = await client.get('/errors/1')
+        assert response.status_code == 200
+        check_text = [
+            'Postgres shutdown on node0', '001',
+            '1c RAgent shutdown on node0', '002',
+            '1c Ras shutdown on node0', '003',
+            '1c rmngr shutdown on node0', '004',
+        ]
+        for text in check_text:
+            assert text in response.text

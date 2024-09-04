@@ -9,6 +9,7 @@ import logging
 from common import templates
 from db import get_db
 import AioZabbix
+import items.views
 import service
 router = APIRouter(tags=['settings'])
 
@@ -32,5 +33,18 @@ def index(request: Request):
                                       {
                                           'request': request,
                                           'page_title': 'Настройка',
+                                      }
+                                      )
+
+@router.get('/data-items/{host_id}', response_class=HTMLResponse)
+async def ajax_get_host_items(request: Request, host_items=Depends(items.views.get_item_by_host_id)):
+    logging.info(f'host_items: {host_items}')
+    for item in host_items:
+        logging.info(f'item: {item.id} - {item.host_id} - {item.value_type} - {item.name}')
+    template = 'zpanel/items.html'
+    return templates.TemplateResponse(template,
+                                      {
+                                          'request': request,
+                                          'items': host_items,
                                       }
                                       )

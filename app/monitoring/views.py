@@ -11,7 +11,6 @@ import logging
 
 from db import get_db
 import hosts.crud
-from items.views import get_item_by_host_id
 import service
 router = APIRouter(tags=['monitoring'])
 
@@ -38,9 +37,7 @@ async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get
     template = 'zpanel/panel.html'
     host_ids = await get_monitored_hosts_ids(db)
     zabbix_hosts = await AioZabbix.get_zabbix_monitoring_hosts(host_ids)
-    logging.info(f'zabbix_hosts: {zabbix_hosts}')
     monitoring_hosts = await service.get_host_details(zabbix_hosts, db, with_problems=True)
-    logging.info(f'monitoring_hosts: {monitoring_hosts}')
     logging.info(f'Function PANEL delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
@@ -58,16 +55,5 @@ async def ajax_get_host_errors(request: Request, host_id: int):
                                       {
                                           'request': request,
                                           'problems': host_problems,
-                                      }
-                                      )
-
-
-@router.get('/data-items/{host_id}', response_class=HTMLResponse)
-async def ajax_get_host_items(request: Request, host_items=Depends(get_item_by_host_id)):
-    template = 'zpanel/items.html'
-    return templates.TemplateResponse(template,
-                                      {
-                                          'request': request,
-                                          'items': host_items,
                                       }
                                       )
