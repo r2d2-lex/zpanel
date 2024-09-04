@@ -10,8 +10,8 @@ async def test_index(client):
     assert 'Настройка' in response.text
 
 async def test_ajax_settings(client):
-    with patch('AioZabbix.get_all_zabbix_monitoring_hosts', new_callable=AsyncMock) as mock_get_all_zabbix_mh, \
-            patch('service.get_host_details', new_callable=AsyncMock) as mock_get_hosts_details:
+    with patch('settings.views.get_all_zabbix_monitoring_hosts', new_callable=AsyncMock) as mock_get_all_zabbix_mh, \
+            patch('settings.views.get_host_details', new_callable=AsyncMock) as mock_get_hosts_details:
         mock_get_all_zabbix_mh.return_value = [
             {'host':'node1011', 'hostid':'99632', 'name':'node1011'},
             {'host':'node1012', 'hostid':'99633', 'name':'node1012'},
