@@ -1,5 +1,15 @@
 ## Zpanel. Панель мониторинга Zabbix. Три колонки.
 
+### Пример отображения в браузере:
+![Browser preview](png/2col_mon.png)
+### Детальный просмотр проблем:
+![Problem preview](png/host_problems_detail.png)
+### Настройка элементов мониторинга:
+![Settings preview](png/settings.png)
+### Элементы данных в карточке :
+![Data elements preview](png/data_elements.png)
+
+## Установка Zpanel:
 ### 1. Создание БД Postgres + пользователя для сервиса Zpanel:
 ```
 create database zpanel;
