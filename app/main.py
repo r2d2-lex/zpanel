@@ -16,8 +16,10 @@ from hosts.views import router as hosts_router
 from monitoring.views import router as monitoring_router
 from settings.views import router as settings_router
 from images.views import router as images_router
+from auth.views import router as auth_router
 
 app = FastAPI()
+app.include_router(auth_router)
 app.include_router(items_router)
 app.include_router(hosts_router)
 app.include_router(monitoring_router)
