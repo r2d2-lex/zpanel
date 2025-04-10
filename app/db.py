@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from models import Base
 import config
 import logging
+logger = logging.getLogger(__name__)
+
 
 engine = create_async_engine(config.ZPANEL_DATABASE_URI, pool_size=70, max_overflow=0)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
@@ -17,7 +19,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def async_main() -> None:
     async with engine.begin() as conn:
-        logging.info('Database create tables!')
+        logger.info('Database create tables!')
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 

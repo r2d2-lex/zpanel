@@ -7,8 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 import config
 import logging
-
-logging.basicConfig(level=config.LOGGING_LEVEL)
+logger = logging.getLogger(__name__)
 
 from common import BASE_DIR
 from items.views import router as items_router

@@ -35,9 +35,7 @@ ITEMS_LAST_VALUE = 'lastvalue'
 SORT_FIELD_KEY = 'key_'
 SORT_FIELD_NAME = 'name'
 
-
-logging.basicConfig(level=config.LOGGING_LEVEL)
-
+logger = logging.getLogger(__name__)
 
 class AioZabbixApi:
 
@@ -65,7 +63,7 @@ class AioZabbixApi:
         }
         if self._zabbix_auth:
             request_json.update({'auth': self._zabbix_auth})
-        logging.debug(f'Method {method} Request json {request_json}...')
+        logger.debug(f'Method {method} Request json {request_json}...')
 
         data = json.dumps(request_json)
         if not isinstance(data, bytes):
@@ -76,7 +74,7 @@ class AioZabbixApi:
         try:
             result = result_data['result']
         except KeyError as error:
-            logging.debug(f'Method: {method} error {error}...')
+            logger.debug(f'Method: {method} error {error}...')
         return result
 
     async def zabbix_host_get(self, params):
@@ -116,7 +114,7 @@ class AioZabbixApi:
                 value = int(float(items[0][ITEMS_LAST_VALUE]))
                 result = str(value)
             except (IndexError, KeyError) as err:
-                logging.error(f'{err}')
+                logger.error(f'{err}')
                 result = ''
         return result
 
@@ -168,7 +166,7 @@ async def get_zabbix_host_problems(api, host_id: int) -> list:
             problem.update({CLOCK_FIELD: clock})
             problem_list.append(problem)
         except KeyError as error:
-            logging.error(f'KeyError: {error}')
+            logger.error(f'KeyError: {error}')
             continue
     if problem_list:
         # Сортировка должна быть по SEVERITY_FIELD и reverse=True чтобы получить корректный цвет ошибки на карточке

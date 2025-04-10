@@ -4,8 +4,10 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import os
 import logging
+logger = logging.getLogger(__name__)
+
+import os
 
 from db import get_db
 from hosts.crud import get_host, update_host_image
@@ -25,7 +27,7 @@ async def parse_host_id(request: Request) -> int:
     try:
         host_id = int(form_data[IMAGE_HOST_ID_FIELD])
     except (KeyError, ValueError) as error:
-        logging.error(f'Ошибка получения host_id: {error}')
+        logger.error(f'Ошибка получения host_id: {error}')
     return host_id
 
 
@@ -33,15 +35,15 @@ async def parse_host_id(request: Request) -> int:
 async def show_image(image_name: str):
     file_path = os.path.join(CURRENT_IMAGES_DIRECTORY, image_name)
 
-    logging.info(f'File path: {file_path}')
+    logger.info(f'File path: {file_path}')
     if not os.path.isfile(file_path):
-        logging.error(f'Файл не найден: {file_path}')
+        logger.error(f'Файл не найден: {file_path}')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Файл не найден")
 
     try:
         return FileResponse(path=file_path, filename=image_name)
     except Exception as error:
-        logging.error(f'Ошибка при загрузке файла: {error}')
+        logger.error(f'Ошибка при загрузке файла: {error}')
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка при загрузке файла")
 
 
@@ -51,10 +53,10 @@ async def upload_image(
         request: Request,
         db: AsyncSession = Depends(get_db)
 ):
-    logging.info(f'Current work directory {CURRENT_WORK_DIRECTORY}')
+    logger.info(f'Current work directory {CURRENT_WORK_DIRECTORY}')
     image_name = image.filename
     image_path = os.path.join(CURRENT_IMAGES_DIRECTORY, image_name)
-    logging.info(f'Image full path: {image_path}')
+    logger.info(f'Image full path: {image_path}')
 
     try:
         image_content = image.file.read()
@@ -68,11 +70,11 @@ async def upload_image(
     host_id = await parse_host_id(request)
     if not host_id:
         return {'error': 'Невозможно получить host_id', }
-    logging.info(f'Load image for Host ID: {host_id}')
+    logger.info(f'Load image for Host ID: {host_id}')
 
     db_host = await get_host(db=db, host_id=host_id)
     if db_host:
-        logging.info(f'Image name: {image_name}')
+        logger.info(f'Image name: {image_name}')
         await update_host_image(db=db, host=db_host, image_name=str(image_name))
     else:
         return {'error': 'Ошибка БД', }

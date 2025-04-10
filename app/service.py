@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import asyncio
 import logging
+logger = logging.getLogger(__name__)
 
 from AioZabbix import HOST_ID_FIELD, NAME_FIELD
 from AioZabbix import AioZabbixApi, get_zabbix_host_problems
@@ -21,7 +22,7 @@ async def get_data_items(db: AsyncSession, api: AioZabbixApi, host_id: int) -> l
     data_items = await get_items_by_host_id(db, host_id)
     for item in data_items:
         items_result = await api.get_host_item_value([host_id], item.name)
-        logging.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
+        logger.debug(f'Data_Item for Host_id: {host_id} item name: {item.name} item result: {items_result}')
         if items_result:
             result.append({'item_value': items_result, 'item_type': item.value_type})
         else:
@@ -50,7 +51,7 @@ async def get_async_host_details(api: AioZabbixApi,
     try:
         host_id = int(zabbix_host[HOST_ID_FIELD])
     except KeyError as error:
-        logging.info(f'Ошибка ключа {HOST_ID_FIELD} элемента списка zabbix: {error}')
+        logger.info(f'Ошибка ключа {HOST_ID_FIELD} элемента списка zabbix: {error}')
         return
 
     view_host = dict()
@@ -81,7 +82,7 @@ async def get_host_details(zabbix_hosts: list, db: AsyncSession = Depends(get_db
                 get_async_host_details(aio_zabbix, host, db, monitoring_hosts, with_problems)) for host in zabbix_hosts]
             await asyncio.wait(futures)
     except ValueError as error:
-        logging.info(f'Set of coroutines/Futures is empty. Error: {error}')
+        logger.info(f'Set of coroutines/Futures is empty. Error: {error}')
 
     # сортировка списка по Имени(NAME_FIELD) машины
     monitoring_hosts = sorted(monitoring_hosts, key=lambda x: x[NAME_FIELD])

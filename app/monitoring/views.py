@@ -12,6 +12,8 @@ import logging
 from db import get_db
 from hosts.crud import get_monitored_hosts
 from service import get_host_details
+
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=['monitoring'])
 
 
@@ -38,7 +40,7 @@ async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get
     host_ids = await get_monitored_hosts_ids(db)
     zabbix_hosts = await get_zabbix_monitoring_hosts(host_ids)
     monitoring_hosts = await get_host_details(zabbix_hosts, db, with_problems=True)
-    logging.info(f'Function PANEL delta time: {time.time() - time_start}')
+    logger.info(f'Function PANEL delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,

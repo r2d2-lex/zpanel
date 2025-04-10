@@ -3,8 +3,11 @@ from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import time
 import logging
+logger = logging.getLogger(__name__)
+
+import time
+
 
 from common import templates
 from db import get_db
@@ -19,7 +22,7 @@ async def ajax_settings(request: Request, db: AsyncSession = Depends(get_db)):
     template = 'zpanel/settings.html'
     zabbix_hosts = await get_all_zabbix_monitoring_hosts()
     monitoring_hosts = await get_host_details(zabbix_hosts, db)
-    logging.info(f'Function SETTINGS delta time: {time.time() - time_start}')
+    logger.info(f'Function SETTINGS delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,
