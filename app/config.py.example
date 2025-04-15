@@ -1,5 +1,8 @@
 import logging
 
+ZPANEL_SETTINGS_LOGIN = ['admin', 'zpanel']
+ZPANEL_SETTINGS_PASSWORD = 'zpanelpass'
+
 LOGGING_LEVEL = logging.INFO
 ZPANEL_HOST = '127.0.0.1'
 ZPANEL_LOGIN = 'zabbix-login'
