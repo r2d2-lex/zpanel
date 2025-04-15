@@ -8,16 +8,6 @@ router = APIRouter(prefix='/auth', tags=['Auth'])
 
 security = HTTPBasic()
 
-@router.get('/login')
-def basic_auth(
-        credentials: Annotated[HTTPBasicCredentials, Depends(security) ]
-):
-    return {
-        'username': credentials.username,
-        'password': credentials.password,
-    }
-
-
 def get_auth_user_username(
         credentials: Annotated[HTTPBasicCredentials, Depends(security) ]
 ) -> str:
@@ -40,12 +30,3 @@ def get_auth_user_username(
         raise unauthed_exception
 
     return credentials.username
-
-@router.get('/username')
-def basic_auth_username(
-        auth_username: str = Depends(get_auth_user_username)
-):
-    return {
-        'message': f'Hi, {auth_username}',
-        'username': auth_username,
-    }
