@@ -12,6 +12,7 @@ import time
 import logging
 
 from db import get_db
+from exceptions import BadRequestFromApi
 from hosts.crud import get_monitored_hosts
 from service import get_host_details
 
@@ -37,11 +38,25 @@ def monitoring(request: Request):
 
 @router.get('/panel/', response_class=HTMLResponse)
 async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get_db)):
+    zabbix_monitoring_hosts_problems = []
+    zabbix_hosts = []
     time_start = time.time()
     template = 'zpanel/panel.html'
     host_ids = await get_monitored_hosts_ids(db)
-    zabbix_hosts = await get_zabbix_monitoring_hosts(host_ids)
+    try:
+        zabbix_hosts = await get_zabbix_monitoring_hosts(host_ids)
+    except BadRequestFromApi as error_api:
+        logger.exception(error_api)
+        zabbix_monitoring_hosts_problems.append(error_api)
+
     monitoring_hosts, api_problems = await get_host_details(zabbix_hosts, db, with_problems=True)
+    if len(host_ids) != len(monitoring_hosts):
+        message = 'Данные в БД не совпадают с полученными данными из Api'
+        logger.info(message)
+        zabbix_monitoring_hosts_problems.append(message)
+
+    if zabbix_monitoring_hosts_problems:
+        api_problems = zabbix_monitoring_hosts_problems + api_problems
     logger.info(f'Function PANEL delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
