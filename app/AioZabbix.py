@@ -54,7 +54,6 @@ class AioZabbixApi:
         await self.zabbix_logout()
 
     async def _zabbix_request(self, method: str, params=None):
-        result = ''
         request_json = {
             'jsonrpc': '2.0',
             'method': method,
@@ -63,7 +62,7 @@ class AioZabbixApi:
         }
         if self._zabbix_auth:
             request_json.update({'auth': self._zabbix_auth})
-        logger.debug(f'Method {method} Request json {request_json}...')
+        logger.debug('Method %s Request json %s...', method, request_json)
 
         data = json.dumps(request_json)
         if not isinstance(data, bytes):
@@ -71,11 +70,11 @@ class AioZabbixApi:
 
         result_data = await post_data(self.zabbix_api_url, data)
 
-        try:
-            result = result_data['result']
-        except KeyError as error:
-            logger.debug(f'Method: {method} error {error}...')
-        return result
+        if 'result' in result_data:
+            return result_data['result']
+        else:
+            logger.error('Invalid response for method: %s -> data: %s', method, result_data)
+        return {}
 
     async def zabbix_host_get(self, params):
         method = 'host.get'
