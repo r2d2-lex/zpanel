@@ -2,6 +2,9 @@
 <script src="{{ url_for('static', path='js/upload.js') }}" crossorigin="anonymous"></script>
 <script src="{{ url_for('static', path='js/items.js') }}" crossorigin="anonymous"></script>
 {% include 'upload-modal.html' %}
+{% if problems %}
+{% include 'info-message.html' %}
+{% endif %}
 {% include 'items-modal.html' %}
 <form action="/" method="post">
     <table class="table table-sm table-bordered">
