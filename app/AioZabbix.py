@@ -3,6 +3,7 @@ import datetime
 import json
 import logging
 from aiorequest import post_data
+from exceptions import BadRequestFromApi
 
 RESOLVED_PROBLEMS = True
 UNRESOLVED_PROBLEMS_ONLY = False
@@ -74,7 +75,7 @@ class AioZabbixApi:
             return result_data['result']
         else:
             logger.error('Invalid response for method: %s -> data: %s', method, result_data)
-        return {}
+            raise BadRequestFromApi('Invalid response for method: %s -> data: %s', method, result_data)
 
     async def zabbix_host_get(self, params):
         method = 'host.get'
