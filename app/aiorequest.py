@@ -1,7 +1,7 @@
-from aiohttp import ClientSession
-from time import time
 import aiohttp
 import logging
+from aiohttp import ClientSession
+from time import time
 from exceptions import BadRequestFromApi
 logger = logging.getLogger(__name__)
 
