@@ -63,7 +63,7 @@ class AioZabbixApi:
         }
         if self._zabbix_auth:
             request_json.update({'auth': self._zabbix_auth})
-        logger.debug('Method %s Request json %s...', method, request_json)
+        logger.debug('Method %s Request json %s...' % (method, request_json))
 
         data = json.dumps(request_json)
         if not isinstance(data, bytes):
@@ -74,8 +74,9 @@ class AioZabbixApi:
         if 'result' in result_data:
             return result_data['result']
         else:
-            logger.error('Invalid response for method: %s -> data: %s', method, result_data)
-            raise BadRequestFromApi('Invalid response for method: %s -> data: %s', method, result_data)
+            error_result_message = 'Invalid response for method: %s -> data: %s' % (method, result_data)
+            logger.error(error_result_message)
+            raise BadRequestFromApi(error_result_message)
 
     async def zabbix_host_get(self, params):
         method = 'host.get'
