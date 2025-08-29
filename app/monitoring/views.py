@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from fastapi import APIRouter
 from fastapi import Depends, Request
 from fastapi.responses import HTMLResponse
@@ -39,12 +41,13 @@ async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get
     template = 'zpanel/panel.html'
     host_ids = await get_monitored_hosts_ids(db)
     zabbix_hosts = await get_zabbix_monitoring_hosts(host_ids)
-    monitoring_hosts = await get_host_details(zabbix_hosts, db, with_problems=True)
+    monitoring_hosts, api_problems = await get_host_details(zabbix_hosts, db, with_problems=True)
     logger.info(f'Function PANEL delta time: {time.time() - time_start}')
     return templates.TemplateResponse(template,
                                       {
                                           'request': request,
                                           'hosts': monitoring_hosts,
+                                          'problems': api_problems,
                                       }
                                       )
 
