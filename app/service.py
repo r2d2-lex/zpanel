@@ -51,10 +51,10 @@ async def get_async_host_details(api: AioZabbixApi,
     """
     await asyncio.sleep(0)
     column = 0
+    # Мы хотим показать информацию по всем возможным хостам в панели поэтому мы именно здесь ловим исключение BadRequestFromApi
     try:
         try:
             host_id = int(zabbix_host[HOST_ID_FIELD])
-        # Мы хотим показать информацию по всем возможным хостам в панели поэтому мы именно здесь ловим исключение BadRequestFromApi
         except KeyError as error:
             error_message = 'Ошибка ключа %s элемента списка zabbix: %s' % (HOST_ID_FIELD, error)
             logger.exception(error_message)
