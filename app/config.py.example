@@ -1,7 +1,7 @@
 import logging
 
 ZPANEL_SETTINGS_LOGIN = ['admin', 'zpanel']
-ZPANEL_SETTINGS_PASSWORD = 'zpanelpass'
+ZPANEL_HASH_PASSWORD = '--HASH--'
 
 LOGGING_LEVEL = logging.INFO
 ZPANEL_HOST = '127.0.0.1'

@@ -1,3 +1,4 @@
+import argparse
 import os
 
 import uvicorn
@@ -8,6 +9,8 @@ from fastapi.staticfiles import StaticFiles
 import config
 import logging
 logger = logging.getLogger(__name__)
+
+from cipher import main_with_password_input, main_with_password_generation
 
 from common import BASE_DIR
 from items.views import router as items_router
@@ -36,4 +39,13 @@ if config.ORIGINS:
     )
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', reload=True)
+    parser = argparse.ArgumentParser(description='Создайте пароль и получите его хэш.')
+    parser.add_argument('--hash', action='store_true', help='Команда для получения хэш от пароля')
+    parser.add_argument('--genpass', action='store_true', help='Команда для генерации hash пароля')
+    args = parser.parse_args()
+    if args.hash:
+        main_with_password_input()
+    elif args.genpass:
+        main_with_password_generation()
+    else:
+        uvicorn.run('main:app', reload=True)
