@@ -34,6 +34,7 @@ async def test_get_async_host_details():
     zabbix_host = {'host':'node1011', 'hostid':'99632', 'name':'node1', 'column': 1}
     db = AsyncMock()
     monitoring_hosts = []
+    api_problems = []
     with_problems = True
 
     with patch('service.get_host', new_callable=AsyncMock,
@@ -53,7 +54,7 @@ async def test_get_async_host_details():
         {'eventid': '003', 'clock': '2024-01-02 12:30:30', 'name': '1c Ras shutdown on node0', 'severity': '4'},
         {'eventid': '004', 'clock': '2024-01-02 12:30:30', 'name': '1c rmngr shutdown on node0', 'severity': '4'}
                        ]):
-                await get_async_host_details(api, zabbix_host, db, monitoring_hosts, with_problems)
+                await get_async_host_details(api, zabbix_host, db, monitoring_hosts, api_problems, with_problems)
                 assert monitoring_hosts[0]['hostid'] == '99632'
                 assert monitoring_hosts[0]['column'] == 1
                 assert monitoring_hosts[0]['name'] == 'node1'
