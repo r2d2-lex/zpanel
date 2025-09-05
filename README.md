@@ -135,3 +135,19 @@ max_connections = 100 - установите больше, чтобы не по�
 zabbix@zabbix FATAL:  remaining connection slots are reserved for non-replication superuser connections
 systemctl restart postgresql.service
 ```
+
+## Тестирование:
+### Настройка тестов:
+Для запуска тестов настройте переменные в config.py, например:
+```
+TEST_HOST = '127.0.0.1'
+TEST_LOGIN = 'login'
+TEST_PASSWORD = 'password'
+TEST_DB = 'zpanel_test'
+```
+
+### Запуск тестов 
+В корневой директории проекта выполните команду:
+```
+shell$> pytest
+```

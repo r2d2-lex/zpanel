@@ -22,3 +22,9 @@ ZABBIX_API_USER_FIELD = 'user'
 ORIGINS = [
     "http://localhost:8081",
 ]
+
+TEST_HOST = '127.0.0.1'
+TEST_LOGIN = 'login'
+TEST_PASSWORD = 'password'
+TEST_DB = 'zpanel_test'
+TEST_DATABASE_URI = f'{ZPANEL_ENGINE}://{TEST_LOGIN}:{TEST_PASSWORD}@{TEST_HOST}/{TEST_DB}'
