@@ -46,7 +46,7 @@ async def test_ajax_monitoring_panel(client):
             {'hostid': '10001', 'host': 'node1', 'name': 'node1', 'interfaces': [{'ip': '172.20.0.5'}]},
             {'hostid': '10002', 'host': 'node2', 'name': 'node2', 'interfaces': [{'ip': '172.20.0.6'}]},
         ]), \
-        patch('monitoring.views.get_host_details', new_callable=AsyncMock, return_value=[
+        patch('monitoring.views.get_host_details', new_callable=AsyncMock, return_value=([
             {'hostid': '10000', 'host': 'node0', 'name': 'node0', 'interfaces': [{'ip': '172.20.0.4'}], 'image': 'node0.png',
              'problems': [
                  {'eventid': '001', 'clock': '2024-01-02 12:30:30', 'name': 'Postgres shutdown on node0',
@@ -67,7 +67,8 @@ async def test_ajax_monitoring_panel(client):
 
             {'hostid': '10002', 'host': 'node2', 'name': 'node2', 'interfaces': [{'ip': '172.20.0.6'}], 'image': 'node2.png',
              'problems': [], 'column': 3}
-    ]
+    ], [] # Monitoring problems
+        )
               ):
         response = await client.get('/panel/')
         assert response.status_code == 200
