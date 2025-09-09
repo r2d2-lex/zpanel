@@ -2,7 +2,7 @@ import asyncio
 import logging
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from exceptions import BadRequestFromApi
+from exceptions import BadResponseFromApi
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ async def get_async_host_details(api: AioZabbixApi,
         view_host.update({COLUMN_FIELD: column})
         monitoring_hosts.append(view_host)
 
-    except BadRequestFromApi as request_error:
+    except BadResponseFromApi as request_error:
         logger.info(request_error)
         api_problems.append(request_error)
     return

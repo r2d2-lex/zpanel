@@ -2,7 +2,7 @@ import aiohttp
 import logging
 from aiohttp import ClientSession
 from time import time
-from exceptions import BadRequestFromApi
+from exceptions import BadResponseFromApi
 logger = logging.getLogger(__name__)
 
 headers = {
@@ -21,7 +21,7 @@ async def post(session: ClientSession, url: str, data=None) -> dict:
         logger.debug('Url: %s -> status code: %d', url, response.status)
         if response.status != 200:
             logger.error('Error response from %s: %d', url, response.status)
-            raise BadRequestFromApi('Error response from %s: %d', url, response.status)
+            raise BadResponseFromApi('Error response from %s: %d', url, response.status)
         return await response.json(content_type=None)
 async def post_data(url, data):
     start = time()
@@ -31,6 +31,6 @@ async def post_data(url, data):
             end = time()
             logger.debug('Got answer from %s after %.2f seconds\r\n', url, end - start)
             return json_response
-    except (BadRequestFromApi, ValueError, TypeError) as post_error:
+    except (BadResponseFromApi, ValueError, TypeError) as post_error:
         logger.exception('Error with url: %s -> error: %s\r\n', url, post_error)
-        raise BadRequestFromApi(('Error with url: %s -> error: %s\r\n', url, post_error))
+        raise BadResponseFromApi(('Error with url: %s -> error: %s\r\n', url, post_error))

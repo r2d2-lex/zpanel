@@ -1,7 +1,7 @@
 import aiohttp
 
 
-class BadRequestFromApi(aiohttp.ClientError):
+class BadResponseFromApi(aiohttp.ClientError):
     def __init__(self, message):
         super().__init__(message)
         self.message = message

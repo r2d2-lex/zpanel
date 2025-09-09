@@ -7,7 +7,7 @@ import logging
 import time
 
 from auth.views import get_auth_user_username
-from exceptions import BadRequestFromApi
+from exceptions import BadResponseFromApi
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ async def ajax_settings(request: Request,
     template = 'zpanel/settings.html'
     try:
         zabbix_hosts = await get_all_zabbix_monitoring_hosts()
-    except BadRequestFromApi as error_api:
+    except BadResponseFromApi as error_api:
         logger.exception(error_api)
         zabbix_monitoring_hosts_problems.append(error_api)
 

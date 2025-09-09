@@ -12,7 +12,7 @@ import time
 import logging
 
 from db import get_db
-from exceptions import BadRequestFromApi
+from exceptions import BadResponseFromApi
 from hosts.crud import get_monitored_hosts
 from service import get_host_details
 
@@ -45,7 +45,7 @@ async def ajax_monitoring_panel(request: Request, db: AsyncSession = Depends(get
     host_ids = await get_monitored_hosts_ids(db)
     try:
         zabbix_hosts = await get_zabbix_monitoring_hosts(host_ids)
-    except BadRequestFromApi as error_api:
+    except BadResponseFromApi as error_api:
         logger.exception(error_api)
         zabbix_monitoring_hosts_problems.append(error_api)
 
