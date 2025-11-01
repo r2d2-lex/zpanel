@@ -1,7 +1,7 @@
 import aiohttp
 import pytest
 from aioresponses import aioresponses
-from aiorequest import fetch, post, post_data
+from aiorequest import post, post_data
 
 import os
 
