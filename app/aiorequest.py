@@ -12,12 +12,6 @@ headers = {
 }
 
 
-async def fetch(session: ClientSession, url: str) -> dict:
-    async with session.get(url) as response:
-        logger.debug(f'Status code: {response.status}')
-        return await response.json()
-
-
 async def post(session: ClientSession, url: str, data: Optional[Union[Dict[str, Any], bytes, str]] = None) -> Dict[str, Any]:
     post_kwargs = {'headers': headers}
     if isinstance(data, (dict, list)):

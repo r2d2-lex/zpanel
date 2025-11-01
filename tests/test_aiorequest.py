@@ -12,19 +12,6 @@ import os
 
 
 @pytest.mark.asyncio
-async def test_fetch():
-    url = 'http://example.com/api'
-    expected_response = {'key': 'value'}
-
-    with aioresponses() as m:
-        m.get(url, payload=expected_response)
-
-        async with aiohttp.ClientSession() as session:
-            response = await fetch(session, url)
-            assert response == expected_response
-
-
-@pytest.mark.asyncio
 async def test_post():
     url = 'http://example.com/api'
     data = {'key': 'value'}
