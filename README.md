@@ -56,8 +56,13 @@ pip install -r requirements.txt
 ```
 ### 7. Создайте конфиг и установите нужные переменные:
 ```
-cd /%root%/zpanel/
+cd /%root%/zpanel/app
 cp config-example.py config.py
+```
+### 7.1 Создайте каталог для изображений и не забудьте назначить правильные права
+```
+cd /%root%/zpanel/app/static
+mkdir images
 ```
 ### 8. Установите gunicorn
 ```
