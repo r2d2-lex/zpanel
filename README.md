@@ -53,6 +53,7 @@ source ./venv/bin/activate
 ```
 pip install -r requirements.txt
 + Может понадобится: apt-get install --reinstall libpq-dev
++ Может понадобится: pip install sqlalchemy[asyncio]
 ```
 ### 7. Создайте конфиг и установите нужные переменные:
 ```
