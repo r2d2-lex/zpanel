@@ -1,0 +1,27 @@
+image: python:3.13-slim
+
+stages:
+  - test
+
+python-checks:
+  tags:
+    - zpanel-ci
+  stage: test
+  script:
+    - python --version
+    - python -m pip install --upgrade pip
+    - |
+      if [ -f requirements.txt ]; then
+        pip install -r requirements.txt
+      fi
+    - |
+      if [ -f requirements-dev.txt ]; then
+        pip install -r requirements-dev.txt
+      fi
+    - python -m compileall -q .
+    - |
+      if [ -d tests ]; then
+        python -m pytest -q
+      else
+        echo "Каталог tests не найден — пока проверена только компиляция Python-файлов."
+      fi
