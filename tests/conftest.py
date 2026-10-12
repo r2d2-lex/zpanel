@@ -1,5 +1,4 @@
-import asyncio
-import logging
+import os
 
 import pytest
 from typing import AsyncGenerator
@@ -8,12 +7,15 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-import config
 from db import get_db
 from main import app
 from models import Base
 
-engine_test = create_async_engine(config.TEST_DATABASE_URI, poolclass=NullPool)
+TEST_DATABASE_URI = os.environ.get("TEST_DATABASE_URI")
+if not TEST_DATABASE_URI:
+    raise RuntimeError('Для тестов нужно задать переменную окружения TEST_DATABASE_URI')
+
+engine_test = create_async_engine(TEST_DATABASE_URI, poolclass=NullPool)
 async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
 Base.metadata.bind = engine_test
 
@@ -22,13 +24,6 @@ async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 app.dependency_overrides[get_db] = override_get_db
-
-# @pytest.fixture(scope='session')
-# def event_loop(request):
-#     loop = asyncio.get_event_loop_policy().new_event_loop()
-#     yield loop
-#     loop.close()
-
 
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database():
