@@ -1,8 +1,10 @@
 import os
 
 import pytest
+from dotenv import load_dotenv
 from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
+from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -10,6 +12,8 @@ from sqlalchemy.pool import NullPool
 from db import get_db
 from main import app
 from models import Base
+
+load_dotenv(Path(__file__).resolve().parent / ".env.test")
 
 TEST_DATABASE_URI = os.environ.get("TEST_DATABASE_URI")
 if not TEST_DATABASE_URI:

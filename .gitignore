@@ -4,3 +4,4 @@ __pycache__/
 app/config.py
 task.txt
 app/static/images/*
+.env.test
