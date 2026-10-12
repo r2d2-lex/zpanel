@@ -10,6 +10,7 @@ from models import Base
 logger = logging.getLogger(__name__)
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
+print(f'env file location: {Path(__file__).resolve().parent / ".env"}')
 
 ZPANEL_DATABASE_URI = os.environ.get("ZPANEL_DATABASE_URI")
 if not ZPANEL_DATABASE_URI:
