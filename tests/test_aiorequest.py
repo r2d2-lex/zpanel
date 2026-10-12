@@ -1,25 +1,30 @@
+from contextlib import asynccontextmanager
 import aiohttp
 import pytest
-from aioresponses import aioresponses
+from aiohttp import web
+from aiohttp.test_utils import TestServer
 from aiorequest import post, post_data
 
-import os
-
-
-# def test_environment_variable():
-#     assert 'PYTHONPATH' in os.environ
-#     print(os.environ['PYTHONPATH'])
-
+@asynccontextmanager
+async def api_server(expected_data, response_data):
+    async def handler(request):
+        assert await request.json() == expected_data
+        return web.json_response(response_data)
+    app = web.Application()
+    app.router.add_post("/api", handler)
+    server = TestServer(app)
+    await server.start_server()
+    try:
+        yield str(server.make_url("/api"))
+    finally:
+        await server.close()
 
 @pytest.mark.asyncio
 async def test_post():
-    url = 'http://example.com/api'
     data = {'key': 'value'}
     expected_response = {'result': 'success'}
 
-    with aioresponses() as m:
-        m.post(url, payload=expected_response)
-
+    async with api_server(data, expected_response) as url:
         async with aiohttp.ClientSession() as session:
             response = await post(session, url, data)
             assert response == expected_response
@@ -27,12 +32,9 @@ async def test_post():
 
 @pytest.mark.asyncio
 async def test_post_data():
-    url = 'http://example.com/api'
     data = {'key': 'value'}
     expected_response = {'result': 'success'}
 
-    with aioresponses() as m:
-        m.post(url, payload=expected_response)
-
+    async with api_server(data, expected_response) as url:
         response = await post_data(url, data)
         assert response == expected_response

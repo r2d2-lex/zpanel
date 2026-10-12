@@ -12,14 +12,14 @@ headers = {
 }
 
 
-async def post(session: ClientSession, url: str, data: Optional[Union[Dict[str, Any], bytes, str]] = None) -> Dict[str, Any]:
+async def post(session: ClientSession, url: str, data: Optional[Union[Dict[str, Any], list, bytes, str]] = None) -> Dict[str, Any]:
     post_kwargs = {'headers': headers}
     if isinstance(data, (dict, list)):
         post_kwargs['json'] = data
     else:
         post_kwargs['data'] = data
 
-    async with session.post(url, data=data, headers=headers) as response:
+    async with session.post(url, **post_kwargs) as response:
         logger.debug('Url: %s -> status code: %d', url, response.status)
         if response.status != 200:
             logger.error('Error response from %s: %d', url, response.status)
