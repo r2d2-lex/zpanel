@@ -9,16 +9,15 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
-from db import get_db
 from main import app
 from models import Base
 
 load_dotenv(Path(__file__).resolve().parent / ".env.test")
-
+ZPANEL_DATABASE_URI = os.environ.get("ZPANEL_DATABASE_URI")
 TEST_DATABASE_URI = os.environ.get("TEST_DATABASE_URI")
 if not TEST_DATABASE_URI:
     raise RuntimeError('Для тестов нужно задать переменную окружения TEST_DATABASE_URI')
-
+from db import get_db
 engine_test = create_async_engine(TEST_DATABASE_URI, poolclass=NullPool)
 async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
 Base.metadata.bind = engine_test
