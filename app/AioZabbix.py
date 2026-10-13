@@ -42,7 +42,6 @@ class AioZabbixApi:
 
     def __init__(self):
         self.zabbix_api_url = settings.api.url + 'api_jsonrpc.php'
-        print('NIGGA' + self.zabbix_api_url)
         self._zabbix_auth = None
 
     def __str__(self):

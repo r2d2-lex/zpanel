@@ -3,6 +3,17 @@ image: python:3.13-slim
 stages:
   - test
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  key:
+    files:
+      - requirements.txt
+      - requirements-dev
+  paths:
+    - .cache/pip/
+
 python-checks:
   tags:
     - zpanel-ci
