@@ -22,6 +22,9 @@ python-checks:
     - python -m compileall -q .
     - |
       if [ -d tests ]; then
+        python -c 'import os; print("DB variable is set:", bool(os.getenv("APP_DB__TEST_DATABASE_URI")))'
+        python -c 'from core.config import settings; from urllib.parse import urlsplit; u = urlsplit(settings.db.test_database_uri); print(f"DB target: {u.hostname}:{u.port}{u.path}")'
+        python -c 'from app.core.config import settings; from urllib.parse import urlsplit; u = urlsplit(settings.db.test_database_uri); print(f"DB target: {u.hostname}:{u.port}{u.path}")'
         python -m pytest -q
       else
         echo "Каталог tests не найден — пока проверена только компиляция Python-файлов."
