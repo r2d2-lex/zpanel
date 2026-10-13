@@ -3,8 +3,7 @@ from typing import  Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from cipher import hash_password
-import config
-
+from core.config import settings
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
 security = HTTPBasic()
@@ -17,10 +16,10 @@ def get_auth_user_username(
         detail='Неправильный логин или пароль',
         headers={'WWW-Authenticate':'Basic'},
     )
-    if credentials.username not in config.ZPANEL_SETTINGS_LOGIN:
+    if credentials.username is settings.auth.login:
         raise unauthed_exception
 
-    correct_password = config.ZPANEL_HASH_PASSWORD
+    correct_password = settings.auth.hash_password
     if correct_password is None:
         raise unauthed_exception
 

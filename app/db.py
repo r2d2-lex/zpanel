@@ -1,22 +1,13 @@
 import asyncio
 import logging
-import os
-from dotenv import load_dotenv
+from core.config import settings
 from typing import AsyncGenerator
-from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from models import Base
 logger = logging.getLogger(__name__)
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
-print(f'env file location: {Path(__file__).resolve().parent / ".env"}')
-
-ZPANEL_DATABASE_URI = os.environ.get("ZPANEL_DATABASE_URI")
-if not ZPANEL_DATABASE_URI:
-    raise RuntimeError('Для тестов нужно задать переменную окружения ZPANEL_DATABASE_URI')
-
-engine = create_async_engine(ZPANEL_DATABASE_URI, pool_size=70, max_overflow=0)
+engine = create_async_engine(settings.db.database_uri, pool_size=70, max_overflow=0)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

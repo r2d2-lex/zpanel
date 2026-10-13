@@ -1,4 +1,4 @@
-import config
+from core.config import settings
 import datetime
 import json
 import logging
@@ -41,7 +41,8 @@ logger = logging.getLogger(__name__)
 class AioZabbixApi:
 
     def __init__(self):
-        self.zabbix_api_url = config.ZABBIX_API_URL + 'api_jsonrpc.php'
+        self.zabbix_api_url = settings.api.url + 'api_jsonrpc.php'
+        print('NIGGA' + self.zabbix_api_url)
         self._zabbix_auth = None
 
     def __str__(self):
@@ -99,7 +100,7 @@ class AioZabbixApi:
 
     async def zabbix_login(self):
         method = 'user.login'
-        params = {config.ZABBIX_API_USER_FIELD: config.ZABBIX_API_USER, 'password': config.ZABBIX_API_PASSWORD}
+        params = {settings.zabbix_api_user_field: settings.api.user_name, 'password': settings.api.password}
         self._zabbix_auth = await self._zabbix_request(method, params=params)
         return self._zabbix_auth
 

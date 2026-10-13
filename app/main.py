@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-import config
+from core.config import settings
 import logging
 logger = logging.getLogger(__name__)
 
@@ -29,10 +29,10 @@ app.include_router(settings_router)
 app.include_router(images_router)
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, 'static')), name="static")
 
-if config.ORIGINS:
+if settings.middleware.origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=config.ORIGINS,
+        allow_origins=settings.middleware.origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
