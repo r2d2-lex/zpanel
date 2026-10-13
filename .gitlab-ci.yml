@@ -10,7 +10,7 @@ cache:
   key:
     files:
       - requirements.txt
-      - requirements-dev
+      - requirements-dev.txt
   paths:
     - .cache/pip/
 
@@ -36,7 +36,13 @@ python-checks:
         export PYTHONPATH="$CI_PROJECT_DIR/app${PYTHONPATH:+:$PYTHONPATH}"
         python -c 'import os; print("DB variable is set:", bool(os.getenv("APP_DB__TEST_DATABASE_URI")))'
         python -c 'from core.config import settings; from urllib.parse import urlsplit; u = urlsplit(settings.db.test_database_uri); print(f"DB target: {u.hostname}:{u.port}{u.path}")'
-        python -m pytest -q
+        python -m pytest -q --junitxml=report.xml
       else
         echo "Каталог tests не найден — пока проверена только компиляция Python-файлов."
       fi
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+    paths:
+      - report.xml
