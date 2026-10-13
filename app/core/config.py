@@ -1,6 +1,9 @@
 import logging
+from pathlib import Path
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+APP_DIR = Path(__file__).resolve().parents[1]
 
 class DatabaseConfig(BaseSettings):
     database_uri: str = 'postgresql+asyncpg://zpanel:password@127.0.0.1/zpanel'
@@ -23,7 +26,7 @@ class MiddleWareConfig(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file= APP_DIR / ".env",
         env_file_encoding="utf-8",
         env_prefix="APP_",
         env_nested_delimiter="__",
