@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class DatabaseConfig(BaseSettings):
     database_uri: str = 'postgresql+asyncpg://zpanel:password@127.0.0.1/zpanel'
+    test_database_uri: str = 'postgresql+asyncpg://zpanel:password@127.0.0.1/zpanel_test'
 
 class ZabbixApiConfig(BaseSettings):
     user_name: str = 'user'
