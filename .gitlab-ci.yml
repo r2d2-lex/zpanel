@@ -1,7 +1,14 @@
+include:
+  - template: Jobs/SAST.gitlab-ci.yml
+
 image: python:3.13-slim
 
 stages:
-  - tests
+  - test
+
+default:
+  tags:
+    - zpanel-ci
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -15,7 +22,7 @@ cache:
     - .cache/pip/
 
 python-checks:
-  stage: tests
+  stage: test
   tags:
     - zpanel-ci
   script:
