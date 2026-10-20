@@ -5,6 +5,7 @@ image: python:3.13-slim
 
 stages:
   - test
+  - sonar
 
 default:
   tags:
@@ -45,3 +46,31 @@ python-checks:
       junit: report.xml
     paths:
       - report.xml
+
+sonarqube-check:
+  stage: sonar
+
+  image:
+    name: sonarsource/sonar-scanner-cli:11
+    entrypoint: [""]
+  tags:
+    - zpanel-ci
+
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+
+  cache:
+    policy: pull-push
+    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+      - sonar-scanner/
+
+  script:
+  - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'cicd'
