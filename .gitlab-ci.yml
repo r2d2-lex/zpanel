@@ -26,6 +26,7 @@ python-checks:
     - zpanel-ci
   variables:
     PIP_INDEX_URL: "$NEXUS_PIP"
+    PIP_TRUSTED_HOST: "$PIP_TRUSTED_HOST"
   script:
     - python --version
     - python -m pip install --upgrade pip
