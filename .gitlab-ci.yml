@@ -29,15 +29,15 @@ python-checks:
     PIP_TRUSTED_HOST: "$PIP_TRUSTED_HOST"
   script:
     - python --version
-    - python -m pip install --upgrade pip --trusted-host linuxtv
+    - python -m pip install --upgrade pip --trusted-host $PIP_TRUSTED_HOST
     - |
       if [ -f requirements.txt ]; then
-        pip install -r requirements.txt --trusted-host linuxtv
-        pip install sqlalchemy[asyncio] --trusted-host linuxtv
+        pip install -r requirements.txt --trusted-host $PIP_TRUSTED_HOST
+        pip install sqlalchemy[asyncio] --trusted-host $PIP_TRUSTED_HOST
       fi
     - |
       if [ -f requirements-dev.txt ]; then
-        pip install -r requirements-dev.txt --trusted-host linuxtv
+        pip install -r requirements-dev.txt --trusted-host $PIP_TRUSTED_HOST
       fi
     - python -m compileall -q .
     - python -m pytest -q --junitxml=report.xml
