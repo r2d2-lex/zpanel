@@ -28,19 +28,16 @@ python-checks:
     PIP_INDEX_URL: "$NEXUS_PIP"
     PIP_TRUSTED_HOST: "$PIP_TRUSTED_HOST"
   script:
-    - ': "${NEXUS_PIP:?Добавьте NEXUS_PIP в GitLab CI/CD Variables}"'
-    - export PIP_INDEX_URL="$NEXUS_PIP"
-    - echo "Variables are '$PIP_INDEX_URL' and '$NEXUS_PIP'"
     - python --version
-    - python -m pip install --upgrade pip
+    - python -m pip install --upgrade pip --trusted-host linuxtv
     - |
       if [ -f requirements.txt ]; then
-        pip install -r requirements.txt
-        pip install sqlalchemy[asyncio]
+        pip install -r requirements.txt --trusted-host linuxtv
+        pip install sqlalchemy[asyncio] --trusted-host linuxtv
       fi
     - |
       if [ -f requirements-dev.txt ]; then
-        pip install -r requirements-dev.txt
+        pip install -r requirements-dev.txt --trusted-host linuxtv
       fi
     - python -m compileall -q .
     - python -m pytest -q --junitxml=report.xml
