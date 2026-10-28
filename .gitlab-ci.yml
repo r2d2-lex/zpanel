@@ -90,19 +90,7 @@ deploy-host:
     - chmod 600 ~/.ssh/known_hosts
   script:
     - |
-      /usr/bin/rsync -az --delete \
-        --exclude='.git/' \
-        --exclude='venv/' \
-        --exclude='app/config.py' \
-        --exclude='app/static/images/' \
-        ./ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" \
-        "cd '$DEPLOY_PATH' &&
-         python3 -m venv venv &&
-         venv/bin/pip install --upgrade pip &&
-         venv/bin/pip install -r requirements.txt gunicorn 'sqlalchemy[asyncio]' &&
-         sudo systemctl restart zpanel.service"
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" "id"
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
