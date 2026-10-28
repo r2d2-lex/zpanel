@@ -41,6 +41,10 @@ python-checks:
       fi
     - python -m compileall -q .
     - python -m pytest -q --junitxml=report.xml
+  rules:
+    - changes:
+        - app/**/*
+        - tests/**/*
   artifacts:
     when: always
     reports:
@@ -83,11 +87,13 @@ deploy-host:
   environment:
     name: production-host
   before_script:
-    - apk add --no-cache openssh-client rsync
+    - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
     - install -m 600 "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa
+    - cat ~/.ssh/id_rsa
     - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 600 ~/.ssh/known_hosts
+    - cat ~/.ssh/known_hosts
   script:
     - |
       ssh "$DEPLOY_USER@$DEPLOY_HOST" "id"
