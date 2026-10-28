@@ -85,7 +85,7 @@ deploy-host:
   before_script:
     - apk add --no-cache openssh-client rsync
     - mkdir -p ~/.ssh
-    - install -m 600 "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
+    - install -m 600 "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa
     - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 600 ~/.ssh/known_hosts
   script:
