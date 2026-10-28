@@ -90,7 +90,7 @@ deploy-host:
     - chmod 600 ~/.ssh/known_hosts
   script:
     - |
-      rsync -az --delete \
+      /usr/bin/rsync -az --delete \
         --exclude='.git/' \
         --exclude='venv/' \
         --exclude='app/config.py' \
@@ -105,4 +105,6 @@ deploy-host:
          sudo systemctl restart zpanel.service"
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
+      when: manual
+    - if: $CI_COMMIT_BRANCH == 'cicd'
       when: manual
