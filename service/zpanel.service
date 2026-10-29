@@ -3,6 +3,7 @@ Description=Gunicorn Daemon for ZPANEL Application
 After=network.target
 
 [Service]
+EnvironmentFile=/etc/zpanel/zpanel.env
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/zpanel/app

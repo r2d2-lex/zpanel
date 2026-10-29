@@ -56,10 +56,21 @@ pip install -r requirements.txt
 + Может понадобится: pip install sqlalchemy[asyncio]
 ```
 ### 7. Создайте конфиг и установите нужные переменные:
+Если нажен запуск локально, то:
 ```
 cd /%root%/zpanel/app
-cp config-example.py config.py
+cp env.example .env
 ```
+Или если хотите запускать через сервис, то:
+```shell
+mkdir /etc/zpanel/
+cp /%root%/zpanel/app/env.example /etc/zpanel/zpanel.env
+sudo chown root:root /etc/zpanel/zpanel.env
+sudo chmod 600 /etc/zpanel/zpanel.env
+sudo systemctl daemon-reload
+sudo systemctl restart zpanel.service
+```
+
 ### 7.1 Создайте каталог для изображений и не забудьте назначить правильные права
 ```
 cd /%root%/zpanel/app/static
