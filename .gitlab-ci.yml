@@ -40,7 +40,6 @@ vault_test:
 
   script:
     - printf 'VAULT_ADDR=%s\n' "$VAULT_ADDR"
-    - curl -i "$VAULT_ADDR/v1/sys/health"
     - export VAULT_TOKEN="$(vault write -field=token auth/jwt/login role="$VAULT_AUTH_ROLE" jwt="$VAULT_ID_TOKEN")"
     - export DEMO_PASSWORD="$(vault kv get -field=password gitlab-kv/zpanel/ci/api)"
     - test -n "$DEMO_PASSWORD"
