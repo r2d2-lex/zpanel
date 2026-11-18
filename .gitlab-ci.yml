@@ -7,6 +7,7 @@ stages:
   - test
   - sonar
   - deploy
+  - vault_test
 
 default:
   tags:
@@ -20,6 +21,28 @@ cache:
       - requirements-dev.txt
   paths:
     - .cache/pip/
+
+vault_test:
+  image:
+    name: hashicorp/vault:2.2.2
+    entrypoint: [""]
+
+  variables:
+    VAULT_ADDR: "http://linuxtv"
+    VAULT_AUTH_ROLE: "gitlab-zpanel-role"
+
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: "http://linuxtv"
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "cicd"'
+
+  script:
+    - export VAULT_TOKEN="$(vault write -field=token auth/jwt/login role="$VAULT_AUTH_ROLE" jwt="$VAULT_ID_TOKEN")"
+    - export DEMO_PASSWORD="$(vault kv get -field=password gitlab-kv/zpanel/ci/api)"
+    - test -n "$DEMO_PASSWORD"
+    - ./deploy.sh
 
 python-checks:
   stage: test
