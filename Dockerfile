@@ -4,11 +4,8 @@ WORKDIR /app
 
 COPY ./requirements.txt .
 
-RUN pip install --upgrade pip
-RUN apk add --no-cache libpq-dev
-RUN pip install gunicorn
-RUN pip install -r requirements.txt
-RUN pip install sqlalchemy[asyncio]
+RUN pip install --upgrade pip && apk add --no-cache libpq-dev && pip install gunicorn && pip install -r requirements.txt \
+ && pip install sqlalchemy[asyncio]
 
 COPY ./ .
 
