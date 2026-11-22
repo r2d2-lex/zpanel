@@ -48,6 +48,7 @@ build_docker_image:
       fi
 
       /kaniko/executor \
+        --insecure-registry "$CI_REGISTRY" \
         --context "$CI_PROJECT_DIR" \
         --dockerfile "$CI_PROJECT_DIR/Dockerfile" \
         --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
