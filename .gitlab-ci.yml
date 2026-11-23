@@ -15,6 +15,7 @@ default:
   tags:
     - zpanel-ci
 variables:
+  PIP_INDEX_URL: "$NEXUS_PIP"
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 cache:
   key:
@@ -86,8 +87,6 @@ python-checks:
   stage: test
   tags:
     - zpanel-ci
-  variables:
-    PIP_INDEX_URL: "$NEXUS_PIP"
   script:
     - python --version
     - python -m pip install --upgrade pip
