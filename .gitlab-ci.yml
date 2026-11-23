@@ -7,6 +7,7 @@ stages:
   - test
   - sonar
   - build_docker
+  - release_docker
   - deploy
   - vault_test
 
@@ -32,12 +33,6 @@ build_docker_image:
   script:
     - mkdir -p /kaniko/.docker
     - |
-      if [ -z "$CI_REGISTRY_IMAGE" ]; then
-        echo "CI_REGISTRY_IMAGE пуст: проверьте настройки Container Registry в GitLab."
-        exit 1
-      fi
-      printf 'Публикую образ в: %s\n' "$CI_REGISTRY_IMAGE"
-    - |
       AUTH="$(printf '%s' "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')"
       printf '{"auths":{"%s":{"auth":"%s"}}}\n' "$CI_REGISTRY" "$AUTH" > /kaniko/.docker/config.json
     - |
@@ -46,30 +41,40 @@ build_docker_image:
       else
         IMAGE_TAG="$CI_COMMIT_SHA"
       fi
-
       /kaniko/executor \
         --insecure-registry "$CI_REGISTRY" \
         --context "$CI_PROJECT_DIR" \
         --dockerfile "$CI_PROJECT_DIR/Dockerfile" \
         --destination "$CI_REGISTRY_IMAGE:$IMAGE_TAG"
 
+release_docker_tag:
+  stage: release_docker
+  variables:
+    GIT_STRATEGY: none
+  image:
+    name: gcr.io/go-containerregistry/crane:debug
+    entrypoint: [ "" ]
+  cache: [ ]
+  before_script:
+    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - crane tag $CI_REGISTRY_IMAGE/sausage-backend:$CI_COMMIT_SHA latest
+  needs:
+    - build_docker_image
+
 vault_test:
   when: manual
   image:
     name: hashicorp/vault:2.2.2
     entrypoint: [""]
-
   variables:
     VAULT_ADDR: "http://linuxtv:8200"
     VAULT_AUTH_ROLE: "gitlab-zpanel-role"
-
   id_tokens:
     VAULT_ID_TOKEN:
       aud: "http://linuxtv"
-
   rules:
     - if: '$CI_COMMIT_BRANCH == "cicd"'
-
   script:
     - printf 'VAULT_ADDR=%s\n' "$VAULT_ADDR"
     - export VAULT_TOKEN="$(vault write -field=token auth/jwt/login role="$VAULT_AUTH_ROLE" jwt="$VAULT_ID_TOKEN")"
